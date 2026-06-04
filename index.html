@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wendy — Baby Kit Adviser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#3170ed;
+    --blue-deep:#2257cf;
+    --navy:#1d2746;
+    --text:#3a4460;
+    --muted:#8b93a8;
+    --page:#f5f8fe;
+    --card:#ffffff;
+    --field:#f3f6fc;
+    --line:#e7edf6;
+    --ring-sky:#d8eafd;
+    --green:#28c07a;
+    --bezel:#15171d;
+    --head:"Poppins",system-ui,sans-serif;
+    --body:"DM Sans",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:var(--body);color:var(--text);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    min-height:100dvh;display:flex;align-items:center;justify-content:center;
+    padding:16px;
+    background:radial-gradient(120% 80% at 50% 0%, #d4e6fb 0%, #c4ddf7 100%);
+  }
+
+  /* ---------- phone ---------- */
+  .phone{
+    position:relative;aspect-ratio:390/844;
+    height:min(820px, calc(100dvh - 28px));
+    width:auto;max-width:calc(100vw - 28px);
+    background:var(--bezel);border-radius:54px;padding:11px;
+    box-shadow:0 0 0 2px #2b2e36, 0 38px 80px -28px rgba(20,30,60,.55);
+  }
+  .screen-shell{
+    position:relative;width:100%;height:100%;
+    border-radius:44px;overflow:hidden;background:var(--page);
+  }
+  .scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+  .scroll::-webkit-scrollbar{width:0;display:none}
+
+  .statusbar{
+    position:absolute;top:0;left:0;right:0;height:50px;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 30px 0;pointer-events:none;
+  }
+  .statusbar .time{font-family:var(--head);font-size:14px;font-weight:600;color:var(--navy)}
+  .statusbar .sys{display:flex;align-items:center;gap:6px;color:var(--navy)}
+  .island{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:98px;height:28px;background:#000;border-radius:16px;z-index:21}
+  .home-ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:124px;height:5px;border-radius:3px;background:rgba(29,39,70,.30);z-index:21;pointer-events:none}
+
+  /* ---------- router ---------- */
+  .app{width:100%}
+  .screen{display:none;width:100%}
+  .screen.active{display:block}
+  .wrap{padding:56px 22px 30px;display:flex;flex-direction:column;min-height:100%}
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .logo{display:flex;align-items:center;gap:9px}
+  .logo-mark{
+    width:32px;height:32px;border-radius:10px;flex:none;
+    background:linear-gradient(135deg,#4a86f7,#2f6bed);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 14px -4px rgba(47,107,237,.6);
+  }
+  .logo-mark svg{width:18px;height:18px}
+  .logo-name{font-family:var(--head);font-weight:600;font-size:17px;color:var(--navy);letter-spacing:-.01em}
+  .logo-name b{color:var(--blue);font-weight:600}
+  .help{
+    width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);
+  }
+  .help svg{width:16px;height:16px}
+  .header-signin{font-family:var(--head);font-weight:600;font-size:13px;color:var(--blue);background:#eaf1fd;border:none;border-radius:20px;padding:8px 15px;cursor:pointer;transition:background .18s}
+  .header-signin:hover{background:#dce8fc}
+
+  /* ---------- hero ---------- */
+  .hero-title{
+    font-family:var(--head);font-weight:700;
+    font-size:clamp(23px,6.6vw,27px);line-height:1.3;
+    color:var(--navy);letter-spacing:-.01em;white-space:nowrap;
+    margin-bottom:8px;
+  }
+  .hero-title .accent{color:var(--blue)}
+  .hero-sub{
+    font-size:14px;line-height:1.55;color:var(--muted);
+    max-width:33ch;margin-bottom:20px;
+  }
+
+  /* ---------- adviser ---------- */
+  .adviser{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .adviser-ava{position:relative;width:50px;height:50px;flex:none}
+  .adviser-ava .ring{
+    position:absolute;inset:0;border-radius:50%;
+    background:var(--ring-sky);padding:3px;
+  }
+  .adviser-ava svg{display:block;width:100%;height:100%;border-radius:50%}
+  .adviser-ava .status{
+    position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-radius:50%;
+    background:var(--green);border:2.5px solid var(--page);
+  }
+  .adviser-name{font-family:var(--head);font-weight:600;font-size:15px;color:var(--navy);line-height:1.1}
+  .adviser-role{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px}
+  .adviser-role .d{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+  /* ---------- card ---------- */
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:22px;padding:16px;
+    box-shadow:0 14px 34px -20px rgba(47,107,237,.30);
+  }
+  .segmented{display:flex;gap:4px;padding:4px;margin-bottom:13px;background:#eef3fb;border-radius:14px}
+  .seg{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+    padding:9px 0;border:none;border-radius:10px;cursor:pointer;
+    font-family:var(--head);font-size:13px;font-weight:500;color:var(--muted);background:transparent;
+    transition:all .2s ease;
+  }
+  .seg svg{width:15px;height:15px}
+  .seg.active{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(29,39,70,.10)}
+
+  .btn{
+    width:100%;font-family:var(--head);font-size:14px;font-weight:600;
+    padding:13px;border-radius:13px;cursor:pointer;border:none;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    transition:transform .14s ease,background .2s ease,box-shadow .2s ease;
+  }
+  .btn:active{transform:scale(.985)}
+  .btn-google{background:#fff;color:var(--navy);border:1px solid var(--line)}
+  .btn-google:hover{background:#f7f9fd}
+  .btn-google svg{width:17px;height:17px}
+  .btn-primary{
+    background:var(--blue);color:#fff;margin-top:4px;
+    box-shadow:0 12px 24px -10px rgba(47,107,237,.65);
+  }
+  .btn-primary:hover{background:var(--blue-deep)}
+  .btn-primary svg{width:16px;height:16px}
+
+  .field{position:relative;margin-bottom:9px}
+  .field input{
+    width:100%;font-family:var(--body);font-size:14px;color:var(--navy);
+    padding:12px 14px;border:1px solid var(--line);border-radius:13px;
+    background:var(--field);transition:border-color .2s,box-shadow .2s,background .2s;
+  }
+  .field input::placeholder{color:var(--muted)}
+  .field input:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(49,112,237,.12)}
+
+  .divider{display:flex;align-items:center;gap:12px;margin:12px 0;color:var(--muted);font-size:12px}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .text-link{display:block;width:100%;text-align:center;margin-top:13px;background:none;border:none;cursor:pointer;font-family:var(--head);font-size:13px;font-weight:500;color:var(--blue)}
+  .text-link:hover{color:var(--blue-deep)}
+
+  .trust{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:18px;font-size:11.5px;color:var(--muted)}
+  .trust .item{display:flex;align-items:center;gap:5px}
+  .trust .item svg{width:13px;height:13px;color:var(--blue)}
+  .trust .sep{width:3px;height:3px;border-radius:50%;background:var(--muted);opacity:.5}
+
+  /* ---------- entrance ---------- */
+  .reveal{opacity:0;transform:translateY(12px);animation:rise .6s cubic-bezier(.2,.65,.3,1) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .d1{animation-delay:.04s}.d2{animation-delay:.11s}.d3{animation-delay:.18s}
+  .d4{animation-delay:.26s}.d5{animation-delay:.36s}.d6{animation-delay:.48s}
+
+  /* ---------- chat (Step 2) ---------- */
+  #screen-chat{position:absolute;inset:0;flex-direction:column;background:var(--page)}
+  #screen-chat.active{display:flex}
+  .chat-header{
+    flex:none;display:flex;align-items:center;gap:11px;
+    padding:54px 14px 11px;background:#fff;border-bottom:1px solid var(--line);z-index:2;
+  }
+  .ch-back,.ch-voice{
+    width:38px;height:38px;border-radius:50%;flex:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:#fff;color:var(--navy);transition:background .18s;
+  }
+  .ch-back:hover{background:#f3f6fc}
+  .ch-voice{border:none;background:#eaf1fd;color:var(--blue)}
+  .ch-voice:hover{background:#dce8fc}
+  .ch-back svg,.ch-voice svg{width:18px;height:18px}
+  .ch-ava{position:relative;width:38px;height:38px;flex:none}
+  .ch-ava .ring{position:absolute;inset:0;border-radius:50%;background:var(--ring-sky);padding:2px}
+  .ch-ava svg{width:100%;height:100%;border-radius:50%;display:block}
+  .ch-ava .status{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff}
+  .ch-meta{flex:1;min-width:0}
+  .ch-name{font-family:var(--head);font-weight:600;font-size:15px;color:var(--navy);line-height:1.1}
+  .ch-status{font-size:11.5px;color:var(--green);margin-top:1px;display:flex;align-items:center;gap:5px}
+  .ch-status .d{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+  .thread{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:9px}
+  .thread::-webkit-scrollbar{width:0;display:none}
+  .msg{max-width:82%;font-size:14px;line-height:1.5;padding:11px 14px;border-radius:18px;animation:pop .28s ease both}
+  .msg.bot{align-self:flex-start;background:#fff;color:var(--navy);border-bottom-left-radius:7px;box-shadow:0 5px 16px -10px rgba(29,39,70,.4)}
+  .msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:7px}
+  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .typing{align-self:flex-start;background:#fff;border-radius:18px;border-bottom-left-radius:7px;padding:13px 15px;box-shadow:0 5px 16px -10px rgba(29,39,70,.4);display:flex;gap:5px;animation:pop .28s ease both}
+  .typing span{width:7px;height:7px;border-radius:50%;background:#c3ccdd;animation:blink 1.3s infinite}
+  .typing span:nth-child(2){animation-delay:.18s}
+  .typing span:nth-child(3){animation-delay:.36s}
+  @keyframes blink{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start;max-width:94%;margin-top:1px;animation:pop .3s ease both}
+  .chip{font-family:var(--head);font-size:13px;font-weight:500;color:var(--blue);background:#fff;border:1px solid #cfe0fb;border-radius:20px;padding:8px 14px;cursor:pointer;transition:all .16s}
+  .chip:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+  .composer{flex:none;display:flex;align-items:center;gap:9px;padding:10px 14px 20px;background:#fff;border-top:1px solid var(--line)}
+  .composer input{flex:1;font-family:var(--body);font-size:14px;color:var(--navy);padding:11px 15px;border:1px solid var(--line);border-radius:22px;background:var(--field)}
+  .composer input::placeholder{color:var(--muted)}
+  .composer input:focus{outline:none;border-color:var(--blue);background:#fff}
+  .composer .send{width:42px;height:42px;flex:none;border-radius:50%;border:none;background:var(--blue);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px -8px rgba(47,107,237,.6)}
+  .composer .send svg{width:18px;height:18px}
+
+  .rec-card{align-self:stretch;background:#fff;border:1px solid var(--line);border-radius:18px;border-bottom-left-radius:7px;box-shadow:0 8px 22px -12px rgba(29,39,70,.35);padding:13px;animation:pop .3s ease both}
+  .rec-top{display:flex;gap:11px;align-items:flex-start}
+  .rec-thumb{width:54px;height:54px;flex:none;border-radius:13px;background:linear-gradient(135deg,#eaf2fd,#d8e9fb);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+  .rec-thumb svg{width:28px;height:28px}
+  .rec-info{flex:1;min-width:0}
+  .rec-brand{font-size:11.5px;color:var(--muted);font-weight:500}
+  .rec-model{font-family:var(--head);font-weight:600;font-size:15px;color:var(--navy);line-height:1.2;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+  .rec-model:hover{color:var(--blue)}
+  .rec-model svg{width:15px;height:15px;color:var(--muted)}
+  .rec-model:hover svg{color:var(--blue)}
+  .rec-config{font-size:12px;color:var(--muted);margin-top:1px}
+  .rec-badge{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-family:var(--head);font-size:11px;font-weight:600;color:#1f8a5b;background:#e3f6ec;padding:4px 9px;border-radius:20px}
+  .rec-badge svg{width:11px;height:11px}
+  .rec-use{display:flex;align-items:center;gap:6px;margin-top:11px;font-size:12px;color:var(--text)}
+  .rec-use svg{width:14px;height:14px;color:var(--muted)}
+  .rec-note{font-size:12.5px;line-height:1.5;color:var(--text);margin-top:8px}
+  .rec-cost{display:flex;gap:9px;margin-top:11px}
+  .rec-cost > div{flex:1;border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+  .rec-cost .rent{background:#eaf2fd;border-color:#cfe0fb}
+  .rec-cost .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+  .rec-cost .big{font-family:var(--head);font-weight:600;font-size:15px;color:var(--navy);margin-top:2px}
+  .rec-cost .sm{font-size:11px;color:var(--muted);margin-top:1px}
+  .rec-actions{display:flex;gap:8px;margin-top:12px}
+  .rec-actions .btn{margin-top:0;font-size:13px;padding:11px}
+  .rec-rent{flex:1;background:var(--blue);color:#fff;box-shadow:0 10px 20px -10px rgba(47,107,237,.6)}
+  .rec-rent:hover{background:var(--blue-deep)}
+  .rec-buy{flex:1;background:#fff;color:var(--navy);border:1px solid var(--line)}
+  .rec-buy:hover{background:#f3f6fc}
+  .rec-save{width:44px;flex:none;background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .rec-add{width:100%;margin-top:8px;background:#fff;color:var(--blue);border:1px solid #cfe0fb}
+  .rec-add:hover{background:#f3f8ff}
+  .rec-add.added{background:#e3f6ec;border-color:#bfe8d2;color:#1f8a5b}
+  .rec-add svg{width:16px;height:16px}
+
+  .rec-badge.balanced,.pbadge.balanced{color:#9a6a1c;background:#fbeed6}
+  .rec-badge.buy,.pbadge.buy{color:#5f6b85;background:#eef1f7}
+
+  .signup-card{align-self:stretch;background:linear-gradient(135deg,#3170ed,#2150b3);color:#fff;border-radius:18px;border-bottom-left-radius:7px;padding:16px;box-shadow:0 16px 32px -16px rgba(47,107,237,.75);animation:pop .3s ease both}
+  .signup-card h4{font-family:var(--head);font-weight:700;font-size:16px;margin-bottom:5px}
+  .signup-card h4 em{font-style:italic;font-weight:700}
+  .signup-card p{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.85);margin-bottom:12px}
+  .signup-card ul{list-style:none;margin:0 0 14px;display:flex;flex-direction:column;gap:7px}
+  .signup-card li{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,.95)}
+  .signup-card li svg{width:14px;height:14px;flex:none;color:#bcd5ff}
+  .su-actions{display:flex;flex-direction:column}
+  .su-actions .btn{margin-top:0}
+  .su-create{width:100%;background:#fff;color:var(--blue);border:none}
+  .su-create:hover{background:#eef4ff}
+  .su-skip{width:100%;margin-top:9px;background:none;border:none;color:rgba(255,255,255,.82);font-weight:500}
+  .su-skip:hover{color:#fff}
+
+  /* ---------- sign-up page (Step 4) ---------- */
+  #screen-signup{background:var(--page)}
+  .signup-wrap{padding:52px 22px 30px;min-height:100%;display:flex;flex-direction:column}
+  .signup-wrap .ch-back{margin-bottom:14px}
+  .su-hero h1{font-family:var(--head);font-weight:700;font-size:clamp(21px,6.2vw,25px);line-height:1.25;color:var(--navy);margin-bottom:11px}
+  .su-hero h1 span{color:var(--blue)}
+  .su-note{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.45;color:var(--text);background:#eaf2fd;border:1px solid #cfe0fb;border-radius:13px;padding:11px 12px;margin-bottom:16px}
+  .su-note svg{width:16px;height:16px;color:var(--blue);flex:none;margin-top:1px}
+  #screen-signup.signin .su-only-create{display:none}
+  .su-terms{font-size:10.5px;line-height:1.5;color:var(--muted);text-align:center;margin-top:14px}
+  .signin-link{display:block;width:100%;text-align:center;margin-top:14px;background:none;border:none;cursor:pointer;font-family:var(--head);font-size:13px;font-weight:500;color:var(--muted)}
+  .signin-link b{color:var(--blue);font-weight:600}
+  .signin-link:hover b{color:var(--blue-deep)}
+
+  /* ---------- home (returning user) ---------- */
+  #screen-home{position:absolute;inset:0;flex-direction:column;background:var(--page)}
+  #screen-home.active{display:flex}
+  .home-head{flex:none;padding:54px 20px 14px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line)}
+  .home-hi{font-family:var(--head);font-weight:500;font-size:13px;color:var(--muted)}
+  .home-name{font-family:var(--head);font-weight:700;font-size:20px;color:var(--navy);line-height:1.15;margin-top:1px}
+  .home-ava{width:42px;height:42px;border-radius:50%;overflow:hidden;background:var(--ring-sky);flex:none}
+  .home-ava svg{width:100%;height:100%;display:block}
+  .home-scroll{flex:1;overflow-y:auto;padding:16px}
+  .home-scroll::-webkit-scrollbar{width:0;display:none}
+  .home-hero{display:flex;align-items:center;gap:13px;background:linear-gradient(135deg,#3170ed,#2150b3);color:#fff;border-radius:20px;padding:16px;cursor:pointer;box-shadow:0 16px 30px -16px rgba(47,107,237,.7);transition:transform .15s}
+  .home-hero:active{transform:scale(.99)}
+  .home-hero-ava{width:46px;height:46px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.18);flex:none}
+  .home-hero-ava svg{width:100%;height:100%;display:block}
+  .home-hero-txt{flex:1}
+  .home-hero-txt h3{font-family:var(--head);font-weight:600;font-size:16px}
+  .home-hero-txt p{font-size:12.5px;color:rgba(255,255,255,.85);margin-top:2px}
+  .home-hero .chev{width:20px;height:20px;color:rgba(255,255,255,.8);flex:none}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
+  .tile{text-align:left;background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;cursor:pointer;font-family:var(--body);transition:transform .15s,box-shadow .2s}
+  .tile:hover{box-shadow:0 10px 24px -16px rgba(29,39,70,.4)}
+  .tile:active{transform:scale(.99)}
+  .tile .ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  .tile .ic svg{width:20px;height:20px}
+  .tile h4{font-family:var(--head);font-weight:600;font-size:14px;color:var(--navy)}
+  .tile p{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .home-nav{flex:none;display:flex;justify-content:space-around;padding:9px 6px 20px;background:#fff;border-top:1px solid var(--line)}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--head);font-size:10px;font-weight:500;padding:4px 10px}
+  .nav-item svg{width:22px;height:22px}
+  .nav-item.active{color:var(--blue)}
+
+  /* status bar over dark screens */
+  .shell-dark .statusbar .time,.shell-dark .statusbar .sys{color:#fff}
+
+  /* ---------- mode select ---------- */
+  #screen-mode{background:var(--page)}
+  .mode-wrap{padding:54px 22px 30px;min-height:100%;display:flex;flex-direction:column}
+  .mode-wrap .ch-back{margin-bottom:6px}
+  .mode-ava{position:relative;width:84px;height:84px;margin:10px auto 0}
+  .mode-ava .ring{position:absolute;inset:0;border-radius:50%;background:var(--ring-sky);padding:4px}
+  .mode-ava svg{width:100%;height:100%;border-radius:50%;display:block}
+  .mode-ava .status{position:absolute;right:3px;bottom:3px;width:16px;height:16px;border-radius:50%;background:var(--green);border:3px solid var(--page)}
+  .mode-title{font-family:var(--head);font-weight:700;font-size:21px;color:var(--navy);text-align:center;margin-top:14px}
+  .mode-sub{font-size:13px;color:var(--muted);text-align:center;margin:6px auto 24px;max-width:30ch;line-height:1.5}
+  .mode-opts{display:flex;flex-direction:column;gap:12px}
+  .mode-card{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;cursor:pointer;text-align:left;font-family:var(--body);transition:box-shadow .2s,transform .15s}
+  .mode-card:hover{box-shadow:0 12px 28px -18px rgba(29,39,70,.5)}
+  .mode-card:active{transform:scale(.99)}
+  .mode-ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:none}
+  .mode-ic svg{width:23px;height:23px}
+  .mode-card h4{font-family:var(--head);font-weight:600;font-size:16px;color:var(--navy)}
+  .mode-card p{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .mode-card .go{margin-left:auto;color:var(--muted);width:20px;height:20px;flex:none}
+
+  /* ---------- voice call ---------- */
+  #screen-voice{position:absolute;inset:0;flex-direction:column;color:#fff;background:radial-gradient(120% 90% at 50% 0%, #2a55a8 0%, #1b2c5e 55%, #101839 100%)}
+  #screen-voice.active{display:flex}
+  .voice-wrap{flex:1;display:flex;flex-direction:column;padding:62px 26px 26px}
+  .voice-status{flex:none;text-align:center;font-family:var(--head);font-size:13px;font-weight:500;color:rgba(255,255,255,.72);letter-spacing:.02em}
+  .voice-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+  .voice-ava{position:relative;width:124px;height:124px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.14)}
+  .voice-ava svg{width:100%;height:100%;display:block}
+  .voice-ava::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px solid rgba(255,255,255,.4);opacity:0}
+  .voice-ava.speaking::after{animation:vring 1.5s ease-out infinite}
+  @keyframes vring{0%{transform:scale(.95);opacity:.7}100%{transform:scale(1.3);opacity:0}}
+  .voice-name{font-family:var(--head);font-weight:600;font-size:21px}
+  .voice-line{font-family:var(--head);font-weight:500;font-size:17px;line-height:1.45;text-align:center;color:#fff;min-height:50px;max-width:26ch;transition:opacity .2s}
+  .voice-chips{display:flex;flex-direction:column;gap:9px;width:100%;max-width:290px}
+  .vchip{font-family:var(--head);font-size:14px;font-weight:500;color:#fff;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.26);border-radius:24px;padding:12px;cursor:pointer;transition:background .16s}
+  .vchip:hover{background:rgba(255,255,255,.26)}
+  .voice-controls{flex:none;display:flex;align-items:center;justify-content:center;gap:20px;margin-top:18px}
+  .vctrl{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.15);color:#fff;transition:background .16s}
+  .vctrl:hover{background:rgba(255,255,255,.25)}
+  .vctrl svg{width:23px;height:23px}
+  .vctrl.muted{background:#fff;color:var(--navy)}
+  .vctrl.end{background:#e5484d}
+  .vctrl.end:hover{background:#d23b40}
+  .vctrl.end svg{width:26px;height:26px}
+  .voice-switch{flex:none;text-align:center;margin-top:16px}
+  .voice-switch button{background:none;border:none;color:rgba(255,255,255,.82);font-family:var(--head);font-size:13px;font-weight:500;cursor:pointer}
+  .voice-switch button:hover{color:#fff}
+
+  /* ---------- chat history ---------- */
+  #screen-history{background:var(--page)}
+  .hist-list{padding:10px 14px 28px;display:flex;flex-direction:column;gap:8px}
+  .hist-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;cursor:pointer;text-align:left;font-family:var(--body);transition:box-shadow .2s,transform .15s}
+  .hist-item:hover{box-shadow:0 10px 22px -15px rgba(29,39,70,.45)}
+  .hist-item:active{transform:scale(.99)}
+  .hist-ic{width:38px;height:38px;border-radius:11px;background:var(--ring-sky);color:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
+  .hist-ic svg{width:18px;height:18px}
+  .hist-meta{flex:1;min-width:0}
+  .hist-title{font-family:var(--head);font-weight:600;font-size:14px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hist-time{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .hist-item .go{width:18px;height:18px;color:var(--muted);flex:none}
+  .hist-empty{text-align:center;color:var(--muted);font-size:13.5px;line-height:1.6;padding:48px 20px}
+
+  /* ---------- product profile ---------- */
+  #screen-product{position:absolute;inset:0;flex-direction:column;background:var(--page)}
+  #screen-product.active{display:flex}
+  .prod-head{flex:none;display:flex;align-items:center;gap:11px;padding:54px 14px 11px;background:#fff;border-bottom:1px solid var(--line);z-index:2}
+  .prod-head .ttl{flex:1;font-family:var(--head);font-weight:600;font-size:15px;color:var(--navy);text-align:center;margin-right:38px}
+  .prod-scroll{flex:1;overflow-y:auto}
+  .prod-scroll::-webkit-scrollbar{width:0;display:none}
+  .prod-hero{position:relative;margin:14px;border-radius:20px;height:190px;background:linear-gradient(135deg,#eaf2fd,#d6e6fa);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+  .prod-hero svg{width:86px;height:86px;opacity:.85}
+  .prod-hero .pbadge{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:5px;font-family:var(--head);font-size:11px;font-weight:600;color:#1f8a5b;background:#e3f6ec;padding:5px 10px;border-radius:20px}
+  .prod-hero .pbadge svg{width:11px;height:11px;opacity:1}
+  .prod-info{padding:0 16px}
+  .prod-brand{color:var(--muted);font-size:13px;font-weight:500}
+  .prod-model{font-family:var(--head);font-weight:700;font-size:22px;color:var(--navy);line-height:1.2;margin-top:1px}
+  .prod-config{color:var(--muted);font-size:13px;margin-top:3px}
+  .prod-cost{display:flex;gap:10px;margin:15px 16px 4px}
+  .prod-cost > div{flex:1;border:1px solid var(--line);border-radius:14px;padding:11px 13px}
+  .prod-cost .rent{background:#eaf2fd;border-color:#cfe0fb}
+  .prod-cost .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+  .prod-cost .big{font-family:var(--head);font-weight:700;font-size:18px;color:var(--navy);margin-top:3px}
+  .prod-cost .sm{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .buy-link{display:inline-flex;align-items:center;gap:4px;margin:6px 16px 0;font-family:var(--head);font-size:12.5px;font-weight:500;color:var(--blue);cursor:pointer;background:none;border:none}
+  .buy-link svg{width:13px;height:13px}
+  .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:16px}
+  .spec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 12px;display:flex;gap:9px;align-items:center}
+  .spec svg{width:19px;height:19px;color:var(--blue);flex:none}
+  .spec .l{font-size:10.5px;color:var(--muted)}
+  .spec .v{font-family:var(--head);font-weight:600;font-size:12.5px;color:var(--navy);line-height:1.2}
+  .prod-section{padding:0 16px;margin-top:4px}
+  .prod-section h3{font-family:var(--head);font-weight:600;font-size:14px;color:var(--navy);margin:14px 0 7px}
+  .prod-section p{font-size:13.5px;line-height:1.6;color:var(--text)}
+  .prod-cta{flex:none;display:flex;gap:9px;padding:12px 16px 20px;background:#fff;border-top:1px solid var(--line)}
+  .prod-cta .btn{margin-top:0}
+  .prod-cta .rent{flex:1;background:var(--blue);color:#fff;box-shadow:0 10px 20px -10px rgba(47,107,237,.6)}
+  .prod-cta .rent:hover{background:var(--blue-deep)}
+  .prod-cta .add{flex:none;padding:0 16px;background:#fff;color:var(--blue);border:1px solid #cfe0fb}
+  .prod-cta .add.added{background:#e3f6ec;border-color:#bfe8d2;color:#1f8a5b}
+  .prod-cta .add svg{width:17px;height:17px}
+
+  /* ---------- placeholder next ---------- */
+  #screen-next .wrap{align-items:center;justify-content:center;text-align:center}
+  #screen-next h2{font-family:var(--head);font-weight:700;font-size:24px;color:var(--navy);margin-bottom:10px}
+  #screen-next p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:22px;max-width:30ch}
+  #screen-next .back{font-family:var(--head);font-size:14px;font-weight:500;color:var(--blue);background:none;border:none;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen-shell">
+    <div class="island"></div>
+    <div class="statusbar">
+      <span class="time">9:41</span>
+      <span class="sys">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2C5.6 2 3 3.1 1 5l1.5 1.5C4 5 6.1 4 8.5 4S13 5 14.5 6.5L16 5C14 3.1 11.4 2 8.5 2z"/><path d="M8.5 6c-1.6 0-3 .6-4.1 1.6L8.5 11.7l4.1-4.1C11.5 6.6 10.1 6 8.5 6z"/></svg>
+        <svg width="25" height="13" viewBox="0 0 25 13" fill="none"><rect x="1" y="1" width="20" height="11" rx="3.2" stroke="currentColor" stroke-opacity=".4"/><rect x="3" y="3" width="15" height="7" rx="1.6" fill="currentColor"/><path d="M23 4.3c.9.3.9 4.1 0 4.4z" fill="currentColor" opacity=".4"/></svg>
+      </span>
+    </div>
+    <div class="home-ind"></div>
+
+    <div class="scroll">
+      <div class="app">
+
+        <!-- ================= STEP 1 — LANDING ================= -->
+        <section class="screen active" id="screen-landing">
+          <div class="wrap">
+
+            <header class="topbar reveal d1">
+              <div class="logo">
+                <span class="logo-mark">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </span>
+                <span class="logo-name">Wendy</span>
+              </div>
+              <button class="header-signin" onclick="goToSignin()">Sign in</button>
+            </header>
+
+            <h1 class="hero-title reveal d2">The perfect <span class="accent">plan</span></h1>
+            <p class="hero-sub reveal d3">Honest, independent advice on what's worth renting, buying, or skipping — built around your family.</p>
+
+            <div class="adviser reveal d4">
+              <div class="adviser-ava">
+                <div class="ring">
+                  <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="Wendy">
+                    <defs><clipPath id="c"><circle cx="25" cy="25" r="25"/></clipPath></defs>
+                    <g clip-path="url(#c)">
+                      <rect width="50" height="50" fill="#eaf2fd"/>
+                      <path d="M25 27c5 0 8.5-4.1 8.5-9.4S30 8 25 8s-8.5 4.1-8.5 9.4S20 27 25 27z" fill="#7e93bd"/>
+                      <path d="M10 50c0-8.8 6.7-15 15-15s15 6.2 15 15H10z" fill="#7e93bd"/>
+                    </g>
+                  </svg>
+                </div>
+                <span class="status"></span>
+              </div>
+              <div class="adviser-meta">
+                <div class="adviser-name">Wendy</div>
+                <div class="adviser-role"><span class="d"></span>Online · independent adviser</div>
+              </div>
+            </div>
+
+            <div class="card reveal d5">
+              <div class="segmented" role="tablist" aria-label="How to talk to Wendy">
+                <button class="seg active" data-mode="message" role="tab" onclick="setMode(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                  Message
+                </button>
+                <button class="seg" data-mode="voice" role="tab" onclick="setMode(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                  Voice call
+                </button>
+              </div>
+
+              <button class="btn btn-google" onclick="startWendy(true,'google')">
+                <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+                Continue with Google
+              </button>
+
+              <div class="divider">or</div>
+
+              <div class="field"><input type="email" inputmode="email" placeholder="Email address" autocomplete="email"></div>
+              <div class="field"><input type="password" placeholder="Create a password" autocomplete="new-password"></div>
+
+              <button class="btn btn-primary" onclick="startWendy(true)">
+                Create account &amp; start
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+
+              <button class="text-link" onclick="startWendy(false)">Continue without account</button>
+            </div>
+
+            <div class="trust reveal d6">
+              <span class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>No commitment</span>
+              <span class="sep"></span>
+              <span class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>~5 minutes</span>
+              <span class="sep"></span>
+              <span class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6l-8-3z"/></svg>Impartial</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================= STEP 2 — CHAT ================= -->
+        <section class="screen" id="screen-chat">
+          <header class="chat-header">
+            <button class="ch-back" onclick="chatBack()" aria-label="Back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="ch-ava">
+              <div class="ring">
+                <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="Wendy"><defs><clipPath id="c2"><circle cx="25" cy="25" r="25"/></clipPath></defs><g clip-path="url(#c2)"><rect width="50" height="50" fill="#eaf2fd"/><path d="M25 27c5 0 8.5-4.1 8.5-9.4S30 8 25 8s-8.5 4.1-8.5 9.4S20 27 25 27z" fill="#7e93bd"/><path d="M10 50c0-8.8 6.7-15 15-15s15 6.2 15 15H10z" fill="#7e93bd"/></g></svg>
+              </div>
+              <span class="status"></span>
+            </div>
+            <div class="ch-meta">
+              <div class="ch-name">Wendy</div>
+              <div class="ch-status"><span class="d"></span>Online</div>
+            </div>
+            <button class="ch-back" onclick="openHistory()" aria-label="Chat history">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 13.5"/></svg>
+            </button>
+            <button class="ch-back" onclick="newChatBtn()" aria-label="New chat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </header>
+
+          <div class="thread" id="thread"></div>
+
+          <div class="composer">
+            <input id="chatInput" type="text" placeholder="Message Wendy…" autocomplete="off" onkeydown="if(event.key==='Enter')sendTyped()">
+            <button class="send" onclick="sendTyped()" aria-label="Send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <!-- ================= PRODUCT PROFILE ================= -->
+        <section class="screen" id="screen-product">
+          <header class="prod-head">
+            <button class="ch-back" onclick="prodBack()" aria-label="Back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="ttl">Product</div>
+          </header>
+
+          <div class="prod-scroll">
+            <div class="prod-hero">
+              <span class="pbadge rent" id="p-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="p-badge-text">Rent recommended</span></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2 9h11"/><path d="M5 13a7 7 0 0 1 13 0"/><circle cx="8" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg>
+            </div>
+
+            <div class="prod-info">
+              <div class="prod-brand" id="p-brand">Bugaboo</div>
+              <div class="prod-model" id="p-model">Butterfly</div>
+              <div class="prod-config" id="p-config">Compact, one-second fold · suitable from birth</div>
+            </div>
+
+            <div class="prod-cost">
+              <div class="rent"><div class="lbl">Rent</div><div class="big" id="p-rent-total">£350 total</div><div class="sm" id="p-rent-sm">£25 / month · avg 14 months</div></div>
+              <div class="buy"><div class="lbl">Buy new</div><div class="big" id="p-buy">£499</div><div class="sm">RRP, one-off</div></div>
+            </div>
+            <button class="buy-link" onclick="openBuy()">Buy new at Natural Baby Shower
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </button>
+
+            <div class="spec-grid">
+              <div class="spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><path d="M5 21h14l-2-11H7L5 21z"/></svg><div><div class="l">Weight</div><div class="v" id="p-weight">6.2 kg</div></div></div>
+              <div class="spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16"/></svg><div><div class="l">Fold</div><div class="v" id="p-fold">One-second</div></div></div>
+              <div class="spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg><div><div class="l">Suitable</div><div class="v" id="p-suitable">Birth–22 kg</div></div></div>
+              <div class="spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg><div><div class="l">Avg use</div><div class="v" id="p-use">~14 months</div></div></div>
+            </div>
+
+            <div class="prod-section">
+              <h3 id="p-why-h">Why Wendy recommends this</h3>
+              <p id="p-why">Most families use a compact pram like the Butterfly for around 14 months before moving to a buggy or going hands-free. Over that window, renting at £25 a month works out cheaper than buying new — and you skip the depreciation and the hassle of reselling.</p>
+              <h3>When you'll need it</h3>
+              <p id="p-when">From birth through roughly 14 months. After that, most families in a city move to a lightweight stroller or carrier.</p>
+            </div>
+          </div>
+
+          <div class="prod-cta">
+            <button class="btn rent" onclick="openRent()">Rent on Baboodle</button>
+            <button class="btn add" onclick="toggleKit(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add to kit list
+            </button>
+          </div>
+        </section>
+
+        <!-- ================= STEP 4 — SIGN UP ================= -->
+        <section class="screen" id="screen-signup">
+          <div class="signup-wrap">
+            <button class="ch-back" onclick="goTo('screen-chat')" aria-label="Back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+
+            <div class="su-hero">
+              <h1>One step. <span>Your kit list waits.</span></h1>
+            </div>
+            <div class="su-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              Your chat with Wendy is saved — you'll pick up exactly where you left off.
+            </div>
+
+            <div class="card">
+              <div class="segmented" role="tablist" aria-label="Account">
+                <button class="seg active" id="tab-create" onclick="setAuthTab('create')">Create account</button>
+                <button class="seg" id="tab-signin" onclick="setAuthTab('signin')">Sign in</button>
+              </div>
+
+              <button class="btn btn-google" onclick="completeSignup()">
+                <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+                Continue with Google
+              </button>
+              <div class="divider">or</div>
+
+              <div class="field su-only-create"><input id="suName" type="text" placeholder="Your name" autocomplete="name"></div>
+              <div class="field"><input id="suEmail" type="email" inputmode="email" placeholder="Email address" autocomplete="email"></div>
+              <div class="field"><input id="suPass" type="password" placeholder="Password" autocomplete="new-password"></div>
+              <div class="field su-only-create"><input id="suDue" type="text" placeholder="Due date (optional)"></div>
+
+              <button class="btn btn-primary" id="suSubmit" onclick="completeSignup()">Create account &amp; continue</button>
+            </div>
+
+            <p class="su-terms">By continuing you agree to our Terms &amp; Privacy Policy.</p>
+          </div>
+        </section>
+
+        <!-- ================= HOME (returning / signed-in) ================= -->
+        <section class="screen" id="screen-home">
+          <header class="home-head">
+            <div>
+              <div class="home-hi">Welcome back,</div>
+              <div class="home-name" id="home-name">Sarah</div>
+            </div>
+            <div class="home-ava">
+              <svg viewBox="0 0 44 44" fill="#7e93bd" xmlns="http://www.w3.org/2000/svg"><path d="M22 23c4.4 0 8-3.6 8-8s-3.6-8-8-8-8 3.6-8 8 3.6 8 8 8z"/><path d="M8 44c0-7.7 6.3-13 14-13s14 5.3 14 13H8z"/></svg>
+            </div>
+          </header>
+
+          <div class="home-scroll">
+            <div class="home-hero" onclick="goTo('screen-mode')">
+              <div class="home-hero-ava">
+                <svg viewBox="0 0 46 46" fill="rgba(255,255,255,.92)" xmlns="http://www.w3.org/2000/svg"><path d="M23 24c4.6 0 8.4-3.8 8.4-8.4S27.6 7 23 7s-8.4 3.8-8.4 8.4S18.4 24 23 24z"/><path d="M8 46c0-8 6.7-14 15-14s15 6 15 14H8z"/></svg>
+              </div>
+              <div class="home-hero-txt">
+                <h3>Chat with Wendy</h3>
+                <p>Ask anything, or update your plan</p>
+              </div>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+
+            <div class="dash-card" onclick="openKit()">
+              <div class="dash-row"><div class="dash-h">Your kit list</div><div class="dash-prog" id="dash-kit-count">0 / 14</div></div>
+              <div class="cl-bar"><i id="dash-kit-bar" style="width:0%"></i></div>
+              <div class="dash-break" id="dash-kit-break">Renting 0 · Buying 0 · Still choosing 14</div>
+            </div>
+            <button class="dash-next" id="dash-next" onclick="dashNext()"><span>Up next: <b id="dash-next-cat">—</b></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <div class="dash-tip"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg></div><p>Wendy only suggests renting when it genuinely saves you money — tap any item to see her honest rent-or-buy reasoning.</p></div>
+          </div>
+
+          <nav class="home-nav">
+            <button class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home
+            </button>
+            <button class="nav-item" onclick="openKit()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4.5 6h.01"/><path d="M4.5 12h.01"/><path d="M4.5 18h.01"/></svg>Kit list
+            </button>
+            <button class="nav-item" onclick="openChecklists()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Checklists
+            </button>
+            <button class="nav-item" onclick="openProfile()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg>Profile
+            </button>
+          </nav>
+        </section>
+
+        <!-- ================= MODE SELECT ================= -->
+        <section class="screen" id="screen-mode">
+          <div class="mode-wrap">
+            <button class="ch-back" onclick="goTo('screen-home')" aria-label="Back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+
+            <div class="mode-ava">
+              <div class="ring">
+                <svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="cm"><circle cx="42" cy="42" r="42"/></clipPath></defs><g clip-path="url(#cm)"><rect width="84" height="84" fill="#eaf2fd"/><path d="M42 46c8 0 14-6.6 14-15S50 16 42 16s-14 6.6-14 15 6 15 14 15z" fill="#7e93bd"/><path d="M16 84c0-14.4 11.6-25 26-25s26 10.6 26 25H16z" fill="#7e93bd"/></g></svg>
+              </div>
+              <span class="status"></span>
+            </div>
+            <div class="mode-title">How would you like to talk?</div>
+            <div class="mode-sub">Wendy's the same either way — pick whatever feels easiest.</div>
+
+            <div class="mode-opts">
+              <button class="mode-card" onclick="startText()">
+                <div class="mode-ic" style="background:var(--ring-sky);color:var(--blue)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </div>
+                <div><h4>Message</h4><p>Type at your own pace</p></div>
+                <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button class="mode-card" onclick="startVoice()">
+                <div class="mode-ic" style="background:#e3f6ec;color:#1f8a5b">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.7 2z"/></svg>
+                </div>
+                <div><h4>Voice call</h4><p>Talk to Wendy like a phone call</p></div>
+                <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VOICE CALL (Step 2b) ================= -->
+        <section class="screen" id="screen-voice">
+          <div class="voice-wrap">
+            <div class="voice-status" id="voice-status">Connecting…</div>
+            <div class="voice-center">
+              <div class="voice-ava" id="voice-ava">
+                <svg viewBox="0 0 124 124" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="cv"><circle cx="62" cy="62" r="62"/></clipPath></defs><g clip-path="url(#cv)"><rect width="124" height="124" fill="rgba(255,255,255,.10)"/><path d="M62 66c12 0 21-9.8 21-22S74 22 62 22 41 31.8 41 44s9 22 21 22z" fill="rgba(255,255,255,.85)"/><path d="M24 124c0-21 17-38 38-38s38 17 38 38H24z" fill="rgba(255,255,255,.85)"/></g></svg>
+              </div>
+              <div class="voice-name">Wendy</div>
+              <div class="voice-line" id="voice-line"></div>
+              <div class="voice-chips" id="voice-chips"></div>
+            </div>
+            <div class="voice-controls">
+              <button class="vctrl" id="voice-mute" onclick="vMute(this)" aria-label="Mute">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+              </button>
+              <button class="vctrl end" onclick="endCall()" aria-label="End call">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 9c-1.6 0-3.15.25-4.6.7v3.1c0 .4-.23.74-.57.89-1 .45-1.9 1.06-2.7 1.79a1 1 0 0 1-1.39-.03l-2.1-2.1a1 1 0 0 1 .03-1.44C3.9 8.99 7.74 7.5 12 7.5s8.1 1.49 11.33 4.4a1 1 0 0 1 .03 1.44l-2.1 2.1a1 1 0 0 1-1.39.03 11.6 11.6 0 0 0-2.7-1.79.99.99 0 0 1-.57-.89v-3.1A15.4 15.4 0 0 0 12 9z"/></svg>
+              </button>
+              <button class="vctrl" onclick="toggleSpeaker(this)" aria-label="Wendy's voice">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>
+              </button>
+            </div>
+            <div class="voice-switch"><button onclick="switchToText()">Switch to text chat</button></div>
+          </div>
+        </section>
+
+        <!-- ================= CHAT HISTORY ================= -->
+        <section class="screen" id="screen-history">
+          <header class="chat-header">
+            <button class="ch-back" onclick="goTo('screen-chat')" aria-label="Back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="ch-meta"><div class="ch-name">Your chats</div></div>
+            <button class="ch-back" onclick="newChatBtn()" aria-label="New chat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </header>
+          <div class="hist-list" id="hist-list"></div>
+        </section>
+
+        <!-- ============ TEMPORARY PLACEHOLDER ============ -->
+        <section class="screen" id="screen-next">
+          <div class="wrap">
+            <h2 id="next-title">Coming next</h2>
+            <p id="next-copy">We'll build this screen next.</p>
+            <button class="back" id="next-back" onclick="goTo('screen-home')">← Back</button>
+          </div>
+        </section>
+
+        <!-- ================= KIT LIST ================= -->
+        <section class="screen" id="screen-kit">
+          <header class="home-head">
+            <div><div class="home-hi">Your</div><div class="home-name">Kit list</div></div>
+            <div class="kit-prog" id="kit-progress">0 chosen</div>
+          </header>
+          <div class="home-scroll">
+            <p class="kit-intro">A card for every category. Tap one to see your choice, chat to Wendy, or compare her suggestions.</p>
+            <div class="kit-grid" id="kit-grid"></div>
+          </div>
+          <nav class="home-nav" id="nav-kit"></nav>
+        </section>
+
+        <!-- ================= CATEGORY ================= -->
+        <section class="screen" id="screen-category">
+          <header class="xhead">
+            <button class="xback" onclick="openKit()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <div class="xttl" id="cat-title">Category</div>
+            <div style="width:34px"></div>
+          </header>
+          <div class="cat-scroll">
+            <div id="cat-selection"></div>
+            <div class="cat-actions">
+              <button class="cat-act msg" onclick="chatAboutCategory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Message Wendy</button>
+              <button class="cat-act call" onclick="callAboutCategory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Call Wendy</button>
+            </div>
+            <div class="cat-opts-lbl">Options Wendy suggests</div>
+            <div id="cat-options"></div>
+          </div>
+          <div class="cmp-bar" id="cmp-bar"><span id="cmp-count">0 selected</span><button id="cmp-go" onclick="openCompare()" disabled>Compare</button></div>
+        </section>
+
+        <!-- ================= COMPARE ================= -->
+        <section class="screen" id="screen-compare">
+          <header class="xhead">
+            <button class="xback" onclick="goTo('screen-category')" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <div class="xttl" id="cmp-title">Compare</div>
+            <div style="width:34px"></div>
+          </header>
+          <div class="cmp-scroll"><div id="cmp-wrap"></div></div>
+        </section>
+
+        <!-- ================= CHECKLISTS ================= -->
+        <section class="screen" id="screen-checklists">
+          <header class="home-head"><div><div class="home-hi">Your</div><div class="home-name">Checklists</div></div></header>
+          <div class="home-scroll">
+            <div id="cl-list"></div>
+            <button class="btn cl-new" onclick="addChecklist()">+ New checklist</button>
+          </div>
+          <nav class="home-nav" id="nav-checklists"></nav>
+        </section>
+
+        <!-- ================= CHECKLIST DETAIL ================= -->
+        <section class="screen" id="screen-checklist">
+          <header class="xhead">
+            <button class="xback" onclick="openChecklists()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <div class="xttl" id="cl-title">Checklist</div>
+            <button class="cl-del" id="cl-del" onclick="deleteChecklist()" aria-label="Delete">✕</button>
+          </header>
+          <div class="cl-scroll">
+            <div id="cl-items"></div>
+            <div class="cl-add"><input id="cl-add-input" placeholder="Add an item…" onkeydown="if(event.key==='Enter')addItem()" /><button onclick="addItem()">Add</button></div>
+          </div>
+        </section>
+
+        <!-- ================= PRODUCT DETAIL ================= -->
+        <section class="screen" id="screen-optdetail">
+          <header class="xhead">
+            <button class="xback" onclick="goTo('screen-category')" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <div class="xttl" id="od-title">Product</div>
+            <div style="width:34px"></div>
+          </header>
+          <div class="od-scroll">
+            <div class="od-verdict">
+              <span class="kc-tag" id="od-tag">—</span>
+              <p class="od-reason" id="od-reason"></p>
+            </div>
+            <div class="cat-opts-lbl">Choose how you'd like it</div>
+            <div class="od-choice">
+              <button class="od-opt" id="od-rent" onclick="odChoose('rent')"><div class="ol">Rent</div><div class="ov" id="od-rent-v">—</div><div class="os">monthly · cancel anytime</div></button>
+              <button class="od-opt" id="od-buy" onclick="odChoose('buy')"><div class="ol">Buy</div><div class="ov" id="od-buy-v">—</div><div class="os">one-off · yours to keep</div></button>
+            </div>
+            <p class="od-blurb" id="od-blurb"></p>
+            <div class="cat-opts-lbl">Details</div>
+            <div class="od-specs" id="od-specs"></div>
+            <button class="od-add" id="od-add" onclick="odAdd()">Add to kit list</button>
+          </div>
+        </section>
+
+        <!-- ================= PROFILE ================= -->
+        <section class="screen" id="screen-profile">
+          <div class="pf-top">
+            <div class="pf-ava"><svg viewBox="0 0 44 44" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M22 23c4.4 0 8-3.6 8-8s-3.6-8-8-8-8 3.6-8 8 3.6 8 8 8z"/><path d="M8 44c0-7.7 6.3-13 14-13s14 5.3 14 13H8z"/></svg></div>
+            <div class="pf-name" id="pf-name">there</div>
+            <div class="pf-email" id="pf-email"></div>
+          </div>
+          <div class="home-scroll">
+            <div class="pf-sec">Your details</div>
+            <div class="pf-card">
+              <button class="pf-row" onclick="editProfileName()">Name <span class="v"><span id="pf-d-name">—</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></button>
+              <button class="pf-row" onclick="editProfileDue()">Due date <span class="v"><span id="pf-d-due">Not set</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></button>
+              <div class="pf-row" style="cursor:default">Email <span class="v" id="pf-d-email">—</span></div>
+            </div>
+            <div class="pf-sec">Your plan</div>
+            <div class="pf-card">
+              <button class="pf-row" onclick="openKit()">Kit list <span class="v"><span id="pf-kit">0 / 14</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></button>
+              <button class="pf-row" onclick="openChecklists()">Checklists <span class="v"><span id="pf-cl">0 / 0 done</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></button>
+            </div>
+            <div class="pf-sec">Preferences</div>
+            <div class="pf-card">
+              <div class="pf-row" style="cursor:default">Wendy speaks aloud on calls <button class="pf-toggle on" id="pf-tts" onclick="toggleTtsPref(this)" aria-label="Toggle voice"></button></div>
+              <div class="pf-row" style="cursor:default">Email me reminders <button class="pf-toggle on" id="pf-em" onclick="this.classList.toggle('on')" aria-label="Toggle reminders"></button></div>
+            </div>
+            <div class="pf-sec">Support</div>
+            <div class="pf-card">
+              <button class="pf-row" onclick="comingSoon('Help','Help &amp; FAQs will live here.')">Help &amp; FAQs <span class="v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></button>
+              <button class="pf-row" onclick="comingSoon('Privacy','Privacy &amp; data settings will live here.')">Privacy &amp; data <span class="v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></button>
+            </div>
+            <button class="pf-signout" onclick="signOut()">Sign out</button>
+          </div>
+          <nav class="home-nav" id="nav-profile"></nav>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+#screen-kit .home-scroll,#screen-checklists .home-scroll{padding-bottom:90px}
+.kit-prog{font:600 12px/1 'DM Sans',sans-serif;color:var(--blue,#3170ed);background:var(--ring-sky,#e7f0ff);padding:7px 11px;border-radius:20px}
+.kit-intro{font:400 13px/1.5 'DM Sans',sans-serif;color:var(--muted,#8b93a8);margin:2px 4px 14px}
+.kit-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.kit-card{text-align:left;background:#fff;border:1px solid #eef2fb;border-radius:18px;padding:14px 13px;cursor:pointer;box-shadow:0 6px 16px rgba(49,112,237,.06);display:flex;flex-direction:column;gap:6px;min-height:94px;position:relative;font-family:inherit}
+.kit-card.chosen{border-color:#cfe0ff}
+.kc-name{font:600 14px/1.2 'Poppins',sans-serif;color:var(--navy,#1d2746)}
+.kc-status{font:500 12px/1.35 'DM Sans',sans-serif;color:var(--navy,#1d2746)}
+.kc-still{color:#a6adbe;font-style:italic}
+.kc-tag{display:inline-block;font:700 9px/1 'DM Sans',sans-serif;padding:4px 6px;border-radius:6px;margin-right:5px;text-transform:uppercase;letter-spacing:.03em}
+.kc-tag.rent{background:#e3f3ea;color:#2f8a55}.kc-tag.buy{background:#eef0fb;color:#5b63b0}.kc-tag.borrow{background:#fef0dd;color:#b9772a}
+.kit-card .chev{position:absolute;top:13px;right:11px;width:15px;height:15px;color:#c3cce0}
+.xhead{display:flex;align-items:center;gap:10px;padding:16px 16px 12px;border-bottom:1px solid #eef2fb;background:#fff}
+.xback{width:34px;height:34px;border-radius:11px;border:1px solid #e9eefb;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--navy,#1d2746)}
+.xback svg{width:18px;height:18px}.xttl{font:600 17px/1 'Poppins',sans-serif;color:var(--navy,#1d2746);flex:1;outline:none}
+.cat-scroll,.cmp-scroll,.cl-scroll{flex:1;overflow-y:auto;padding:16px;padding-bottom:96px}
+.cat-sel-lbl,.cat-opts-lbl{font:700 11px/1 'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#9aa2b5;margin:6px 2px 9px}
+.cat-sel-card{background:#fff;border:1.5px solid #cfe0ff;border-radius:16px;padding:14px;margin-bottom:6px;box-shadow:0 6px 16px rgba(49,112,237,.06)}
+.cat-sel-card .nm{font:600 15px 'Poppins',sans-serif;color:var(--navy,#1d2746)}
+.cat-sel-card .br{font:500 12px 'DM Sans';color:#9aa2b5;margin-bottom:6px}
+.cat-sel-card .chg{margin-top:10px;font:600 12px 'DM Sans';color:var(--blue,#3170ed);background:none;border:none;cursor:pointer;padding:0}
+.cat-empty{background:#f5f8fe;border:1px dashed #d4ddf0;border-radius:14px;padding:16px;font:400 13px/1.5 'DM Sans',sans-serif;color:#8b93a8;text-align:center}
+.cat-chat{width:100%;margin:14px 0 4px;background:var(--blue,#3170ed);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:13px;padding:13px;font:600 14px 'DM Sans';cursor:pointer}
+.cat-chat svg{width:18px;height:18px}
+.opt-row{background:#fff;border:1px solid #eef2fb;border-radius:15px;padding:13px;margin-bottom:10px}
+.opt-row.is-sel{border-color:#2f8a55}
+.opt-main{display:flex;align-items:flex-start;gap:10px}
+.opt-info{flex:1}.opt-brand{font:500 11px/1 'DM Sans',sans-serif;color:#9aa2b5}.opt-name{font:600 14px/1.25 'Poppins',sans-serif;color:var(--navy,#1d2746);margin:2px 0}
+.opt-blurb{font:400 12px/1.45 'DM Sans',sans-serif;color:#8b93a8;margin-top:6px}
+.opt-price{font:600 12px/1 'DM Sans',sans-serif;color:var(--navy,#1d2746);text-align:right;white-space:nowrap}
+.opt-price .mo{display:block;color:#9aa2b5;font-weight:500;margin-top:4px}
+.opt-acts{display:flex;gap:8px;margin-top:11px}
+.opt-acts button{flex:1;font:600 12px/1 'DM Sans',sans-serif;padding:9px;border-radius:10px;cursor:pointer;border:1px solid #e1e8f7;background:#fff;color:var(--blue,#3170ed)}
+.opt-acts .sel{background:var(--blue,#3170ed);color:#fff;border-color:var(--blue,#3170ed)}
+.opt-acts .sel.is{background:#2f8a55;border-color:#2f8a55}
+.opt-acts .cmp.on{background:#eef4ff;border-color:#9bc0ff}
+.cmp-bar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eef2fb;padding:12px 16px;display:none;align-items:center;justify-content:space-between;gap:12px}
+.cmp-bar.show{display:flex}
+.cmp-bar span{font:600 13px 'DM Sans',sans-serif;color:var(--navy,#1d2746)}
+.cmp-bar button{padding:10px 22px;background:var(--blue,#3170ed);color:#fff;border:none;border-radius:11px;font:600 13px 'DM Sans';cursor:pointer}
+.cmp-bar button:disabled{opacity:.35}
+.cmp-table{width:100%;border-collapse:collapse;font:500 12px 'DM Sans',sans-serif}
+.cmp-table th,.cmp-table td{padding:10px 8px;text-align:center;border-bottom:1px solid #eef2fb;vertical-align:middle}
+.cmp-table th:first-child,.cmp-table td:first-child{text-align:left;color:#9aa2b5;font-weight:600;white-space:nowrap}
+.cmp-table thead th{font:600 12px 'Poppins',sans-serif;color:var(--navy,#1d2746);border-bottom:2px solid #e7edfa;line-height:1.3}
+.cmp-choose{padding:8px 12px;background:var(--blue,#3170ed);color:#fff;border:none;border-radius:9px;font:600 11px 'DM Sans';cursor:pointer}
+.cl-card{width:100%;text-align:left;background:#fff;border:1px solid #eef2fb;border-radius:16px;padding:15px;margin-bottom:11px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 6px 16px rgba(49,112,237,.05);font-family:inherit}
+.cl-card .ic{width:38px;height:38px;border-radius:11px;background:var(--ring-sky,#e7f0ff);color:var(--blue,#3170ed);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cl-card .ic svg{width:20px;height:20px}
+.cl-meta{flex:1}.cl-nm{font:600 14px 'Poppins',sans-serif;color:var(--navy,#1d2746)}.cl-sub{font:500 12px 'DM Sans';color:#9aa2b5;margin-top:3px}
+.cl-new{width:100%;background:#fff;border:1.5px dashed #c8d4ee;color:var(--blue,#3170ed);margin-top:4px;border-radius:14px;padding:13px;font:600 14px 'DM Sans';cursor:pointer}
+.cl-bar{height:5px;background:#eef2fb;border-radius:4px;margin-top:8px;overflow:hidden}.cl-bar i{display:block;height:100%;background:#2f8a55;border-radius:4px;transition:.3s}
+.cl-del{width:32px;height:32px;border:none;background:#fbecec;color:#c0504d;border-radius:9px;cursor:pointer;font-size:13px}
+.cl-del.hide{display:none}
+.cl-item{background:#fff;border:1px solid #eef2fb;border-radius:14px;padding:12px;margin-bottom:9px}
+.cl-row{display:flex;align-items:center;gap:11px}
+.cl-check{width:24px;height:24px;border-radius:8px;border:2px solid #cfd8ea;background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;padding:0}
+.cl-check.on{background:#2f8a55;border-color:#2f8a55}.cl-check svg{width:14px;height:14px;opacity:0}.cl-check.on svg{opacity:1}
+.cl-txt{flex:1;font:500 14px 'DM Sans';color:var(--navy,#1d2746)}.cl-txt.on{text-decoration:line-through;color:#aeb6c6}
+.cl-note{width:100%;margin-top:9px;border:1px solid #eef2fb;border-radius:9px;padding:8px 10px;font:400 12px 'DM Sans';color:#5a6276;resize:none;background:#fafbfe;outline:none;box-sizing:border-box}
+.cl-rm{border:none;background:none;color:#c9cfdc;cursor:pointer;font-size:17px;padding:2px 4px;line-height:1}
+.cl-add{display:flex;gap:8px;margin-top:6px}
+.cl-add input{flex:1;border:1px solid #e1e8f7;border-radius:11px;padding:11px 13px;font:400 14px 'DM Sans';outline:none}
+.cl-add button{padding:0 18px;background:var(--blue,#3170ed);color:#fff;border:none;border-radius:11px;font:600 13px 'DM Sans';cursor:pointer}
+.toast{position:absolute;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);background:var(--navy,#1d2746);color:#fff;padding:11px 18px;border-radius:12px;font:600 13px 'DM Sans';opacity:0;transition:.25s;pointer-events:none;z-index:50;white-space:nowrap;max-width:80%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#screen-kit,#screen-category,#screen-compare,#screen-checklists,#screen-checklist,#screen-optdetail,#screen-profile{position:absolute;inset:0;flex-direction:column;background:var(--page,#f5f8fe)}
+#screen-kit.active,#screen-category.active,#screen-compare.active,#screen-checklists.active,#screen-checklist.active,#screen-optdetail.active,#screen-profile.active{display:flex}
+.kc-tag.balanced{background:#eef0fb;color:#6a72b8}
+.cat-actions{display:flex;gap:10px;margin:14px 0 4px}
+.cat-act{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:13px;padding:13px;font:600 14px 'DM Sans',sans-serif;cursor:pointer}
+.cat-act.msg{background:var(--blue,#3170ed);color:#fff}
+.cat-act.call{background:#eaf0ff;color:var(--blue,#3170ed);border:1px solid #d4e0ff}
+.cat-act svg{width:18px;height:18px}
+.opt-head{display:flex;align-items:center;gap:10px;cursor:pointer}
+.opt-head .opt-info{flex:1}
+.opt-head .chev{width:15px;height:15px;color:#c3cce0;flex:none}
+.od-scroll{flex:1;overflow-y:auto;padding:18px;padding-bottom:30px}
+.od-verdict{background:#fff;border:1px solid #eef2fb;border-radius:16px;padding:16px;margin-bottom:14px}
+.od-verdict .kc-tag{font-size:11px;padding:5px 9px}
+.od-reason{font:400 13px/1.55 'DM Sans',sans-serif;color:#5a6276;margin-top:10px}
+.od-choice{display:flex;gap:11px;margin-bottom:16px}
+.od-opt{flex:1;text-align:left;background:#fff;border:2px solid #eef2fb;border-radius:15px;padding:14px;cursor:pointer}
+.od-opt.sel{border-color:var(--blue,#3170ed);background:#f5f8ff}
+.od-opt.disabled{opacity:.4;pointer-events:none}
+.od-opt .ol{font:700 11px 'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#9aa2b5}
+.od-opt .ov{font:700 17px 'Poppins',sans-serif;color:var(--navy,#1d2746);margin-top:5px}
+.od-opt .os{font:500 12px 'DM Sans',sans-serif;color:#9aa2b5;margin-top:3px}
+.od-specs{background:#fff;border:1px solid #eef2fb;border-radius:16px;padding:6px 16px;margin-bottom:16px}
+.od-spec{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f1f4fb;font:500 13px 'DM Sans',sans-serif}
+.od-spec:last-child{border-bottom:none}.od-spec .l{color:#9aa2b5}.od-spec .v{color:var(--navy,#1d2746);font-weight:600}
+.od-blurb{font:400 13px/1.55 'DM Sans',sans-serif;color:#5a6276;margin:0 2px 16px}
+.od-add{width:100%;background:var(--blue,#3170ed);color:#fff;border:none;border-radius:13px;padding:15px;font:600 15px 'DM Sans',sans-serif;cursor:pointer}
+.modal-overlay{position:absolute;inset:0;background:rgba(20,28,50,.45);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
+.modal-overlay.show{display:flex}
+.modal-card{background:#fff;border-radius:20px;padding:20px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(20,28,50,.3)}
+.modal-h{font:600 16px 'Poppins',sans-serif;color:var(--navy,#1d2746);margin-bottom:14px}
+.modal-input{width:100%;border:1px solid #e1e8f7;border-radius:12px;padding:12px 14px;font:400 15px 'DM Sans',sans-serif;outline:none;box-sizing:border-box}
+.modal-input:focus{border-color:var(--blue,#3170ed)}
+.modal-acts{display:flex;gap:10px;margin-top:16px}
+.modal-acts button{flex:1;padding:12px;border-radius:12px;font:600 14px 'DM Sans',sans-serif;cursor:pointer;border:none}
+.modal-cancel{background:#eef2fb;color:#5a6276}
+.modal-save{background:var(--blue,#3170ed);color:#fff}
+.dash-card{background:#fff;border:1px solid #eef2fb;border-radius:18px;padding:16px;margin-bottom:12px;cursor:pointer;box-shadow:0 6px 16px rgba(49,112,237,.06)}
+.dash-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dash-h{font:600 15px 'Poppins',sans-serif;color:var(--navy,#1d2746)}
+.dash-prog{font:700 14px 'DM Sans',sans-serif;color:var(--blue,#3170ed)}
+.dash-break{font:500 12px 'DM Sans',sans-serif;color:#9aa2b5;margin-top:9px}
+.dash-next{width:100%;text-align:left;background:#eaf0ff;border:1px solid #d4e0ff;color:var(--navy,#1d2746);border-radius:16px;padding:15px 16px;margin-bottom:12px;font:500 14px 'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.dash-next b{font-weight:700}.dash-next svg{width:17px;height:17px;color:var(--blue,#3170ed)}
+.dash-tip{display:flex;gap:12px;background:#fff;border:1px solid #eef2fb;border-radius:18px;padding:15px;align-items:flex-start}
+.dash-tip .ti{width:34px;height:34px;border-radius:10px;background:#fff4e3;color:#c47d2c;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dash-tip .ti svg{width:18px;height:18px}.dash-tip p{font:400 13px/1.5 'DM Sans',sans-serif;color:#5a6276;margin:0}
+.pf-top{display:flex;flex-direction:column;align-items:center;padding:46px 20px 22px;background:#fff;border-bottom:1px solid var(--line,#eef2fb);flex:none}
+.pf-ava{width:74px;height:74px;border-radius:50%;background:var(--ring-sky,#e7f0ff);display:flex;align-items:center;justify-content:center;color:var(--blue,#3170ed);margin-bottom:12px}
+.pf-ava svg{width:40px;height:40px}
+.pf-name{font:600 19px 'Poppins',sans-serif;color:var(--navy,#1d2746)}
+.pf-email{font:500 13px 'DM Sans',sans-serif;color:#9aa2b5;margin-top:3px}
+.pf-sec{font:700 11px 'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#9aa2b5;margin:18px 2px 9px}
+.pf-card{background:#fff;border:1px solid #eef2fb;border-radius:16px;overflow:hidden}
+.pf-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f1f4fb;font:500 14px 'DM Sans',sans-serif;color:var(--navy,#1d2746);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;width:100%;text-align:left}
+.pf-row:last-child{border-bottom:none}
+.pf-row .v{color:#9aa2b5;font-weight:500;display:flex;align-items:center;gap:7px}
+.pf-row .v svg{width:15px;height:15px;color:#c3cce0}
+.pf-toggle{width:44px;height:26px;border-radius:14px;background:#dfe5f1;position:relative;transition:.2s;flex-shrink:0;border:none;cursor:pointer}
+.pf-toggle.on{background:#2f8a55}
+.pf-toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.pf-toggle.on::after{left:21px}
+.pf-signout{width:100%;margin-top:18px;margin-bottom:8px;background:#fff;border:1px solid #f0d6d6;color:#c0504d;border-radius:14px;padding:14px;font:600 14px 'DM Sans',sans-serif;cursor:pointer}
+</style>
+
+<script>
+  let mode='message';
+  let signedIn=false;
+  let authMode='create';
+  let userName='';
+  let userEmail='', userDue='', dashNextKey=null;
+  function setMode(btn){
+    document.querySelectorAll('.seg').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    mode=btn.dataset.mode;
+  }
+  function goTo(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const shell=document.querySelector('.screen-shell'); if(shell) shell.classList.toggle('shell-dark', id==='screen-voice');
+    const sc=document.querySelector('.scroll'); if(sc) sc.scrollTo(0,0);
+    if(id==='screen-home' && typeof renderHomeDash==='function') renderHomeDash();
+  }
+  function startWendy(withAccount, provider){
+    signedIn = !!withAccount;
+    if(withAccount){
+      if(provider==='google'){ userName = userName||'Sarah'; userEmail = userEmail||'sarah@email.com'; }
+      fillHome(); goTo('screen-home'); return;
+    }
+    if(mode==='voice'){ goTo('screen-voice'); initVoice(); }
+    else { goTo('screen-chat'); initChat(); }
+  }
+
+  /* ---------- chat engine (Step 2) ---------- */
+  const intro = "Hi, I'm Wendy. I'm an independent adviser — not a shop — so I'll be honest about what's worth renting, buying, or skipping for your baby.";
+  const turns = [
+    {key:'baby', q:"To start — is this your first baby?", chips:["First baby","Second baby","Twins"]},
+    {key:'age', q:"Lovely. Roughly when are you due, or how old is your little one?", chips:["Still pregnant","0–6 months","6–12 months","Over 1 year"]},
+    {key:'location', q:"And where will you be getting around most days?", chips:["City flat","House + stairs","Suburb","Countryside"]},
+    {key:'transport', q:"Mostly by car, or on foot and public transport?", chips:["Mostly car","A mix","Walking & transit"]},
+    {key:'priority', q:"Last one for now — what matters most in a pushchair?", chips:["Compact fold","Comfort","Easy to push","The look"]},
+    {final:true, chips:["Build my full kit list","Just pushchairs for now"]}
+  ];
+  let answers = {};
+  let turnIdx = 0;
+  let chosen = null;
+
+  const PRODUCTS = {
+    butterfly:{brand:"Bugaboo",model:"Butterfly",config:"Compact, one-second fold · from birth",badgeType:"rent",badge:"Rent recommended",use:"Avg use: 14 months",note:"A compact city pram. Most families use one for around 14 months, then outgrow it — renting skips the resale faff and the depreciation hit.",rentMonthly:"£25 / month",rentTotal:"£350 total",buy:"£499 RRP",weight:"6.2 kg",fold:"One-second",suitable:"Birth–22 kg",why:"Most families use a compact pram like the Butterfly for around 14 months before going hands-free. Over that window, renting at £25 a month comes in cheaper than buying — and you skip depreciation and reselling.",when:"From birth through roughly 14 months. After that, most city families move to a lightweight stroller or carrier.",rentUrl:"https://baboodle.co.uk/products/bugaboo-butterfly",buyUrl:"https://www.naturalbabyshower.co.uk/"},
+    fox:{brand:"Bugaboo",model:"Fox 5",config:"All-terrain · big wheels & suspension",badgeType:"rent",badge:"Rent recommended",use:"Avg use: 16 months",note:"Air-filled wheels and full suspension handle gravel, grass and kerbs — the right call away from smooth pavements. A premium pram you'll use ~16 months; renting at £39/mo beats the £1,159 buy price.",rentMonthly:"£39 / month",rentTotal:"£624 total",buy:"£1,159 RRP",weight:"9.9 kg",fold:"Two-piece",suitable:"Birth–22 kg",why:"On rough ground you want suspension and proper wheels, which the Fox has. It's a pricey pram, so renting at £39 a month spreads the cost and saves you the steep depreciation a premium model takes in its first year.",when:"From birth to around 16 months of active use on mixed terrain.",rentUrl:"https://baboodle.co.uk/products/bugaboo-fox-5",buyUrl:"https://www.naturalbabyshower.co.uk/"},
+    vista:{brand:"UPPAbaby",model:"Vista V2",config:"Convertible · expands to a double",badgeType:"balanced",badge:"Your call",use:"Avg use: 28 months",note:"Because it converts to a double, you may use it across two children for 2–3 years. Over that long a window the maths gets close — buying can edge ahead of renting, so this one's genuinely your call.",rentMonthly:"£34 / month",rentTotal:"£952 total",buy:"£999 RRP",weight:"12.2 kg",fold:"One-piece",suitable:"Birth–22 kg",why:"With a second child it converts to a double and can serve both kids, so usage stretches well past two years. The longer you keep a pram, the more buying competes with renting — over ~28 months it's close, so weigh up resale value and whether you want the flexibility to swap.",when:"From birth across two children — potentially 2–3 years.",rentUrl:"https://baboodle.co.uk/products/uppababy-vista-v2",buyUrl:"https://www.naturalbabyshower.co.uk/"},
+    nipper:{brand:"Out n About",model:"Nipper Double V5",config:"Side-by-side double · all-terrain",badgeType:"rent",badge:"Rent recommended",use:"Avg use: 18 months",note:"For twins you need a true double. The Nipper stays narrow enough for doorways yet handles parks and trails. Renting spreads the cost over the window you'll actually use it.",rentMonthly:"£42 / month",rentTotal:"£756 total",buy:"£700 RRP",weight:"13 kg",fold:"Umbrella",suitable:"Birth–4 yrs",why:"Twins need a genuine double from day one. The Nipper stays narrow for doorways and copes with grass and gravel. Renting lets you spread £700 of pram over the 18 or so months you'll lean on it most.",when:"From birth to around 18 months of heavy daily use.",rentUrl:"https://baboodle.co.uk/products/out-n-about-nipper-double",buyUrl:"https://www.naturalbabyshower.co.uk/"}
+  };
+
+  function pickProduct(a){
+    if(a.baby==='Twins') return PRODUCTS.nipper;
+    if(a.location==='Countryside') return PRODUCTS.fox;
+    if(a.baby==='Second baby') return PRODUCTS.vista;
+    if(a.priority==='Comfort') return PRODUCTS.fox;
+    if(a.location==='Suburb') return PRODUCTS.fox;
+    if(a.location==='City flat' || a.transport==='Walking & transit' || a.priority==='Compact fold' || a.priority==='The look' || a.transport==='Mostly car') return PRODUCTS.butterfly;
+    return PRODUCTS.fox;
+  }
+  function recLeadIn(a){
+    if(a.baby==='Twins') return "Got it — for twins you'll need a proper double. Here's the pram I'd recommend:";
+    if(a.location==='Countryside') return "Got it — for the countryside you'll want big wheels and suspension for rougher ground, not a compact city pram. Here's what I'd recommend:";
+    if(a.baby==='Second baby') return "Got it — with another little one in the picture it's worth thinking longer-term. Here's the pram I'd recommend:";
+    if(a.location==='City flat') return "Got it — for a city flat with lots of walking, compact and light wins. Here's the pram I'd recommend:";
+    if(a.location==='Suburb') return "Got it — for suburban streets and the odd park, a sturdy all-rounder suits best. Here's what I'd recommend:";
+    return "Got it — based on what you've told me, here's the pram I'd recommend:";
+  }
+  let curRentUrl='https://baboodle.co.uk/', curBuyUrl='https://www.naturalbabyshower.co.uk/';
+
+  function el(cls, html){ const d=document.createElement('div'); d.className=cls; if(html!==undefined) d.innerHTML=html; return d; }
+  function thread(){ return document.getElementById('thread'); }
+  function scrollBottom(){ const t=thread(); if(t) t.scrollTop=t.scrollHeight; }
+  function typing(){ const tp=el('typing','<span></span><span></span><span></span>'); tp.id='typing'; thread().appendChild(tp); scrollBottom(); }
+  function stopTyping(){ const tp=document.getElementById('typing'); if(tp) tp.remove(); }
+
+  /* ----- conversation state + persistence ----- */
+  let convo=null, chatDone=false;
+  const HIST_KEY='wendy-chats-index';
+
+  function snapshot(){ if(convo){ convo.turnIdx=turnIdx; convo.answers=answers; convo.done=chatDone; convo.updatedAt=Date.now(); } }
+  function logMsg(m){ if(!convo) return; convo.messages.push(m); snapshot(); saveConvo(); }
+  const store = {
+    async get(k){
+      if(typeof window!=='undefined' && window.storage){ try{ const r=await window.storage.get(k,false); return (r&&r.value)?r.value:null; }catch(e){ return null; } }
+      try{ return localStorage.getItem(k); }catch(e){ return null; }
+    },
+    async set(k,v){
+      if(typeof window!=='undefined' && window.storage){ try{ await window.storage.set(k,v,false); }catch(e){} return; }
+      try{ localStorage.setItem(k,v); }catch(e){}
+    }
+  };
+  async function saveConvo(){
+    if(!convo) return;
+    try{
+      await store.set('wendy-chat-'+convo.id, JSON.stringify(convo));
+      let idx=await getIndex();
+      idx=idx.filter(x=>x.id!==convo.id);
+      idx.unshift({id:convo.id, title:convo.title, updatedAt:convo.updatedAt});
+      await store.set(HIST_KEY, JSON.stringify(idx.slice(0,30)));
+    }catch(e){}
+    try{ DB.chat(convo); }catch(e){}
+  }
+  async function getIndex(){ try{ const v=await store.get(HIST_KEY); if(v) return JSON.parse(v); }catch(e){} return []; }
+  async function loadConvoById(id){ try{ const v=await store.get('wendy-chat-'+id); if(v) return JSON.parse(v); }catch(e){} return null; }
+
+  function bot(text){ thread().appendChild(el('msg bot', text)); scrollBottom(); logMsg({r:'bot',t:text}); }
+  function user(text){ if(convo&&convo.title==='New chat') convo.title=text; thread().appendChild(el('msg user', text)); scrollBottom(); logMsg({r:'user',t:text}); }
+
+  function showChips(list){
+    const wrap=el('chips'); wrap.id='liveChips';
+    list.forEach(label=>{ const c=el('chip'); c.textContent=label; c.onclick=()=>chipClick(label); wrap.appendChild(c); });
+    thread().appendChild(wrap); scrollBottom();
+  }
+  function clearChips(){ const c=document.getElementById('liveChips'); if(c) c.remove(); }
+
+  function renderMessage(m){
+    if(m.r==='bot') thread().appendChild(el('msg bot', m.t));
+    else if(m.r==='user') thread().appendChild(el('msg user', m.t));
+    else if(m.r==='rec'){ curRentUrl=m.d.rentUrl||curRentUrl; curBuyUrl=m.d.buyUrl||curBuyUrl; chosen=m.d; thread().appendChild(buildRecCard(m.d)); }
+    else if(m.r==='pick'){ const op=optById(m.id); if(op) thread().appendChild(buildOptPick(op)); }
+  }
+
+  function newConvo(){ convo={id:'c'+Date.now(), title:'New chat', updatedAt:Date.now(), messages:[], turnIdx:0, answers:{}, done:false}; turnIdx=0; answers={}; chatDone=false; thread().innerHTML=''; }
+  function startQuestionnaire(){ bot(intro); setTimeout(()=>{ bot(turns[0].q); showChips(turns[0].chips); }, 450); }
+  function newChat(){ catChatMode=false; chatBackTo=null; chatCategory=null; newLiveChat(); }
+  function newChatBtn(){ goTo('screen-chat'); newChat(); }
+  function initChat(){ newChat(); }
+  async function continueText(){
+    goTo('screen-chat');
+    const idx=await getIndex();
+    if(idx.length){ const c=await loadConvoById(idx[0].id); if(c){ restoreConvo(c); return; } }
+    newChat();
+  }
+  function restoreConvo(c){
+    convo=c; turnIdx=c.turnIdx||0; answers=c.answers||{}; chatDone=!!c.done;
+    liveActive=!!c.live; liveHistory=c.history||[]; chatCategory=c.category||null; catChatMode=false;
+    thread().innerHTML='';
+    (c.messages||[]).forEach(renderMessage);
+    if(!chatDone){
+      if(liveActive){ if(c.lastChips&&c.lastChips.length) showChips(c.lastChips); }
+      else { const t=turns[turnIdx]; if(t&&t.chips) showChips(t.chips); }
+    }
+    scrollBottom();
+  }
+
+  function answer(label){
+    const cur = turns[turnIdx];
+    clearChips();
+    user(label);
+    if(cur.final){
+      chatDone=true; snapshot(); saveConvo();
+      if(label.indexOf('Build')===0){ buildKitList(); return; }
+      typing(); setTimeout(()=>{ stopTyping(); bot("Got it — that's saved to your kit list. Anything else you'd like help choosing?"); }, 850);
+      return;
+    }
+    if(cur.key) answers[cur.key] = label;
+    typing();
+    setTimeout(()=>{
+      stopTyping(); turnIdx++;
+      const t = turns[turnIdx];
+      if(t.final){
+        chosen = pickProduct(answers);
+        bot(recLeadIn(answers));
+        recCard(chosen);
+        showChips(t.chips);
+      } else {
+        bot(t.q);
+        showChips(t.chips);
+      }
+    }, 850);
+  }
+  function buildRecCard(r){
+    const c = document.createElement('div');
+    c.className = 'rec-card';
+    c.innerHTML =
+      '<div class="rec-top">'+
+        '<div class="rec-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2 9h11"/><path d="M5 13a7 7 0 0 1 13 0"/><circle cx="8" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg></div>'+
+        '<div class="rec-info">'+
+          '<div class="rec-brand">'+r.brand+'</div>'+
+          '<div class="rec-model" onclick="openProduct()">'+r.model+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+          '<div class="rec-config">'+r.config+'</div>'+
+          '<span class="rec-badge '+(r.badgeType||'rent')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'+r.badge+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="rec-use"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>'+r.use+'</div>'+
+      '<div class="rec-note">'+r.note+'</div>'+
+      '<div class="rec-cost">'+
+        '<div class="rent"><div class="lbl">Rent</div><div class="big">'+r.rentTotal+'</div><div class="sm">'+r.rentMonthly+'</div></div>'+
+        '<div class="buy"><div class="lbl">Buy</div><div class="big">'+r.buy+'</div><div class="sm">one-off</div></div>'+
+      '</div>'+
+      '<div class="rec-actions">'+
+        '<button class="btn rec-rent" onclick="openRent()">Rent on Baboodle</button>'+
+        '<button class="btn rec-buy" onclick="openBuy()">Buy instead</button>'+
+      '</div>'+
+      '<button class="btn rec-add" onclick="addRecToKit(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add to kit list</button>';
+    return c;
+  }
+  function recCard(r){
+    curRentUrl = r.rentUrl || curRentUrl; curBuyUrl = r.buyUrl || curBuyUrl; chosen=r;
+    thread().appendChild(buildRecCard(r)); scrollBottom(); logMsg({r:'rec',d:r});
+  }
+  /* ----- chat history list ----- */
+  async function openHistory(){
+    goTo('screen-history');
+    const idx=await getIndex();
+    const list=document.getElementById('hist-list'); if(!list) return;
+    list.innerHTML='';
+    if(!idx.length){ list.innerHTML='<div class="hist-empty">No previous chats yet.<br>Tap + to start one.</div>'; return; }
+    idx.forEach(it=>{
+      const b=document.createElement('button'); b.className='hist-item';
+      b.innerHTML='<div class="hist-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>'+
+        '<div class="hist-meta"><div class="hist-title">'+escapeHtml(it.title)+'</div><div class="hist-time">'+timeAgo(it.updatedAt)+'</div></div>'+
+        '<svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+      b.onclick=()=>loadAndOpen(it.id);
+      list.appendChild(b);
+    });
+  }
+  async function loadAndOpen(id){ const c=await loadConvoById(id); goTo('screen-chat'); if(c) restoreConvo(c); else newChat(); }
+  function timeAgo(ts){ const s=(Date.now()-ts)/1000; if(s<60)return 'Just now'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago'; const d=Math.floor(s/86400); return d===1?'Yesterday':d+'d ago'; }
+  function escapeHtml(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  /* ===== live Wendy (Anthropic API) ===== */
+  let liveActive=false, liveHistory=[];
+  const WENDY_SYSTEM = `You are Wendy, an independent and impartial baby-kit adviser — NOT a salesperson. You help an expectant or new parent choose the right pushchair and tell them HONESTLY whether to rent or buy it. You only recommend renting when it genuinely suits them; you happily recommend buying when that is the better call.
+
+Style:
+- Warm, friendly, concise British English. Ask ONE short question at a time, woven naturally into conversation. Never present a list of questions.
+- Infer from context (e.g. "second-floor flat, no lift" implies stairs, city living and a need for a compact fold). Don't ask what you can reasonably infer.
+- Never ask about budget or cost. Keep each message to 1-3 short sentences.
+- Do not mention Baboodle or any shop until you give your recommendation; introduce yourself only as an independent adviser.
+
+Gather naturally over ~5-7 exchanges: first baby / second baby / twins; due date or baby's age; home and area (city flat, house, suburb, countryside); car vs walking/public transport; stairs or no lift; what matters most (compact fold, comfort, ease of push, terrain, looks); whether they plan more children.
+
+Then recommend exactly ONE pushchair from this catalogue, by its key:
+- butterfly = Bugaboo Butterfly. Compact city stroller. Best for city flats, lots of walking or public transport, compact fold. Recommend RENT (typically used ~14 months).
+- fox = Bugaboo Fox 5. All-terrain with big wheels and suspension. Best for countryside, suburbs, rough ground, or comfort priority. Recommend RENT (premium, ~16 months).
+- vista = UPPAbaby Vista V2. Converts to a double. Best when they plan more children or it's a second baby. This is genuinely BALANCED ("your call") — over 2-3 years buying competes with renting; weigh it up honestly.
+- nipper = Out n About Nipper Double. All-terrain double. Best for twins. Recommend RENT.
+
+Output rules (the app reads these markers and hides them from the user):
+- You MAY end any message with up to 4 short tap-reply options on their own line: [[CHIPS: option one | option two | option three]]
+- When ready to recommend, include the marker [[REC: key]] in your message (e.g. [[REC: fox]]) and give a one-sentence honest reason. Right after recommending, ask if they'd like you to build their full kit list and offer exactly: [[CHIPS: Build my full kit list | Just pushchairs for now]]
+- Begin now: briefly introduce yourself as an independent adviser (not a shop) and ask your first question, ending with chips.`;
+
+  function extractText(d){ try{ return (d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim(); }catch(e){ return ''; } }
+  async function callWendy(messages, system){
+    const body={ model:'claude-sonnet-4-20250514', max_tokens:1000, system: system||WENDY_SYSTEM, messages };
+    try{ const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); if(r.ok){ const t=extractText(await r.json()); if(t) return t; } }catch(e){}
+    try{ const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); if(r.ok){ const t=extractText(await r.json()); if(t) return t; } }catch(e){}
+    return null;
+  }
+  function parseWendy(text){
+    let chips=null, recKey=null, pickId=null;
+    text=text.replace(/\[\[\s*REC\s*:\s*([a-z_]+)\s*\]\]/i,(m,k)=>{recKey=k.toLowerCase();return '';});
+    text=text.replace(/\[\[\s*PICK\s*:\s*([a-z0-9_]+)\s*\]\]/i,(m,k)=>{pickId=k.toLowerCase();return '';});
+    text=text.replace(/\[\[\s*CHIPS\s*:\s*([^\]]+)\]\]/i,(m,c)=>{chips=c.split('|').map(s=>s.trim()).filter(Boolean).slice(0,4);return '';});
+    return {text:text.replace(/\n{3,}/g,'\n\n').trim(), chips, recKey, pickId};
+  }
+  function handleWendyReply(reply, allowFallback){
+    if(!reply){
+      if(allowFallback){
+        if(chatCategory){ scriptedCategoryIntro(chatCategory); }
+        else { bot("I can't reach the live AI from this preview — it needs the app's API key, which is connected once the app is deployed (see DEPLOY.md). The moment that's wired up, I'll have a proper conversation. For now, tap back and open any category to browse options and build your kit list."); if(convo) convo.lastChips=null; }
+      } else {
+        bot("Hmm — I lost the connection there. Could you try that again in a moment?");
+      }
+      return;
+    }
+    liveActive=true; if(convo) convo.live=true;
+    liveHistory.push({role:'assistant', content:reply});
+    const p=parseWendy(reply);
+    if(p.text) bot(p.text);
+    if(p.recKey && PRODUCTS[p.recKey]){ chosen=PRODUCTS[p.recKey]; recCard(chosen); }
+    if(p.pickId){ const op=optById(p.pickId); if(op) optPickCard(op); }
+    const chips=p.chips || (p.recKey?["Build my full kit list","Just pushchairs for now"]:null);
+    if(convo) convo.lastChips=chips;
+    if(chips) showChips(chips);
+    snapshot(); saveConvo();
+  }
+  async function sendToWendy(text){
+    clearChips(); user(text);
+    if(convo) convo.lastChips=null;
+    liveHistory.push({role:'user', content:text});
+    typing();
+    const sys = chatCategory ? categorySystem(chatCategory) : WENDY_SYSTEM;
+    const reply=await callWendy(liveHistory, sys);
+    stopTyping();
+    handleWendyReply(reply, false);
+  }
+  async function newLiveChat(){
+    newConvo(); convo.live=true; convo.history=[]; liveHistory=convo.history; liveActive=true; chatDone=false;
+    typing();
+    liveHistory.push({role:'user', content:'(Begin the consultation now.)'});
+    const reply=await callWendy(liveHistory);
+    stopTyping();
+    handleWendyReply(reply, true);
+  }
+  function chipClick(label){
+    if(label.indexOf('Build my full kit list')===0){ clearChips(); user(label); chatDone=true; if(convo) convo.lastChips=null; saveConvo(); buildKitList(); return; }
+    if(catChatMode){ catChatReply(label); return; }
+    sendToWendy(label);
+  }
+  function sendTyped(){
+    const inp=document.getElementById('chatInput'); const v=(inp.value||'').trim();
+    if(!v) return; inp.value=''; if(catChatMode){ catChatReply(v); return; } chipClick(v);
+  }
+  function toggleVoice(){ startVoice(); }
+  function openRent(){ window.open(curRentUrl,'_blank'); }
+  function openBuy(){ window.open(curBuyUrl,'_blank'); }
+  function setTx(id,t){ const e=document.getElementById(id); if(e) e.textContent=t; }
+  function openProduct(){ productFrom='screen-chat'; if(chosen) fillProduct(chosen); goTo('screen-product'); }
+  function prodBack(){ goTo(productFrom||'screen-chat'); }
+
+  /* ---------- voice call (Step 2b) + mode select ---------- */
+  let vIdx=0, vTimer=null, vSeconds=0;
+  let productFrom='screen-chat';
+
+  function startText(){ continueText(); }
+  function startVoice(){ unlockSpeech(); goTo('screen-voice'); initVoiceLive(null); }
+  function unlockSpeech(){
+    try{
+      if(!window.speechSynthesis) return;
+      window.speechSynthesis.resume();
+      const u=new SpeechSynthesisUtterance(' '); u.volume=0;
+      window.speechSynthesis.speak(u);     // silent warm-up within the user gesture
+      window.speechSynthesis.getVoices();
+    }catch(e){}
+  }
+
+  let recog=null, micOn=true, ttsOn=true, voiceActive=false, listening=false;
+
+  function initVoice(){
+    Object.keys(answers).forEach(k=>delete answers[k]);
+    vIdx=0; vSeconds=0; clearInterval(vTimer); voiceActive=true; listening=false;
+    vChipsClear(); vLine('');
+    const a=document.getElementById('voice-ava'); if(a) a.classList.remove('speaking');
+    vStatus('Connecting…');
+    setTimeout(()=>{
+      startVTimer(); vAvaSpeak();
+      vLine("Hi, I'm Wendy — your independent baby kit adviser.", ()=>setTimeout(()=>askVoice(0), 350));
+    }, 1300);
+  }
+  function startVTimer(){ vSeconds=0; updateVStatus(); vTimer=setInterval(()=>{vSeconds++;updateVStatus();},1000); }
+  function updateVStatus(){ if(vThinking){ vStatus('Wendy is thinking…'); return; } if(listening){ vStatus('Listening…'); return; } const m=Math.floor(vSeconds/60), s=String(vSeconds%60).padStart(2,'0'); vStatus('On call · '+m+':'+s); }
+  function vStatus(t){ setTx('voice-status', t); }
+  function vLine(t, after){ const e=document.getElementById('voice-line'); if(e){ e.style.opacity=0; setTimeout(()=>{ e.textContent=t; e.style.opacity=1; },150); } speak(t, after); }
+  function vAvaSpeak(){ const a=document.getElementById('voice-ava'); if(!a)return; a.classList.add('speaking'); clearTimeout(a._t); a._t=setTimeout(()=>a.classList.remove('speaking'),1700); }
+  function vChipsClear(){ const c=document.getElementById('voice-chips'); if(c) c.innerHTML=''; }
+  function vRenderChips(list, handler){ const c=document.getElementById('voice-chips'); if(!c)return; c.innerHTML=''; list.forEach(l=>{ const b=document.createElement('button'); b.className='vchip'; b.textContent=l; b.onclick=()=>handler(l); c.appendChild(b); }); }
+  function askVoice(i){ vIdx=i; const t=turns[i]; vAvaSpeak(); vRenderChips(t.chips, vAnswer); vLine(t.q, ()=>startListening(t.chips, vAnswer)); }
+  function vAnswer(label){
+    stopListening();
+    const cur=turns[vIdx];
+    if(cur.key) answers[cur.key]=label;
+    vChipsClear(); vLine('…');
+    setTimeout(()=>{
+      const next=vIdx+1, t=turns[next];
+      if(t.final){
+        vIdx=next; chosen=pickProduct(answers); vAvaSpeak();
+        const fc=["See the details","Maybe later"];
+        vLine("I've found your match — the "+chosen.brand+" "+chosen.model+". Want me to show you the details?", ()=>startListening(fc, vFinal));
+        vRenderChips(fc, vFinal);
+      } else { askVoice(next); }
+    }, 900);
+  }
+  function vFinal(label){
+    stopListening();
+    const s=label.toLowerCase();
+    if(s.indexOf('see')===0 || s.includes('detail') || s.includes('yes')){ productFrom = signedIn?'screen-home':'screen-landing'; fillProduct(chosen); stopVoice(); goTo('screen-product'); }
+    else { vChipsClear(); vAvaSpeak(); vLine("No problem — I've saved it. Tap the red button to end the call whenever you like."); }
+  }
+
+  /* ----- Wendy speaks (TTS) ----- */
+  function pickVoice(){ if(!window.speechSynthesis) return null; const vs=window.speechSynthesis.getVoices()||[]; return vs.find(v=>/en-GB/i.test(v.lang)&&/female|woman|hazel|libby|sonia|google uk english female/i.test(v.name)) || vs.find(v=>/en-GB/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null; }
+  function speak(text, after){
+    let done=false; const fire=()=>{ if(done) return; done=true; if(after) after(); };
+    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+    if(!ttsOn || !window.speechSynthesis || !text || text==='…'){ setTimeout(fire, Math.min(2600, 500 + (text?text.length:0)*30)); return; }
+    try{
+      window.speechSynthesis.resume();
+      const u=new SpeechSynthesisUtterance(text); u.lang='en-GB'; u.rate=1.0; u.pitch=1.06;
+      const v=pickVoice(); if(v) u.voice=v;
+      u.onend=fire; u.onerror=fire;
+      window.speechSynthesis.speak(u);
+      setTimeout(fire, Math.min(9000, 1200 + text.length*70));   // safety: keep the call moving if audio is blocked
+    }catch(e){ setTimeout(fire, 800); }
+  }
+
+  /* ----- user speaks (STT) ----- */
+  function sttSupported(){ return !!(window.SpeechRecognition||window.webkitSpeechRecognition); }
+  function startListening(chips, handler){
+    if(!voiceActive || !micOn || !sttSupported()) return;
+    try{
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      recog=new SR(); recog.lang='en-GB'; recog.interimResults=false; recog.maxAlternatives=1;
+      listening=true; updateVStatus();
+      recog.onresult=(e)=>{ const t=(e.results[0][0].transcript)||''; listening=false; updateVStatus(); const m=matchChip(t, chips); if(m) handler(m); };
+      recog.onerror=(e)=>{ listening=false; if(e.error==='not-allowed'||e.error==='service-not-allowed'){ micOn=false; updateMic(); } updateVStatus(); };
+      recog.onend=()=>{ listening=false; updateVStatus(); };
+      recog.start();
+    }catch(e){ listening=false; }
+  }
+  function stopListening(){ listening=false; try{ recog && recog.stop(); }catch(e){} }
+  function matchChip(transcript, chips){ const s=(transcript||'').toLowerCase(); for(const c of chips){ const w=c.toLowerCase(); if(s.includes(w)) return c; if(w.split(/[ &]+/).some(k=>k.length>3 && s.includes(k))) return c; } return null; }
+  function updateMic(){ const b=document.getElementById('voice-mute'); if(b) b.classList.toggle('muted', !micOn); }
+
+  function vMute(btn){ micOn=!micOn; btn.classList.toggle('muted', !micOn); if(!micOn) stopListening(); }
+  function toggleSpeaker(btn){ ttsOn=!ttsOn; btn.classList.toggle('muted', !ttsOn); if(!ttsOn){ try{ window.speechSynthesis.cancel(); }catch(e){} } }
+  function stopVoice(){ clearInterval(vTimer); voiceActive=false; stopListening(); try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} }
+  function endCall(){ stopVoice(); goTo(signedIn?'screen-home':'screen-landing'); }
+  function switchToText(){ stopVoice(); if(voiceCategory){ curCat=voiceCategory; chatAboutCategory(); } else { continueText(); } }
+  function fillProduct(p){
+    curRentUrl=p.rentUrl; curBuyUrl=p.buyUrl;
+    setTx('p-brand',p.brand); setTx('p-model',p.model); setTx('p-config',p.config);
+    setTx('p-rent-total',p.rentTotal); setTx('p-rent-sm',p.rentMonthly+' · avg '+p.use.replace('Avg use: ',''));
+    setTx('p-buy',p.buy.replace(' RRP','')); 
+    setTx('p-weight',p.weight); setTx('p-fold',p.fold); setTx('p-suitable',p.suitable); setTx('p-use',p.use.replace('Avg use: ',''));
+    setTx('p-why',p.why); setTx('p-when',p.when); setTx('p-badge-text',p.badge);
+    const b=document.getElementById('p-badge'); if(b) b.className='pbadge '+(p.badgeType||'rent');
+  }
+  function toggleKit(btn){
+    const on = btn.classList.toggle('added');
+    const plus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+    const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    btn.innerHTML = (on ? check + 'Added to kit list' : plus + 'Add to kit list');
+  }
+  function addRecToKit(btn){
+    toggleKit(btn);
+    const m=((chosen&&chosen.model)||'').toLowerCase();
+    let id=null;
+    if(m.indexOf('butterfly')>=0)id='butterfly'; else if(m.indexOf('fox')>=0)id='fox'; else if(m.indexOf('vista')>=0)id='vista'; else if(m.indexOf('nipper')>=0)id='nipper';
+    if(id){ ensureState().then(()=>{ const v=VERDICT[id]; kitSet(chatCategory||'pushchair', id, (v&&v[0]==='buy')?'buy':'rent'); toast('Added to your kit list'); }); }
+    else toast('Added to your kit list');
+  }
+  function goToSignup(){ setAuthTab('create'); goTo('screen-signup'); }
+  function goToSignin(){ setAuthTab('signin'); goTo('screen-signup'); }
+  function setAuthTab(tab){
+    authMode = tab;
+    const scr=document.getElementById('screen-signup');
+    document.getElementById('tab-create').classList.toggle('active', tab==='create');
+    document.getElementById('tab-signin').classList.toggle('active', tab==='signin');
+    scr.classList.toggle('signin', tab==='signin');
+    document.getElementById('suSubmit').textContent = (tab==='signin') ? 'Sign in & continue' : 'Create account & continue';
+  }
+  function completeSignup(){
+    signedIn=true;
+    document.querySelectorAll('.signup-card').forEach(c=>c.remove());
+    if(authMode==='signin'){
+      userName = userName || 'Sarah';   // returning user (demo data)
+      userEmail = userEmail || 'sarah@email.com';
+      userDue = userDue || 'Due in ~12 weeks';
+      saveProfile(); fillHome();
+      goTo('screen-home');
+      return;
+    }
+    userName = (document.getElementById('suName').value||'').trim();
+    userEmail = (document.getElementById('suEmail').value||'').trim();
+    userDue = (document.getElementById('suDue').value||'').trim();
+    saveProfile(); fillHome();
+    goTo('screen-home');
+    const name = userName ? userName.split(' ')[0] : '';
+    toast(name ? "You're all set, "+name+'!' : "You're all set!");
+  }
+  function fillHome(){ const e=document.getElementById('home-name'); if(e) e.textContent = userName ? userName.split(' ')[0] : 'there'; }
+  function openChat(){ goTo('screen-chat'); initChat(); }
+  function chatBack(){ const t=chatBackTo; chatBackTo=null; catChatMode=false; if(t){ goTo(t); return; } goTo(signedIn ? 'screen-home' : 'screen-landing'); }
+  function comingSoon(title, copy){
+    setTx('next-title', title);
+    setTx('next-copy', copy || "We'll build this screen next.");
+    const b=document.getElementById('next-back'); if(b) b.onclick=()=>goTo('screen-home');
+    goTo('screen-next');
+  }
+  function buildKitList(){
+    if(signedIn){
+      typing();
+      setTimeout(()=>{ stopTyping(); bot("Perfect — you're already signed in, so I'll start building your full kit list now: car seats, sleep, bouncers, the lot. (That's the next screen we'll build.)"); }, 850);
+    } else {
+      typing();
+      setTimeout(()=>{ stopTyping(); bot("Happy to! One quick thing — the full kit list needs a free account so I can save everything and pick up where we left off. Pushchair advice stays free either way."); signupPrompt(); }, 900);
+    }
+  }
+  function signupPrompt(){
+    const c = el('signup-card');
+    c.innerHTML =
+      '<h4>Build your full kit list. <em>Free.</em></h4>'+
+      '<p>An account lets me save this chat and build your whole list — car seats, sleep, bouncers and more.</p>'+
+      '<ul>'+
+        '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Saves your conversation</li>'+
+        '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Builds your full kit list</li>'+
+        '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Wendy remembers everything</li>'+
+      '</ul>'+
+      '<div class="su-actions">'+
+        '<button class="btn su-create" onclick="goToSignup()">Create free account</button>'+
+        '<button class="btn su-skip" onclick="skipSignup(this)">Skip for now</button>'+
+      '</div>';
+    thread().appendChild(c); scrollBottom();
+  }
+  function skipSignup(btn){
+    const card = btn.closest('.signup-card'); if(card) card.remove();
+    typing();
+    setTimeout(()=>{ stopTyping(); bot("No problem — we'll keep it to pushchairs for now. Ask me anything about your pick whenever you like."); }, 700);
+  }
+
+  /* ===================== KIT LIST · CATEGORIES · COMPARE · CHECKLISTS ===================== */
+  const CHEV='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+  const ICO={
+    home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>',
+    kit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4.5 6h.01"/><path d="M4.5 12h.01"/><path d="M4.5 18h.01"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+    prof:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg>',
+    tick:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+  };
+
+  const CATEGORIES=[
+    {key:'pushchair',name:'Pushchair'},{key:'carseat',name:'Car seat'},{key:'carrier',name:'Carrier'},
+    {key:'crib',name:'Bedside crib'},{key:'cot',name:'Cot / cot bed'},{key:'feeding',name:'Feeding'},
+    {key:'highchair',name:'High chair'},{key:'nappies',name:'Nappies'},{key:'monitor',name:'Baby monitor'},
+    {key:'bouncer',name:'Bouncer'},{key:'bath',name:'Bathing'},{key:'changingbag',name:'Changing bag'},
+    {key:'clothing',name:'Clothing'},{key:'nursery',name:'Nursery furniture'}
+  ];
+  function o(id,name,brand,tag,price,mo,blurb,specs){return {id:id,name:name,brand:brand,tag:tag,price:price,mo:mo,blurb:blurb,specs:specs};}
+  const OPTIONS={
+    pushchair:[
+      o('butterfly','Butterfly','Bugaboo','rent','£499','£25/mo','Compact one-second fold — built for city walking and transport.',[['Weight','6.2 kg'],['From','Birth'],['Fold','One-second'],['Best for','City / transport']]),
+      o('fox','Fox 5','Bugaboo','rent','£1,159','£39/mo','All-terrain with suspension for rougher ground and comfort.',[['Weight','9.9 kg'],['From','Birth'],['Fold','Two-piece'],['Best for','Countryside / comfort']]),
+      o('vista','Vista V2','UPPAbaby','buy','£999','£34/mo','Converts to a double — worth buying if used across two kids.',[['Weight','12.2 kg'],['From','Birth'],['Fold','One-piece'],['Best for','More children']]),
+      o('nipper','Nipper Double','Out n About','rent','£700','£42/mo','A true double that still fits through doorways. For twins.',[['Weight','13 kg'],['From','Birth'],['Fold','Umbrella'],['Best for','Twins']])
+    ],
+    carseat:[
+      o('turtle','Turtle Air','Nuna (Bugaboo)','rent','£219','£15/mo','Light i-Size carrier that clicks onto the Butterfly.',[['Weight','3.2 kg'],['Type','i-Size carrier'],['Stage','Birth–13 kg'],['Travel system','Yes']]),
+      o('cloudt','Cloud T','Cybex','buy','£260','£18/mo','Lie-flat carrier with top safety scores.',[['Weight','4.2 kg'],['Type','i-Size carrier'],['Stage','Birth–15 m'],['Travel system','Adapters']]),
+      o('pebble','Pebble 360','Maxi-Cosi','rent','£239','£16/mo','Rotating seat — easy in and out.',[['Weight','4.6 kg'],['Type','i-Size carrier'],['Stage','Birth–15 m'],['Travel system','Yes']])
+    ],
+    carrier:[
+      o('omni','Omni 360','Ergobaby','rent','£165','£10/mo','Adjustable, fits most bodies, newborn to toddler.',[['Positions','4'],['From','Birth'],['Max','20 kg'],['Best for','All-rounder']]),
+      o('artipoppe','Zeitgeist','Artipoppe','rent','£320','£18/mo','Premium designer carrier — rent to enjoy without the outlay.',[['Positions','3'],['From','Birth'],['Max','20 kg'],['Best for','Premium feel']]),
+      o('bjornmini','Mini','BabyBjörn','buy','£90','£8/mo','Simple newborn carrier, no insert needed.',[['Positions','3'],['From','Birth'],['Max','11 kg'],['Best for','Newborn months']])
+    ],
+    crib:[
+      o('snuzpod','SnüzPod 4','Snüz','rent','£200','£14/mo','Bedside crib that attaches to your bed.',[['Type','Bedside'],['From','Birth'],['Until','~6 m'],['Bedside','Yes']]),
+      o('next2me','Next2Me','Chicco','rent','£170','£12/mo','Bedside crib with recline and gentle rocking.',[['Type','Bedside'],['From','Birth'],['Until','~6 m'],['Bedside','Yes']])
+    ],
+    cot:[
+      o('sleepi','Sleepi','Stokke','buy','£549','£24/mo','Convertible — extends as they grow, works across siblings.',[['Type','Convertible'],['From','~4 m'],['Until','Toddler'],['Across kids','Yes']]),
+      o('boori','Cot Bed','Boori','rent','£399','£20/mo','Solid cot bed that converts to a toddler bed.',[['Type','Cot bed'],['From','~4 m'],['Until','Toddler'],['Across kids','Yes']])
+    ],
+    feeding:[
+      o('tommee','Starter Kit','Tommee Tippee','buy','£60','—','Bottles + steriliser to cover mixed feeding.',[['Bottles','4'],['Steriliser','Yes'],['Best for','Mixed feeding']]),
+      o('avent','Natural Set','Philips Avent','buy','£70','—','Anti-colic bottles with steriliser.',[['Bottles','4'],['Steriliser','Yes'],['Best for','Anti-colic']]),
+      o('pump','Pump (hire)','Spectra','rent','£250','£20/mo','Hospital-grade double pump — hire when you need it.',[['Type','Double pump'],['Hire','Yes'],['Best for','Expressing']])
+    ],
+    highchair:[
+      o('tripp','Tripp Trapp','Stokke','buy','£199','£12/mo','Grows from baby to adult — lasts for years.',[['From','6 m'],['Until','Adult'],['Folds','No'],['Best for','Longevity']]),
+      o('antilop','Antilop','IKEA','buy','£20','—','Cheap, cheerful, wipe-clean.',[['From','6 m'],['Until','3 yr'],['Folds','No'],['Best for','Budget']]),
+      o('mimzy','Mimzy','Joie','rent','£90','£8/mo','Adjustable and folds for small spaces.',[['From','6 m'],['Until','3 yr'],['Folds','Yes'],['Best for','Small flats']])
+    ],
+    nappies:[
+      o('reusable','Reusable Starter','Bambino Mio','buy','£120','—','Cheaper over 2.5 yrs and far less waste.',[['Type','Reusable'],['Cost/yr','Low'],['Eco','High']]),
+      o('disposable','Disposables + wipes','—','buy','£260/yr','—','Convenient, higher long-run cost.',[['Type','Disposable'],['Cost/yr','£260+'],['Eco','Lower']])
+    ],
+    monitor:[
+      o('vtech','VM819','VTech','buy','£60','—','Simple, reliable video monitor, no app.',[['Type','Video'],['Range','300 m'],['App','No'],['Best for','Budget']]),
+      o('nanit','Pro','Nanit','rent','£299','£16/mo','Premium camera with sleep tracking.',[['Type','Smart cam'],['Range','Wi-Fi'],['App','Yes'],['Best for','Data lovers']]),
+      o('babysense','Video 7','BabySense','buy','£130','—','Split-screen, no app needed.',[['Type','Video'],['Range','300 m'],['App','No'],['Best for','No-app privacy']])
+    ],
+    bouncer:[
+      o('bjornbliss','Bouncer Bliss','BabyBjörn','rent','£175','£11/mo','The classic — light, no batteries, folds flat.',[['From','Birth'],['Until','2 yr'],['Power','None'],['Best for','Simplicity']]),
+      o('ingenuity','Cradling Bouncer','Ingenuity','buy','£55','—','Vibration and music.',[['From','Birth'],['Until','~6 m'],['Power','Battery'],['Best for','Budget']])
+    ],
+    bath:[
+      o('shnuggle','Baby Bath','Shnuggle','buy','£25','—','Compact bath with a bum-bump for support.',[['From','Birth'],['Until','12 m'],['Best for','Small bathrooms']]),
+      o('angelcare','Bath Support','Angelcare','buy','£18','—','Sits inside your existing bath.',[['From','Birth'],['Until','6 m'],['Best for','Minimalists']])
+    ],
+    changingbag:[
+      o('bugbag','Changing Bag','Bugaboo','buy','£140','—','Matches the pram and clips on.',[['Style','Backpack'],['Clips to pram','Yes']]),
+      o('babymel','Robyn','BabyMel','buy','£60','—','Stylish — doesn\u2019t look like a baby bag.',[['Style','Backpack'],['Clips to pram','Straps']])
+    ]
+  };
+
+  const VERDICT={
+    butterfly:['balanced','Mid-priced and used about 14 months — renting edges it on depreciation, but buying is close.'],
+    fox:['rent','A £1,159 premium pram used ~16 months loses value fast, so renting spreads the cost.'],
+    vista:['buy','Converts to a double and lasts across two children, so over 2–3 years buying usually wins.'],
+    nipper:['balanced','Used heavily for ~18 months for twins — rent to spread the cost, or buy if you\u2019ll resell.'],
+    turtle:['balanced','Outgrown by ~15 months so renting suits, though it\u2019s cheap enough to buy new if you prefer.'],
+    cloudt:['buy','At £260 and safety-critical, many prefer to buy new; rent only to save over a short window.'],
+    pebble:['balanced','Short use favours renting, but it\u2019s inexpensive enough that buying is reasonable too.'],
+    omni:['buy','You\u2019ll use it almost daily for 1–2 years and fit is personal — worth buying once you know it suits.'],
+    artipoppe:['rent','A £320 designer carrier you may use only briefly — renting lets you try premium without the price.'],
+    bjornmini:['buy','Cheap and simple, so buying makes sense for the newborn months.'],
+    snuzpod:['rent','Used only about 6 months, so renting clearly beats buying here.'],
+    next2me:['rent','A bedside crib is outgrown by ~6 months — renting avoids paying full price for short use.'],
+    sleepi:['buy','Used for years and across siblings, so buying is the better long-run value.'],
+    boori:['buy','A cot bed lasts 2–3 years, so buying generally beats renting.'],
+    tommee:['buy','Inexpensive and hygiene-sensitive — buy new.'],
+    avent:['buy','Inexpensive and hygiene-sensitive — buy new.'],
+    pump:['rent','Expensive for occasional use, so hiring a hospital-grade pump is far cheaper than buying.'],
+    tripp:['buy','Lasts from baby to adult, so buying is excellent long-term value.'],
+    antilop:['buy','At £20 there\u2019s no case for renting — just buy it.'],
+    mimzy:['balanced','Short use suits renting, but it\u2019s cheap enough to buy if you\u2019d rather own it.'],
+    reusable:['buy','A one-off kit that saves money over 2.5 years — buy.'],
+    disposable:['buy','A consumable, so buy as you go.'],
+    vtech:['buy','At £60 and used daily for a year or two, buying wins.'],
+    nanit:['rent','Premium camera tech that dates fast — renting avoids owning obsolete kit in two years.'],
+    babysense:['buy','Reasonably priced and used for a long time, so buying makes sense.'],
+    bjornbliss:['rent','Loved for only a few months then outgrown — a classic rent.'],
+    ingenuity:['buy','Cheap enough that buying is fine.'],
+    shnuggle:['buy','Cheap, hygiene-sensitive and used for a while — buy.'],
+    angelcare:['buy','Inexpensive — buy.'],
+    bugbag:['buy','Personal and used for a long time — buy.'],
+    babymel:['buy','Personal and used for a long time — buy.']
+  };
+  function applyVerdicts(){ for(const c in OPTIONS){ OPTIONS[c].forEach(op=>{ const v=VERDICT[op.id]; if(v){ op.tag=v[0]; op.reason=v[1]; } else if(!op.reason){ op.reason=op.blurb; } }); } }
+  applyVerdicts();
+  let kit={}, suggested={}, cmpSet=[], curCat=null, curCatOpts=[];
+  let chatCategory=null, catChatMode=false, chatBackTo=null, stateLoaded=false;
+
+  async function loadState(){
+    try{ const k=await store.get('wendy-kit'); if(k) kit=JSON.parse(k); }catch(e){}
+    try{ const c=await store.get('wendy-checklists'); if(c) checklists=JSON.parse(c); }catch(e){}
+    try{ const p=await store.get('wendy-profile'); if(p){ const o=JSON.parse(p); if(o.name&&!userName)userName=o.name; if(o.email&&!userEmail)userEmail=o.email; if(o.due&&!userDue)userDue=o.due; } }catch(e){}
+    if(!checklists || !checklists.length) checklists=defaultChecklists();
+  }
+  function ensureState(){ if(stateLoaded) return Promise.resolve(); stateLoaded=true; return loadState(); }
+  function saveKit(){ store.set('wendy-kit', JSON.stringify(kit)); try{ DB.kit(); }catch(e){} }
+  function saveChecklists(){ store.set('wendy-checklists', JSON.stringify(checklists)); try{ DB.checklists(); }catch(e){} }
+  function optById(id){ for(const c in OPTIONS){ const f=OPTIONS[c].find(x=>x.id===id); if(f){ const r=Object.assign({},f); r.cat=c; return r; } } return null; }
+  function catName(key){ const c=CATEGORIES.find(x=>x.key===key); return c?c.name:key; }
+  function tagLabel(t){ return t==='rent'?'Renting':t==='borrow'?'Borrowed':t==='balanced'?'Your call':'Buying'; }
+  function tagVerdict(t){ return t==='rent'?'Rent':t==='borrow'?'Borrow':t==='balanced'?'Your call':'Buy'; }
+  function verdictWord(op){ return op.tag==='rent'?'to rent it':op.tag==='buy'?'to buy it':'a balanced one — renting or buying both stack up'; }
+  function kitGet(cat){ const e=kit[cat]; if(!e) return null; if(typeof e==='string') return {id:e,choice:null}; return e; }
+  function kitSet(cat,id,choice){ kit[cat]={id:id,choice:choice||null}; saveKit(); }
+  function recommendFor(key){ const o=(OPTIONS[key]||[]); return o.find(x=>x.tag!=='balanced')||o[0]; }
+  function toast(msg){ const sh=document.querySelector('.screen-shell')||document.body; let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; sh.appendChild(t);} t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1700); }
+
+  function navHTML(active){
+    function it(fn,label,icon,on){ return '<button class="nav-item'+(on?' active':'')+'" onclick="'+fn+'">'+icon+label+'</button>'; }
+    return it('goHome()','Home',ICO.home,active==='home')+it('openKit()','Kit list',ICO.kit,active==='kit')+it('openChecklists()','Checklists',ICO.check,active==='checklists')+it('openProfile()','Profile',ICO.prof,active==='profile');
+  }
+  function goHome(){ goTo('screen-home'); }
+  function openProfileSoon(){ comingSoon('Profile','Your profile — name, due date and sign-out — will live here.'); }
+
+  /* ---- kit grid ---- */
+  function openKit(){ goTo('screen-kit'); ensureState().then(renderKit); }
+  function renderKit(){
+    const g=document.getElementById('kit-grid'); if(!g) return; g.innerHTML='';
+    CATEGORIES.forEach(c=>{
+      const e=kitGet(c.key); const sel=e?optById(e.id):null; const ch=e&&e.choice;
+      const card=document.createElement('button'); card.className='kit-card'+(sel?' chosen':'');
+      card.onclick=()=>openCategory(c.key);
+      const status= sel ? '<span class="kc-tag '+(ch||sel.tag)+'">'+tagVerdict(ch||sel.tag)+'</span>'+sel.brand+' '+sel.name
+                        : '<span class="kc-still">Still choosing</span>';
+      card.innerHTML='<div class="kc-name">'+c.name+'</div><div class="kc-status">'+status+'</div>'+CHEV;
+      g.appendChild(card);
+    });
+    const done=CATEGORIES.filter(c=>kit[c.key]).length;
+    setTx('kit-progress', done+' of '+CATEGORIES.length+' chosen');
+    const n=document.getElementById('nav-kit'); if(n) n.innerHTML=navHTML('kit');
+  }
+
+  /* ---- category screen ---- */
+  function openCategory(key){ curCat=key; cmpSet=[]; ensureState().then(()=>renderCategory(key)); goTo('screen-category'); }
+  function renderCategory(key){
+    setTx('cat-title', catName(key));
+    const e=kitGet(key); const sel=e?optById(e.id):null; const ch=e&&e.choice;
+    const box=document.getElementById('cat-selection');
+    if(sel){
+      box.innerHTML='<div class="cat-sel-lbl">Your choice</div><div class="cat-sel-card" onclick="openOptDetail(\''+key+'\',\''+sel.id+'\')"><span class="kc-tag '+(ch||sel.tag)+'">'+tagLabel(ch||sel.tag)+'</span><div class="nm">'+sel.brand+' '+sel.name+'</div><div class="br">'+sel.price+(sel.mo&&sel.mo!=='—'?' · '+sel.mo:'')+'</div><div class="opt-blurb">'+sel.blurb+'</div><button class="chg" onclick="event.stopPropagation();clearSelection()">Change choice</button></div>';
+    } else {
+      box.innerHTML='<div class="cat-sel-lbl">Your choice</div><div class="cat-empty">Nothing picked yet — message or call Wendy, or compare her suggestions below.</div>';
+    }
+    const list=document.getElementById('cat-options'); list.innerHTML='';
+    const opts=OPTIONS[key]||[]; curCatOpts=opts;
+    if(!opts.length){ list.innerHTML='<div class="cat-empty">This is usually a buy-as-you-go category. Message or call Wendy for specifics on what to get.</div>'; }
+    opts.forEach(op=>{
+      const isSel=e&&e.id===op.id, inCmp=cmpSet.indexOf(op.id)>=0;
+      const row=document.createElement('div'); row.className='opt-row'+(isSel?' is-sel':'');
+      const head=document.createElement('div'); head.className='opt-head'; head.onclick=()=>openOptDetail(key,op.id);
+      head.innerHTML='<div class="opt-info"><div class="opt-brand">'+op.brand+'</div><div class="opt-name">'+op.name+'</div><span class="kc-tag '+op.tag+'">'+tagLabel(op.tag)+'</span></div><div class="opt-price">'+op.price+'<span class="mo">'+(op.mo&&op.mo!=='—'?op.mo:'one-off')+'</span></div>'+CHEV;
+      row.appendChild(head);
+      const blurb=el('opt-blurb'); blurb.textContent=op.blurb; row.appendChild(blurb);
+      const acts=document.createElement('div'); acts.className='opt-acts';
+      const viewBtn=document.createElement('button'); viewBtn.className='sel'+(isSel?' is':''); viewBtn.innerHTML=isSel?'✓ In your kit':'View & choose'; viewBtn.onclick=()=>openOptDetail(key,op.id);
+      const cmpBtn=document.createElement('button'); cmpBtn.className='cmp'+(inCmp?' on':''); cmpBtn.textContent=inCmp?'✓ Comparing':'Compare'; cmpBtn.onclick=(ev)=>toggleCmp(op.id, ev.currentTarget);
+      acts.appendChild(viewBtn); acts.appendChild(cmpBtn); row.appendChild(acts); list.appendChild(row);
+    });
+    updateCmpBar();
+  }
+  function selectOption(key,id){ kit[key]=id; saveKit(); renderCategory(key); const op=optById(id); toast((op?op.brand+' '+op.name:'Item')+' added to your kit list'); }
+  function clearSelection(){ delete kit[curCat]; saveKit(); renderCategory(curCat); toast('Choice cleared'); }
+  function toggleCmp(id, btn){
+    const i=cmpSet.indexOf(id);
+    if(i>=0){ cmpSet.splice(i,1); if(btn){ btn.classList.remove('on'); btn.textContent='Compare'; } }
+    else { if(cmpSet.length>=3){ toast('Compare up to 3 at once'); return; } cmpSet.push(id); if(btn){ btn.classList.add('on'); btn.textContent='✓ Comparing'; } }
+    updateCmpBar();
+  }
+  function updateCmpBar(){ const bar=document.getElementById('cmp-bar'), go=document.getElementById('cmp-go'); if(!bar) return; bar.classList.toggle('show', cmpSet.length>0); setTx('cmp-count', cmpSet.length+' selected to compare'); if(go) go.disabled=cmpSet.length<2; }
+
+  /* ---- compare ---- */
+  function openCompare(){ if(cmpSet.length<2){ toast('Pick at least two to compare'); return; } renderCompare(); goTo('screen-compare'); }
+  function renderCompare(){
+    setTx('cmp-title', catName(curCat)+' · compare');
+    const items=cmpSet.map(optById).filter(Boolean);
+    const labels=[]; items.forEach(it=>it.specs.forEach(s=>{ if(labels.indexOf(s[0])<0) labels.push(s[0]); }));
+    let h='<table class="cmp-table"><thead><tr><th></th>'+items.map(it=>'<th>'+it.brand+'<br>'+it.name+'</th>').join('')+'</tr></thead><tbody>';
+    h+='<tr><td>Verdict</td>'+items.map(it=>'<td><span class="kc-tag '+it.tag+'">'+tagVerdict(it.tag)+'</span></td>').join('')+'</tr>';
+    h+='<tr><td>Buy price</td>'+items.map(it=>'<td>'+it.price+'</td>').join('')+'</tr>';
+    h+='<tr><td>Rent</td>'+items.map(it=>'<td>'+(it.mo&&it.mo!=='—'?it.mo:'—')+'</td>').join('')+'</tr>';
+    labels.forEach(l=>{ h+='<tr><td>'+l+'</td>'+items.map(it=>{ const s=it.specs.find(x=>x[0]===l); return '<td>'+(s?s[1]:'—')+'</td>'; }).join('')+'</tr>'; });
+    h+='<tr><td></td>'+items.map(it=>'<td><button class="cmp-choose" onclick="chooseFromCompare(\''+it.id+'\')">Choose</button></td>').join('')+'</tr>';
+    h+='</tbody></table>';
+    document.getElementById('cmp-wrap').innerHTML=h;
+  }
+  function chooseFromCompare(id){ const it=optById(id); openOptDetail(it?it.cat:curCat, id); }
+
+  /* ---- category chat ---- */
+  async function chatAboutCategory(){
+    const key=curCat; chatCategory=key; catChatMode=false; chatBackTo='screen-category';
+    goTo('screen-chat'); newConvo(); convo.title=catName(key)+' advice'; convo.category=key;
+    convo.history=[]; liveHistory=convo.history; liveActive=true; chatDone=false;
+    typing();
+    liveHistory.push({role:'user', content:'(I want help choosing a '+catName(key)+'. Begin.)'});
+    const reply=await callWendy(liveHistory, categorySystem(key));
+    stopTyping();
+    handleWendyReply(reply, true);
+  }
+  function categorySystem(key){
+    const opts=OPTIONS[key]||[];
+    const lines=opts.map(o=>'- '+o.id+': '+o.brand+' '+o.name+'. Buy '+o.price+((o.mo&&o.mo!=='—')?(', rent '+o.mo):'')+'. Honest verdict: '+(o.tag==='rent'?'RENT':o.tag==='buy'?'BUY':'BALANCED (your call)')+'. Reason: '+o.reason+' Specs: '+(o.specs||[]).map(s=>s[0]+' '+s[1]).join(', ')+'.').join('\n');
+    return "You are Wendy, an independent and impartial baby-kit adviser — NOT a salesperson. Right now you are helping the parent choose a "+catName(key)+".\n\nStyle: warm, concise British English; ONE short question at a time; infer from what they tell you; keep messages to 1-3 short sentences. Never push renting when buying is the honest call.\n\nThese are the ONLY products you may recommend for this category. The honest rent-vs-buy verdict has already been worked out from the data — use these verdicts faithfully and explain them plainly:\n"+(lines||"(No specific products listed — give general guidance and suggest they buy as needed.)")+"\n\nAsk at most one or two quick questions about their setup if you need to, then recommend ONE option by name with a one-sentence honest reason and its rent/buy verdict.\n\nOutput markers (the app reads them and hides them from the parent):\n- You MAY end any message with up to 3 short tap replies: [[CHIPS: a | b | c]]\n- When you recommend a specific product, include its id as [[PICK: id]] (for example [[PICK: "+(opts[0]?opts[0].id:'id')+"]]). The app then shows an Add-to-kit-list button for it.\n\nBegin by greeting briefly and asking your first question — or give your recommendation straight away if you already have enough to go on.";
+  }
+  function scriptedCategoryIntro(key){
+    chatCategory=key; catChatMode=true; liveActive=false;
+    bot("Let's sort your "+catName(key).toLowerCase()+". Tell me about your setup and I'll help you choose — or tap one of these to add it straight to your kit list.");
+    showCatChips(OPTIONS[key]||[]);
+  }
+  function buildOptPick(op){
+    const c=document.createElement('div'); c.className='rec-card';
+    c.innerHTML='<div class="rec-info"><div class="rec-brand">'+op.brand+'</div><div class="rec-model" onclick="openOptDetail(\''+op.cat+'\',\''+op.id+'\')">'+op.name+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div><span class="rec-badge '+op.tag+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'+tagLabel(op.tag)+'</span></div>'+
+      '<div class="rec-note">'+(op.reason||op.blurb)+'</div>'+
+      '<div class="rec-cost"><div class="rent"><div class="lbl">Rent</div><div class="big">'+((op.mo&&op.mo!=='—')?op.mo:'—')+'</div></div><div class="buy"><div class="lbl">Buy</div><div class="big">'+op.price+'</div></div></div>'+
+      '<button class="btn rec-add" onclick="addPick(\''+op.cat+'\',\''+op.id+'\',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add to kit list</button>';
+    return c;
+  }
+  function optPickCard(op){ thread().appendChild(buildOptPick(op)); scrollBottom(); logMsg({r:'pick', id:op.id, cat:op.cat}); }
+  function addPick(cat,id,btn){ const op=optById(id); kitSet(cat, id, (op&&op.tag==='buy')?'buy':'rent'); if(btn){ btn.classList.add('added'); btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Added to kit list'; } toast((op?op.brand+' '+op.name:'Item')+' added to your kit list'); }
+  function showCatChips(opts){
+    curCatOpts=opts;
+    const wrap=el('chips'); wrap.id='liveChips';
+    opts.forEach(op=>{ const c=el('chip'); c.textContent='Add '+op.name; c.onclick=()=>addFromChat(op); wrap.appendChild(c); });
+    if(opts.length>=2){ const cc=el('chip'); cc.textContent='Compare options'; cc.onclick=()=>{ cmpSet=opts.slice(0,3).map(x=>x.id); renderCategory(curCat); openCompare(); }; wrap.appendChild(cc); }
+    thread().appendChild(wrap); scrollBottom();
+  }
+  function addFromChat(op){ clearChips(); kitSet(curCat, op.id, op.tag==='buy'?'buy':'rent'); user('Add '+op.name); typing(); setTimeout(()=>{ stopTyping(); bot('Added the '+op.brand+' '+op.name+' to your kit list. ✓ You can change it to rent or buy, or compare it, any time from your kit list.'); showCatChips(curCatOpts); }, 650); }
+  function catChatReply(v){ user(v); typing(); setTimeout(()=>{ stopTyping(); bot("Good question. For your "+catName(curCat).toLowerCase()+", the options above mainly differ on price, weight and how long you'll use it — tap Compare options to see them side by side, or tap one to add it."); showCatChips(curCatOpts); }, 750); }
+
+  /* ---- checklists ---- */
+  let checklists=[], curList=null;
+  function ci(text){ return {id:'i'+Math.random().toString(36).slice(2,8), text:text, done:false, note:''}; }
+  function defaultChecklists(){
+    return [
+      {id:'cl-hospital',name:'Hospital bag',preset:true,items:['Maternity notes','Going-home outfit for baby','Nappies & wipes','Baby blanket','Babygros (x3)','Your toiletries','Phone charger (long cable)','Snacks & drinks','Comfy going-home clothes','Nursing bras / breast pads','Car seat fitted in the car'].map(ci)},
+      {id:'cl-newborn',name:'Newborn essentials',preset:true,items:['Somewhere safe to sleep','Car seat','Nappies & wipes','Vests & sleepsuits','Muslins','Baby bath or support','Thermometer','Feeding kit','Pram or carrier'].map(ci)}
+    ];
+  }
+  function openChecklists(){ goTo('screen-checklists'); ensureState().then(renderChecklists); }
+  function renderChecklists(){
+    const wrap=document.getElementById('cl-list'); if(!wrap) return; wrap.innerHTML='';
+    checklists.forEach(l=>{
+      const done=l.items.filter(i=>i.done).length, tot=l.items.length, pct=tot?Math.round(done/tot*100):0;
+      const card=document.createElement('button'); card.className='cl-card'; card.onclick=()=>openChecklist(l.id);
+      card.innerHTML='<div class="ic">'+ICO.check+'</div><div class="cl-meta"><div class="cl-nm">'+escapeHtml(l.name)+'</div><div class="cl-sub">'+done+' of '+tot+' done</div><div class="cl-bar"><i style="width:'+pct+'%"></i></div></div>'+CHEV;
+      wrap.appendChild(card);
+    });
+    const n=document.getElementById('nav-checklists'); if(n) n.innerHTML=navHTML('checklists');
+  }
+  function curListObj(){ return checklists.find(l=>l.id===curList); }
+  function openChecklist(id){ curList=id; renderChecklist(); goTo('screen-checklist'); }
+  function renderChecklist(){
+    const l=curListObj(); if(!l) return;
+    const t=document.getElementById('cl-title'); t.textContent=l.name; t.removeAttribute('contenteditable'); t.onclick=l.preset?null:renameChecklist; t.style.cursor=l.preset?'default':'pointer';
+    const del=document.getElementById('cl-del'); del.classList.toggle('hide', !!l.preset);
+    const wrap=document.getElementById('cl-items'); wrap.innerHTML='';
+    l.items.forEach(it=>{
+      const card=el('cl-item');
+      const row=el('cl-row');
+      const chk=document.createElement('button'); chk.className='cl-check'+(it.done?' on':''); chk.innerHTML=ICO.tick; chk.onclick=()=>toggleItem(it.id);
+      const txt=el('cl-txt'+(it.done?' on':'')); txt.classList.add('cl-txt'); if(it.done) txt.classList.add('on'); txt.textContent=it.text;
+      const rm=document.createElement('button'); rm.className='cl-rm'; rm.textContent='✕'; rm.onclick=()=>removeItem(it.id);
+      row.appendChild(chk); row.appendChild(txt); row.appendChild(rm); card.appendChild(row);
+      const note=document.createElement('textarea'); note.className='cl-note'; note.rows=1; note.placeholder='Add a note…'; note.value=it.note||''; note.onblur=()=>setNote(it.id, note.value);
+      card.appendChild(note); wrap.appendChild(card);
+    });
+  }
+  function toggleItem(id){ const l=curListObj(); const it=l.items.find(x=>x.id===id); if(it){ it.done=!it.done; saveChecklists(); renderChecklist(); } }
+  function setNote(id,val){ const l=curListObj(); const it=l.items.find(x=>x.id===id); if(it){ it.note=val; saveChecklists(); } }
+  function removeItem(id){ const l=curListObj(); l.items=l.items.filter(x=>x.id!==id); saveChecklists(); renderChecklist(); }
+  function addItem(){ const inp=document.getElementById('cl-add-input'); const v=(inp.value||'').trim(); if(!v) return; inp.value=''; curListObj().items.push(ci(v)); saveChecklists(); renderChecklist(); }
+  function renameCurrent(){ const l=curListObj(); if(!l||l.preset) return; const t=document.getElementById('cl-title'); const v=(t.textContent||'').trim()||'Checklist'; l.name=v; saveChecklists(); }
+  function addChecklist(){ openNameDialog('New checklist','','Checklist name', function(name){ const id='cl'+Date.now(); checklists.push({id:id,name:name,preset:false,items:[]}); saveChecklists(); openChecklist(id); }); }
+  function renameChecklist(){ const l=curListObj(); if(!l||l.preset) return; openNameDialog('Rename checklist', l.name, 'Checklist name', function(name){ l.name=name; saveChecklists(); renderChecklist(); }); }
+  function deleteChecklist(){ const l=curListObj(); if(!l||l.preset) return; checklists=checklists.filter(x=>x.id!==l.id); saveChecklists(); openChecklists(); }
+
+  /* ---- product detail (rent/buy choice) ---- */
+  let curOpt=null, odChoice='rent';
+  function openOptDetail(cat,id){ curCat=cat; const op=optById(id); if(!op) return; curOpt=op; const e=kitGet(cat); odChoice=(e&&e.id===id&&e.choice)?e.choice:(op.tag==='buy'?'buy':'rent'); renderOptDetail(); goTo('screen-optdetail'); }
+  function renderOptDetail(){
+    const op=curOpt; if(!op) return;
+    setTx('od-title', op.brand+' '+op.name);
+    const tag=document.getElementById('od-tag'); tag.className='kc-tag '+op.tag; tag.textContent='Wendy\u2019s honest call: '+tagLabel(op.tag);
+    setTx('od-reason', op.reason||op.blurb);
+    setTx('od-blurb', op.blurb);
+    const hasRent=op.mo&&op.mo!=='—';
+    setTx('od-rent-v', hasRent?op.mo:'Not available');
+    setTx('od-buy-v', op.price);
+    document.getElementById('od-rent').classList.toggle('disabled', !hasRent);
+    if(!hasRent && odChoice==='rent') odChoice='buy';
+    const specs=document.getElementById('od-specs'); specs.innerHTML='';
+    (op.specs||[]).forEach(s=>{ const r=el('od-spec'); r.innerHTML='<span class="l">'+s[0]+'</span><span class="v">'+s[1]+'</span>'; specs.appendChild(r); });
+    odSync();
+  }
+  function odChoose(c){ if(c==='rent'){ const op=curOpt; if(!(op&&op.mo&&op.mo!=='—')) return; } odChoice=c; odSync(); }
+  function odSync(){ const r=document.getElementById('od-rent'), b=document.getElementById('od-buy'), a=document.getElementById('od-add'); if(r)r.classList.toggle('sel', odChoice==='rent'); if(b)b.classList.toggle('sel', odChoice==='buy'); if(a)a.textContent=(odChoice==='rent'?'Add to kit list — Rent':'Add to kit list — Buy'); }
+  function odAdd(){ kitSet(curCat, curOpt.id, odChoice); toast(curOpt.brand+' '+curOpt.name+' added — '+(odChoice==='rent'?'renting':'buying')); renderCategory(curCat); goTo('screen-category'); }
+
+  /* ---- category voice call ---- */
+  function callAboutCategory(){ const key=curCat; unlockSpeech(); goTo('screen-voice'); initVoiceLive(key); }
+  function initCategoryVoice(key){
+    Object.keys(answers).forEach(k=>delete answers[k]);
+    vSeconds=0; clearInterval(vTimer); voiceActive=true; listening=false; vChipsClear(); vLine('');
+    const a=document.getElementById('voice-ava'); if(a) a.classList.remove('speaking');
+    vStatus('Connecting…');
+    const opts=(OPTIONS[key]||[]).slice(0,3);
+    setTimeout(()=>{
+      startVTimer(); vAvaSpeak();
+      if(!opts.length){ vLine("Hi, I'm Wendy. For your "+catName(key).toLowerCase()+", tell me about your setup and I'll help you choose."); return; }
+      const names=opts.map(o=>o.name); const chips=names.concat(['Not sure']);
+      vRenderChips(chips, function(l){ vCatPick(key,l); });
+      vLine("Hi, I'm Wendy. For your "+catName(key).toLowerCase()+", I'd look at the "+names.join(', the ')+". Which sounds closest to what you need?", function(){ startListening(chips, function(l){ vCatPick(key,l); }); });
+    }, 1300);
+  }
+  function vCatPick(key,label){
+    stopListening(); vChipsClear();
+    if(/not sure/i.test(label)){
+      const rec=recommendFor(key); vAvaSpeak(); const c=['Add the '+rec.name,'I\u2019ll decide later'];
+      vRenderChips(c, function(l){ if(/^add/i.test(l)) vAddCat(key,rec.id); else { vChipsClear(); vLine("That\u2019s fine — tap the red button to end the call whenever you like."); } });
+      vLine("No problem. The main differences are price, how long you\u2019ll use it, and whether renting beats buying. The one I\u2019d suggest is the "+rec.brand+" "+rec.name+" — my honest call is "+verdictWord(rec)+", because "+rec.reason+" Shall I add it?", function(){ startListening(c, function(l){ if(/^add/i.test(l)) vAddCat(key,rec.id); }); });
+      return;
+    }
+    const op=(OPTIONS[key]||[]).find(o=>o.name===label); if(!op) return;
+    vAvaSpeak(); const c=['Yes, add it','No thanks'];
+    vRenderChips(c, function(l){ if(/yes|add/i.test(l)) vAddCat(key,op.id); else { vChipsClear(); vLine("No problem — tap the red button to end the call whenever you like."); } });
+    vLine("Good one. My honest call on the "+op.brand+" "+op.name+" is "+verdictWord(op)+", because "+op.reason+" Shall I add it to your kit list?", function(){ startListening(c, function(l){ if(/yes|add/i.test(l)) vAddCat(key,op.id); }); });
+  }
+  function vAddCat(key,id){ const op=optById(id); kitSet(key, id, (op&&op.tag==='buy')?'buy':'rent'); vChipsClear(); vAvaSpeak(); vLine("Done — I\u2019ve added the "+(op?op.brand+' '+op.name:'item')+" to your kit list. Anything else, or tap the red button to hang up."); }
+
+  /* ---- name modal (used for naming/renaming checklists & profile fields) ---- */
+  function openNameDialog(heading, initial, placeholder, onSave){
+    const sh=document.querySelector('.screen-shell'); if(!sh) return;
+    let ov=document.getElementById('name-modal');
+    if(!ov){ ov=document.createElement('div'); ov.id='name-modal'; ov.className='modal-overlay'; ov.innerHTML='<div class="modal-card"><div class="modal-h"></div><input class="modal-input" type="text" /><div class="modal-acts"><button class="modal-cancel">Cancel</button><button class="modal-save">Save</button></div></div>'; sh.appendChild(ov); }
+    ov.querySelector('.modal-h').textContent=heading;
+    const inp=ov.querySelector('.modal-input'); inp.value=initial||''; inp.placeholder=placeholder||'';
+    ov.classList.add('show');
+    const close=()=>ov.classList.remove('show');
+    const save=()=>{ const v=(inp.value||'').trim(); if(!v){ inp.focus(); return; } close(); onSave(v); };
+    ov.querySelector('.modal-cancel').onclick=close;
+    ov.querySelector('.modal-save').onclick=save;
+    ov.onclick=(e)=>{ if(e.target===ov) close(); };
+    inp.onkeydown=(e)=>{ if(e.key==='Enter') save(); };
+    setTimeout(()=>{ try{ inp.focus(); inp.select(); }catch(e){} }, 60);
+  }
+
+  /* ---- profile ---- */
+  function openProfile(){ goTo('screen-profile'); ensureState().then(renderProfile); }
+  function renderProfile(){
+    setTx('pf-name', userName||'there');
+    setTx('pf-email', userEmail||'');
+    setTx('pf-d-name', userName||'Add your name');
+    setTx('pf-d-email', userEmail||'Add your email');
+    setTx('pf-d-due', userDue||'Not set');
+    const chosen=CATEGORIES.filter(c=>kit[c.key]).length;
+    setTx('pf-kit', chosen+' / '+CATEGORIES.length);
+    let done=0,tot=0; (checklists||[]).forEach(l=>l.items.forEach(i=>{ tot++; if(i.done)done++; }));
+    setTx('pf-cl', done+' / '+tot+' done');
+    const tts=document.getElementById('pf-tts'); if(tts) tts.classList.toggle('on', ttsOn!==false);
+    const n=document.getElementById('nav-profile'); if(n) n.innerHTML=navHTML('profile');
+  }
+  function editProfileName(){ openNameDialog('Your name', userName, 'Your name', function(v){ userName=v; saveProfile(); renderProfile(); fillHome(); }); }
+  function editProfileDue(){ openNameDialog('Due date', userDue, 'e.g. 12 August 2026', function(v){ userDue=v; saveProfile(); renderProfile(); }); }
+  function toggleTtsPref(btn){ ttsOn=!ttsOn; btn.classList.toggle('on', ttsOn); }
+  function signOut(){ signedIn=false; goTo('screen-landing'); }
+  function saveProfile(){ store.set('wendy-profile', JSON.stringify({name:userName,email:userEmail,due:userDue})); try{ DB.customer(); }catch(e){} }
+
+  /* ---- home dashboard ---- */
+  function renderHomeDash(){
+    fillHome();
+    ensureState().then(function(){
+      const total=CATEGORIES.length; let rent=0,buy=0,chosen=0;
+      CATEGORIES.forEach(c=>{ const e=kitGet(c.key); if(e){ chosen++; const ch=e.choice||((optById(e.id)||{}).tag); if(ch==='buy')buy++; else rent++; } });
+      setTx('dash-kit-count', chosen+' / '+total);
+      const bar=document.getElementById('dash-kit-bar'); if(bar) bar.style.width=Math.round(chosen/total*100)+'%';
+      setTx('dash-kit-break', 'Renting '+rent+' · Buying '+buy+' · Still choosing '+(total-chosen));
+      const next=CATEGORIES.find(c=>!kit[c.key]); const nb=document.getElementById('dash-next');
+      if(next){ dashNextKey=next.key; setTx('dash-next-cat', next.name); if(nb) nb.style.display=''; }
+      else { dashNextKey=null; if(nb) nb.style.display='none'; }
+    });
+  }
+  function dashNext(){ if(dashNextKey) openCategory(dashNextKey); }
+
+  /* ---- database sync (best-effort; silently no-ops if /api/db is unavailable) ---- */
+  const DB={
+    cid(){ try{ let id=localStorage.getItem('wendy-cid'); if(!id){ id='cus_'+((window.crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now()+'_'+Math.random().toString(36).slice(2))); localStorage.setItem('wendy-cid', id); } return id; }catch(e){ return 'cus_anon'; } },
+    post(action, payload){ try{ fetch('/api/db',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:action, customerId:this.cid(), payload:payload})}).catch(()=>{}); }catch(e){} },
+    customer(){ this.post('upsertCustomer', {email:userEmail||null, name:userName||null, due_date:userDue||null}); },
+    chat(convo){ if(!convo) return; const msgs=(convo.messages||[]).map((m,i)=>{ let role=(m.r==='user')?'user':'assistant'; let content=m.t||''; if(m.r==='rec'&&m.d) content='[recommended] '+(m.d.brand||'')+' '+(m.d.model||''); if(m.r==='pick') content='[suggested] '+(m.id||''); return {sort:i, role:role, content:content}; }); this.post('saveChat', {id:convo.id, title:convo.title||null, category:convo.category||null, messages:msgs}); },
+    kit(){ const items=CATEGORIES.map(c=>{ const e=kitGet(c.key); if(!e) return null; const op=optById(e.id)||{}; return {category:c.key, option_id:e.id, option_name:(op.brand?op.brand+' '+op.name:null), choice:e.choice||null, verdict:op.tag||null}; }).filter(Boolean); this.post('saveKit', {items:items}); },
+    checklists(){ this.post('saveChecklists', {lists:(checklists||[]).map(l=>({name:l.name, preset:!!l.preset, items:(l.items||[]).map(i=>({text:i.text, done:!!i.done, note:i.note||null}))}))}); }
+  };
+
+  /* ===== live voice — conversational AI over the phone call ===== */
+  let voiceCategory=null, vThinking=false, vCurRec=null;
+  function pramId(p){ const m=((p&&p.model)||'').toLowerCase(); if(m.indexOf('butterfly')>=0)return 'butterfly'; if(m.indexOf('fox')>=0)return 'fox'; if(m.indexOf('vista')>=0)return 'vista'; if(m.indexOf('nipper')>=0)return 'nipper'; return null; }
+  function initVoiceLive(category){
+    voiceCategory=category||null; chatCategory=category||null;
+    Object.keys(answers).forEach(k=>delete answers[k]);
+    vSeconds=0; clearInterval(vTimer); voiceActive=true; listening=false; vThinking=false; vCurRec=null; vChipsClear(); vLine('');
+    const a=document.getElementById('voice-ava'); if(a) a.classList.remove('speaking');
+    vStatus('Connecting…'); liveHistory=[];
+    setTimeout(function(){
+      startVTimer();
+      const sys = category ? categorySystem(category) : WENDY_SYSTEM;
+      const begin = category
+        ? '(I want help choosing a '+catName(category)+'. This is a voice call, so keep each reply short and natural to say aloud. Begin.)'
+        : '(This is a voice call, so keep each reply short and natural to say aloud. Begin the consultation.)';
+      liveHistory.push({role:'user', content:begin});
+      vThinking=true; updateVStatus();
+      callWendy(liveHistory, sys).then(function(r){ vDeliver(r, true); });
+    }, 1100);
+  }
+  function vDeliver(reply, allowFallback){
+    vThinking=false;
+    if(!reply){
+      if(allowFallback && voiceActive){ if(voiceCategory) initCategoryVoice(voiceCategory); else initVoice(); return; }
+      vAvaSpeak(); vLine("Sorry, I didn't catch that — could you say that again?", function(){ vListenTurn(); }); return;
+    }
+    liveHistory.push({role:'assistant', content:reply});
+    const p=parseWendy(reply);
+    const recOpt = p.pickId?optById(p.pickId):null;
+    const recPram = (p.recKey&&PRODUCTS[p.recKey])?PRODUCTS[p.recKey]:null;
+    if(recPram) chosen=recPram;
+    updateVStatus(); vAvaSpeak();
+    if(p.chips&&p.chips.length) vRenderChips(p.chips, vUserSays); else vChipsClear();
+    vLine(p.text||'…', function(){
+      if(recOpt){ vOfferRec('opt', recOpt); return; }
+      if(recPram){ vOfferRec('pram', recPram); return; }
+      vListenTurn();
+    });
+  }
+  function vUserSays(text){
+    stopListening(); vChipsClear();
+    liveHistory.push({role:'user', content:text});
+    vThinking=true; updateVStatus();
+    const sys = voiceCategory ? categorySystem(voiceCategory) : WENDY_SYSTEM;
+    callWendy(liveHistory, sys).then(function(r){ vDeliver(r, false); });
+  }
+  function vListenTurn(){
+    if(!sttSupported() || !micOn){ const c=document.getElementById('voice-chips'); if(c && !c.children.length){ vRenderChips(['Switch to text chat'], function(){ switchToText(); }); } return; }
+    startListenFree(vUserSays);
+  }
+  function vOfferRec(kind, data){
+    vCurRec={kind:kind, data:data};
+    vRenderChips(['Add it to my kit list','Keep chatting'], vRecChoice);
+    if(sttSupported() && micOn){ startListenFree(function(t){ if(/\b(add|yes|kit|sounds good|go for it|please do)\b/i.test(t)) vRecChoice('Add it to my kit list'); else vUserSays(t); }); }
+  }
+  function vRecChoice(label){
+    stopListening(); vChipsClear();
+    if(/add|kit|yes/i.test(label)){
+      const r=vCurRec;
+      if(r){ if(r.kind==='opt'){ kitSet(r.data.cat, r.data.id, (r.data.tag==='buy')?'buy':'rent'); } else { const id=pramId(r.data); if(id) kitSet('pushchair', id, (VERDICT[id]&&VERDICT[id][0]==='buy')?'buy':'rent'); } }
+      vAvaSpeak(); vLine("Lovely — I've added it to your kit list. Anything else, or tap the red button to hang up.", function(){ vListenTurn(); });
+    } else { vUserSays(label); }
+  }
+  function startListenFree(onText){
+    if(!voiceActive || !micOn || !sttSupported()) return;
+    try{
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      recog=new SR(); recog.lang='en-GB'; recog.interimResults=false; recog.maxAlternatives=1;
+      listening=true; updateVStatus();
+      recog.onresult=function(e){ const t=(e.results[0][0].transcript)||''; listening=false; updateVStatus(); if(t) onText(t); };
+      recog.onerror=function(e){ listening=false; if(e.error==='not-allowed'||e.error==='service-not-allowed'){ micOn=false; updateMic(); } updateVStatus(); };
+      recog.onend=function(){ listening=false; updateVStatus(); };
+      recog.start();
+    }catch(e){ listening=false; }
+  }
+
+  ensureState();
+</script>
+</body>
+</html>
