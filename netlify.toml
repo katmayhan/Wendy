@@ -25,3 +25,9 @@
   from = "/api/config"
   to = "/.netlify/functions/config"
   status = 200
+
+# Whisper speech-to-text
+[[redirects]]
+  from = "/api/stt"
+  to = "/.netlify/functions/stt"
+  status = 200
