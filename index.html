@@ -1415,17 +1415,36 @@ Output rules (the app reads these markers and hides them from the user):
 
   /* ----- Wendy speaks (TTS) ----- */
   function pickVoice(){ if(!window.speechSynthesis) return null; const vs=window.speechSynthesis.getVoices()||[]; return vs.find(v=>/en-GB/i.test(v.lang)&&/female|woman|hazel|libby|sonia|google uk english female/i.test(v.name)) || vs.find(v=>/en-GB/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null; }
+  let ttsAudio=null;
   function speak(text, after){
     let done=false; const fire=()=>{ if(done) return; done=true; if(after) after(); };
+    if(!ttsOn || !text || text==='…'){ try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} setTimeout(fire, Math.min(2600, 500 + (text?text.length:0)*30)); return; }
+    let usedFallback=false; const fallback=()=>{ if(usedFallback) return; usedFallback=true; browserSpeak(text, fire); };
+    fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})})
+      .then(r=>{ if(!r.ok) throw 0; return r.blob(); })
+      .then(blob=>{
+        if(!blob || blob.size<200) throw 0;                       // not real audio → fall back
+        try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+        try{ if(ttsAudio){ ttsAudio.pause(); } }catch(e){}
+        const url=URL.createObjectURL(blob);
+        ttsAudio=new Audio(url);
+        ttsAudio.onended=()=>{ try{ URL.revokeObjectURL(url); }catch(e){} fire(); };
+        ttsAudio.onerror=()=>{ fallback(); };
+        const pr=ttsAudio.play(); if(pr && pr.catch) pr.catch(()=>fallback());
+        setTimeout(fire, Math.min(22000, 2000 + text.length*90));  // safety so the call never stalls
+      })
+      .catch(()=>{ fallback(); });                                  // no /api/tts (e.g. preview) → browser voice
+  }
+  function browserSpeak(text, fire){
     try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
-    if(!ttsOn || !window.speechSynthesis || !text || text==='…'){ setTimeout(fire, Math.min(2600, 500 + (text?text.length:0)*30)); return; }
+    if(!window.speechSynthesis){ setTimeout(fire, Math.min(2600, 500 + text.length*30)); return; }
     try{
       window.speechSynthesis.resume();
       const u=new SpeechSynthesisUtterance(text); u.lang='en-GB'; u.rate=1.0; u.pitch=1.06;
       const v=pickVoice(); if(v) u.voice=v;
       u.onend=fire; u.onerror=fire;
       window.speechSynthesis.speak(u);
-      setTimeout(fire, Math.min(9000, 1200 + text.length*70));   // safety: keep the call moving if audio is blocked
+      setTimeout(fire, Math.min(9000, 1200 + text.length*70));
     }catch(e){ setTimeout(fire, 800); }
   }
 
@@ -1448,8 +1467,8 @@ Output rules (the app reads these markers and hides them from the user):
   function updateMic(){ const b=document.getElementById('voice-mute'); if(b) b.classList.toggle('muted', !micOn); }
 
   function vMute(btn){ micOn=!micOn; btn.classList.toggle('muted', !micOn); if(!micOn) stopListening(); }
-  function toggleSpeaker(btn){ ttsOn=!ttsOn; btn.classList.toggle('muted', !ttsOn); if(!ttsOn){ try{ window.speechSynthesis.cancel(); }catch(e){} } }
-  function stopVoice(){ clearInterval(vTimer); voiceActive=false; stopListening(); try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} }
+  function toggleSpeaker(btn){ ttsOn=!ttsOn; btn.classList.toggle('muted', !ttsOn); if(!ttsOn){ try{ window.speechSynthesis.cancel(); }catch(e){} try{ if(ttsAudio) ttsAudio.pause(); }catch(e){} } }
+  function stopVoice(){ clearInterval(vTimer); voiceActive=false; stopListening(); try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} try{ if(ttsAudio) ttsAudio.pause(); }catch(e){} }
   function endCall(){ stopVoice(); goTo(signedIn?'screen-home':'screen-landing'); }
   function switchToText(){ stopVoice(); if(voiceCategory){ curCat=voiceCategory; chatAboutCategory(); } else { continueText(); } }
   function fillProduct(p){

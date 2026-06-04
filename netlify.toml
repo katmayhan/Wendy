@@ -13,3 +13,9 @@
   from = "/api/db"
   to = "/.netlify/functions/db"
   status = 200
+
+# Front-end calls /api/tts for natural ElevenLabs voice on calls.
+[[redirects]]
+  from = "/api/tts"
+  to = "/.netlify/functions/tts"
+  status = 200
