@@ -19,3 +19,9 @@
   from = "/api/tts"
   to = "/.netlify/functions/tts"
   status = 200
+
+# Front-end fetches /api/config to get public Supabase keys at runtime.
+[[redirects]]
+  from = "/api/config"
+  to = "/.netlify/functions/config"
+  status = 200
