@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
     --blue:#3170ed;
@@ -29,35 +30,51 @@
   body{
     font-family:var(--body);color:var(--text);
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-    min-height:100dvh;display:flex;align-items:center;justify-content:center;
-    padding:16px;
+    min-height:100dvh;
     background:radial-gradient(120% 80% at 50% 0%, #d4e6fb 0%, #c4ddf7 100%);
   }
 
-  /* ---------- phone ---------- */
+  /* ---------- phone (desktop preview only) ---------- */
   .phone{
-    position:relative;aspect-ratio:390/844;
-    height:min(820px, calc(100dvh - 28px));
-    width:auto;max-width:calc(100vw - 28px);
-    background:var(--bezel);border-radius:54px;padding:11px;
-    box-shadow:0 0 0 2px #2b2e36, 0 38px 80px -28px rgba(20,30,60,.55);
+    position:relative;
+    width:100%;
+    height:100dvh;
+  }
+  @media(min-width:600px){
+    body{display:flex;align-items:center;justify-content:center;padding:16px;}
+    .phone{
+      aspect-ratio:390/844;
+      height:min(820px, calc(100dvh - 28px));
+      width:auto;max-width:calc(100vw - 28px);
+      background:var(--bezel);border-radius:54px;padding:11px;
+      box-shadow:0 0 0 2px #2b2e36, 0 38px 80px -28px rgba(20,30,60,.55);
+    }
   }
   .screen-shell{
     position:relative;width:100%;height:100%;
-    border-radius:44px;overflow:hidden;background:var(--page);
+    overflow:hidden;background:var(--page);
+  }
+  @media(min-width:600px){
+    .screen-shell{border-radius:44px;}
   }
   .scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
   .scroll::-webkit-scrollbar{width:0;display:none}
 
-  .statusbar{
-    position:absolute;top:0;left:0;right:0;height:50px;z-index:20;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:16px 30px 0;pointer-events:none;
+  /* hide fake status bar on real mobile */
+  .statusbar{display:none}
+  .island{display:none}
+  .home-ind{display:none}
+  @media(min-width:600px){
+    .statusbar{
+      position:absolute;top:0;left:0;right:0;height:50px;z-index:20;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:16px 30px 0;pointer-events:none;
+    }
+    .statusbar .time{font-family:var(--head);font-size:14px;font-weight:600;color:var(--navy)}
+    .statusbar .sys{display:flex;align-items:center;gap:6px;color:var(--navy)}
+    .island{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:98px;height:28px;background:#000;border-radius:16px;z-index:21;display:block}
+    .home-ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:124px;height:5px;border-radius:3px;background:rgba(29,39,70,.30);z-index:21;pointer-events:none;display:block}
   }
-  .statusbar .time{font-family:var(--head);font-size:14px;font-weight:600;color:var(--navy)}
-  .statusbar .sys{display:flex;align-items:center;gap:6px;color:var(--navy)}
-  .island{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:98px;height:28px;background:#000;border-radius:16px;z-index:21}
-  .home-ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:124px;height:5px;border-radius:3px;background:rgba(29,39,70,.30);z-index:21;pointer-events:none}
 
   /* ---------- router ---------- */
   .app{width:100%}
@@ -351,7 +368,7 @@
   .voice-ava.speaking::after{animation:vring 1.5s ease-out infinite}
   @keyframes vring{0%{transform:scale(.95);opacity:.7}100%{transform:scale(1.3);opacity:0}}
   .voice-name{font-family:var(--head);font-weight:600;font-size:21px}
-  .voice-line{font-family:var(--head);font-weight:500;font-size:17px;line-height:1.45;text-align:center;color:#fff;min-height:50px;max-width:26ch;transition:opacity .2s}
+  .voice-line{display:none !important}
   .voice-chips{display:flex;flex-direction:column;gap:9px;width:100%;max-width:290px}
   .vchip{font-family:var(--head);font-size:14px;font-weight:500;color:#fff;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.26);border-radius:24px;padding:12px;cursor:pointer;transition:background .16s}
   .vchip:hover{background:rgba(255,255,255,.26)}
@@ -493,7 +510,7 @@
                 </button>
               </div>
 
-              <button class="btn btn-google" onclick="startWendy(true,'google')">
+              <button class="btn btn-google" onclick="signInWithGoogle()">
                 <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
                 Continue with Google
               </button>
@@ -630,7 +647,7 @@
                 <button class="seg" id="tab-signin" onclick="setAuthTab('signin')">Sign in</button>
               </div>
 
-              <button class="btn btn-google" onclick="completeSignup()">
+              <button class="btn btn-google" onclick="signInWithGoogle()">
                 <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
                 Continue with Google
               </button>
@@ -741,8 +758,8 @@
                 <svg viewBox="0 0 124 124" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="cv"><circle cx="62" cy="62" r="62"/></clipPath></defs><g clip-path="url(#cv)"><rect width="124" height="124" fill="rgba(255,255,255,.10)"/><path d="M62 66c12 0 21-9.8 21-22S74 22 62 22 41 31.8 41 44s9 22 21 22z" fill="rgba(255,255,255,.85)"/><path d="M24 124c0-21 17-38 38-38s38 17 38 38H24z" fill="rgba(255,255,255,.85)"/></g></svg>
               </div>
               <div class="voice-name">Wendy</div>
-              <div class="voice-line" id="voice-line"></div>
-              <div class="voice-chips" id="voice-chips"></div>
+              <div class="voice-line" id="voice-line" style="display:none"></div>
+              <div class="voice-chips" id="voice-chips" style="display:none"></div>
             </div>
             <div class="voice-controls">
               <button class="vctrl" id="voice-mute" onclick="vMute(this)" aria-label="Mute">
@@ -1418,33 +1435,38 @@ Output rules (the app reads these markers and hides them from the user):
   let ttsAudio=null;
   function speak(text, after){
     let done=false; const fire=()=>{ if(done) return; done=true; if(after) after(); };
-    if(!ttsOn || !text || text==='…'){ try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} setTimeout(fire, Math.min(2600, 500 + (text?text.length:0)*30)); return; }
+    if(!ttsOn || !text || text==='…'){ setTimeout(fire, 300); return; }
     let usedFallback=false; const fallback=()=>{ if(usedFallback) return; usedFallback=true; browserSpeak(text, fire); };
+    try{ if(ttsAudio){ ttsAudio.pause(); ttsAudio.src=''; ttsAudio=null; } }catch(e){}
     fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})})
       .then(r=>{ if(!r.ok) throw 0; return r.blob(); })
       .then(blob=>{
-        if(!blob || blob.size<200) throw 0;                       // not real audio → fall back
-        try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
-        try{ if(ttsAudio){ ttsAudio.pause(); } }catch(e){}
+        if(!blob || blob.size<200) throw 0;
         const url=URL.createObjectURL(blob);
         ttsAudio=new Audio(url);
+        ttsAudio.preload='auto';
         ttsAudio.onended=()=>{ try{ URL.revokeObjectURL(url); }catch(e){} fire(); };
-        ttsAudio.onerror=()=>{ fallback(); };
-        const pr=ttsAudio.play(); if(pr && pr.catch) pr.catch(()=>fallback());
-        setTimeout(fire, Math.min(22000, 2000 + text.length*90));  // safety so the call never stalls
+        ttsAudio.onerror=()=>{ try{ URL.revokeObjectURL(url); }catch(e){} fallback(); };
+        const pr=ttsAudio.play();
+        if(pr && pr.catch) pr.catch(()=>fallback());
+        setTimeout(fire, Math.min(30000, 3000 + text.length * 150));
       })
-      .catch(()=>{ fallback(); });                                  // no /api/tts (e.g. preview) → browser voice
+      .catch(()=>{ fallback(); });
   }
   function browserSpeak(text, fire){
-    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
-    if(!window.speechSynthesis){ setTimeout(fire, Math.min(2600, 500 + text.length*30)); return; }
+    if(!window.speechSynthesis){ setTimeout(fire, Math.min(4000, 800 + text.length*40)); return; }
     try{
-      window.speechSynthesis.resume();
-      const u=new SpeechSynthesisUtterance(text); u.lang='en-GB'; u.rate=1.0; u.pitch=1.06;
-      const v=pickVoice(); if(v) u.voice=v;
-      u.onend=fire; u.onerror=fire;
-      window.speechSynthesis.speak(u);
-      setTimeout(fire, Math.min(9000, 1200 + text.length*70));
+      window.speechSynthesis.cancel();
+      setTimeout(function(){
+        try{
+          window.speechSynthesis.resume();
+          const u=new SpeechSynthesisUtterance(text); u.lang='en-GB'; u.rate=0.95; u.pitch=1.05;
+          const v=pickVoice(); if(v) u.voice=v;
+          u.onend=fire; u.onerror=fire;
+          window.speechSynthesis.speak(u);
+          setTimeout(fire, Math.min(12000, 2000 + text.length*80));
+        }catch(e){ setTimeout(fire, 800); }
+      }, 80);
     }catch(e){ setTimeout(fire, 800); }
   }
 
@@ -1504,24 +1526,159 @@ Output rules (the app reads these markers and hides them from the user):
     scr.classList.toggle('signin', tab==='signin');
     document.getElementById('suSubmit').textContent = (tab==='signin') ? 'Sign in & continue' : 'Create account & continue';
   }
-  function completeSignup(){
-    signedIn=true;
-    document.querySelectorAll('.signup-card').forEach(c=>c.remove());
-    if(authMode==='signin'){
-      userName = userName || 'Sarah';   // returning user (demo data)
-      userEmail = userEmail || 'sarah@email.com';
-      userDue = userDue || 'Due in ~12 weeks';
-      saveProfile(); fillHome();
-      goTo('screen-home');
-      return;
+  /* ======= SUPABASE AUTH ======= */
+  // These are the PUBLIC (anon) keys — safe to expose in the browser.
+  // Set these as Netlify env vars AND replace the placeholders below with your actual values.
+  const SUPABASE_URL = typeof process !== 'undefined' && process.env && process.env.SUPABASE_URL
+    ? process.env.SUPABASE_URL
+    : (window.__SUPABASE_URL__ || 'YOUR_SUPABASE_URL');
+  const SUPABASE_ANON_KEY = typeof process !== 'undefined' && process.env && process.env.SUPABASE_ANON_KEY
+    ? process.env.SUPABASE_ANON_KEY
+    : (window.__SUPABASE_ANON_KEY__ || 'YOUR_SUPABASE_ANON_KEY');
+
+  let _supabase = null;
+  function getSupabase(){
+    if(_supabase) return _supabase;
+    try{
+      if(window.supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL'){
+        _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    }catch(e){}
+    return _supabase;
+  }
+
+  function setSubmitLoading(loading, mode){
+    const btn = document.getElementById('suSubmit');
+    const emailInp = document.getElementById('suEmail');
+    const passInp = document.getElementById('suPass');
+    if(!btn) return;
+    btn.disabled = loading;
+    if(emailInp) emailInp.disabled = loading;
+    if(passInp) passInp.disabled = loading;
+    if(loading){
+      btn.textContent = mode === 'signin' ? 'Signing in…' : 'Creating account…';
+    } else {
+      btn.textContent = mode === 'signin' ? 'Sign in & continue' : 'Create account & continue';
     }
-    userName = (document.getElementById('suName').value||'').trim();
-    userEmail = (document.getElementById('suEmail').value||'').trim();
-    userDue = (document.getElementById('suDue').value||'').trim();
+  }
+
+  function showAuthError(msg){
+    let err = document.getElementById('auth-error');
+    if(!err){
+      const card = document.querySelector('#screen-signup .card');
+      if(!card) return;
+      err = document.createElement('div');
+      err.id = 'auth-error';
+      err.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:10px;padding:10px 13px;font-size:13px;margin-bottom:8px;line-height:1.4;';
+      card.insertBefore(err, document.getElementById('suSubmit'));
+    }
+    err.textContent = msg;
+    err.style.display = 'block';
+  }
+  function hideAuthError(){ const e=document.getElementById('auth-error'); if(e) e.style.display='none'; }
+
+  async function completeSignup(){
+    hideAuthError();
+    const sb = getSupabase();
+
+    // No Supabase configured — fall back to demo mode
+    if(!sb){
+      signedIn=true;
+      document.querySelectorAll('.signup-card').forEach(c=>c.remove());
+      if(authMode==='signin'){
+        userName = userName || 'there';
+        userEmail = userEmail || '';
+        saveProfile(); fillHome(); goTo('screen-home'); return;
+      }
+      userName = (document.getElementById('suName').value||'').trim();
+      userEmail = (document.getElementById('suEmail').value||'').trim();
+      userDue = (document.getElementById('suDue').value||'').trim();
+      saveProfile(); fillHome(); goTo('screen-home');
+      const name = userName ? userName.split(' ')[0] : '';
+      toast(name ? "You\'re all set, "+name+'!' : "You\'re all set!"); return;
+    }
+
+    const email = (document.getElementById('suEmail').value||'').trim();
+    const pass = (document.getElementById('suPass').value||'').trim();
+    if(!email){ showAuthError('Please enter your email address.'); return; }
+    if(!pass || pass.length < 6){ showAuthError('Password must be at least 6 characters.'); return; }
+
+    setSubmitLoading(true, authMode);
+    try{
+      if(authMode === 'signin'){
+        const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
+        if(error){ showAuthError(error.message); setSubmitLoading(false, 'signin'); return; }
+        await afterAuth(data.user);
+      } else {
+        const name = (document.getElementById('suName').value||'').trim();
+        const due = (document.getElementById('suDue').value||'').trim();
+        const {data, error} = await sb.auth.signUp({
+          email, password: pass,
+          options:{ data:{ name: name || null, due_date: due || null } }
+        });
+        if(error){ showAuthError(error.message); setSubmitLoading(false, 'create'); return; }
+        if(data.user && !data.session){
+          // Email confirmation required
+          showAuthError('Check your email — we sent you a confirmation link to activate your account.');
+          setSubmitLoading(false, 'create'); return;
+        }
+        userName = name;
+        userDue = due;
+        await afterAuth(data.user);
+      }
+    }catch(e){ showAuthError('Something went wrong. Please try again.'); setSubmitLoading(false, authMode); }
+  }
+
+  async function signInWithGoogle(){
+    const sb = getSupabase();
+    if(!sb){ toast('Google sign-in needs Supabase to be configured first.'); return; }
+    await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options:{ redirectTo: window.location.origin + window.location.pathname }
+    });
+  }
+
+  async function afterAuth(user){
+    if(!user) return;
+    signedIn = true;
+    userEmail = user.email || '';
+    const meta = user.user_metadata || {};
+    if(!userName) userName = meta.name || meta.full_name || '';
+    if(!userDue) userDue = meta.due_date || '';
+    // Sync with DB
+    try{ DB.customer(); }catch(e){}
+    document.querySelectorAll('.signup-card').forEach(c=>c.remove());
     saveProfile(); fillHome();
     goTo('screen-home');
     const name = userName ? userName.split(' ')[0] : '';
-    toast(name ? "You're all set, "+name+'!' : "You're all set!");
+    toast(name ? "You\'re all set, "+name+'!' : "You\'re all set!");
+  }
+
+  // Check for existing session on load (handles returning users & OAuth redirects)
+  async function checkExistingSession(){
+    const sb = getSupabase();
+    if(!sb) return;
+    try{
+      const {data:{session}} = await sb.auth.getSession();
+      if(session && session.user){
+        signedIn = true;
+        userEmail = session.user.email || '';
+        const meta = session.user.user_metadata || {};
+        if(!userName) userName = meta.name || meta.full_name || '';
+        if(!userDue) userDue = meta.due_date || '';
+        await loadState();
+        saveProfile(); fillHome();
+        goTo('screen-home');
+      }
+    }catch(e){}
+  }
+
+  async function signOut(){
+    const sb = getSupabase();
+    if(sb){ try{ await sb.auth.signOut(); }catch(e){} }
+    signedIn = false;
+    userName = ''; userEmail = ''; userDue = '';
+    goTo('screen-landing');
   }
   function fillHome(){ const e=document.getElementById('home-name'); if(e) e.textContent = userName ? userName.split(' ')[0] : 'there'; }
   function openChat(){ goTo('screen-chat'); initChat(); }
@@ -1952,7 +2109,7 @@ Output rules (the app reads these markers and hides them from the user):
   function editProfileName(){ openNameDialog('Your name', userName, 'Your name', function(v){ userName=v; saveProfile(); renderProfile(); fillHome(); }); }
   function editProfileDue(){ openNameDialog('Due date', userDue, 'e.g. 12 August 2026', function(v){ userDue=v; saveProfile(); renderProfile(); }); }
   function toggleTtsPref(btn){ ttsOn=!ttsOn; btn.classList.toggle('on', ttsOn); }
-  function signOut(){ signedIn=false; goTo('screen-landing'); }
+  // signOut now handled above with Supabase
   function saveProfile(){ store.set('wendy-profile', JSON.stringify({name:userName,email:userEmail,due:userDue})); try{ DB.customer(); }catch(e){} }
 
   /* ---- home dashboard ---- */
@@ -2058,6 +2215,10 @@ Output rules (the app reads these markers and hides them from the user):
   }
 
   ensureState();
+  // Check for existing Supabase session (returns existing users + handles OAuth redirects)
+  // Supabase public keys are injected by the netlify/functions/env.js snippet at build time
+  // or can be set directly: window.__SUPABASE_URL__ and window.__SUPABASE_ANON_KEY__
+  checkExistingSession();
 </script>
 </body>
 </html>
