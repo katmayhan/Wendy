@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wendy — catalogue admin</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box}
+:root{--bg:#f6f4f0;--panel:#fff;--line:#e6e1d8;--line2:#d4cec2;--ink:#2c2823;--ink2:#6f6659;--ink3:#9a9085;
+ --coral:#ff6242;--coral-bg:#fff2ee;--green:#1f9d72;--green-bg:#e3f6ef;--amber:#b8791a;--amber-bg:#fdf1dd;
+ --red:#c0392b;--red-bg:#fdecea;--r:10px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5}
+.wrap{display:flex;min-height:100vh}
+.side{width:212px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:9px;padding:0 8px 14px}
+.brand b{font-size:16px;font-weight:600;display:block}.brand span{font-size:11px;color:var(--ink3)}
+.navsec{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;padding:12px 9px 5px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:8px;cursor:pointer;color:var(--ink2);font-size:13.5px;user-select:none}
+.nav:hover{background:var(--bg)}.nav.on{background:var(--coral-bg);color:var(--coral);font-weight:600}
+.nav i{font-size:17px}
+.who{margin-top:auto;padding:10px 9px;font-size:11.5px;color:var(--ink3);border-top:1px solid var(--line)}
+.main{flex:1;min-width:0;padding:22px 26px 80px}
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+h1{font-size:21px;font-weight:600;margin:0 0 3px}.sub{color:var(--ink2);font-size:13px;margin:0}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+button,.btn{font:inherit;font-size:13px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer}
+button:hover:not(:disabled){background:var(--bg)}button:disabled{opacity:.5;cursor:default}
+.btn.pri,button.pri{background:var(--coral);border-color:var(--coral);color:#fff;font-weight:600}
+.btn.pri:hover,button.pri:hover:not(:disabled){background:#ef5334}
+button.danger{color:var(--red);border-color:#f0c8c2}
+input,select,textarea{font:inherit;font-size:13.5px;width:100%;padding:8px 11px;border:1px solid var(--line2);border-radius:8px;background:var(--panel);color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--coral);box-shadow:0 0 0 3px rgba(255,98,66,.11)}
+textarea{min-height:62px;resize:vertical}
+label{font-size:12px;color:var(--ink2);display:block;margin-bottom:4px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.card h3{font-size:14px;font-weight:600;margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grid{display:grid;gap:11px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-weight:600;font-size:11.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;padding:0 10px 9px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--bg)}
+.pill{display:inline-block;font-size:11.5px;padding:3px 9px;border-radius:99px;font-weight:600}
+.p-rent{background:var(--green-bg);color:var(--green)}.p-buy{background:var(--coral-bg);color:var(--coral)}
+.p-skip{background:#efeae2;color:#867c6e}.p-live{background:var(--green-bg);color:var(--green)}
+.p-draft{background:var(--amber-bg);color:var(--amber)}.p-tag{background:#eef1f7;color:#4a5878}
+.thumb{width:38px;height:38px;border-radius:7px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:16px;flex-shrink:0;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.media{width:96px;height:96px;border-radius:9px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink3);position:relative;font-size:20px;overflow:hidden}
+.media img,.media video{width:100%;height:100%;object-fit:cover}
+.media.hero{border:2px solid var(--coral)}
+.media .tag{position:absolute;bottom:4px;left:4px;background:var(--coral);color:#fff;font-size:9.5px;padding:2px 6px;border-radius:5px;font-weight:600}
+.media .del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+.media .sethero{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.55);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+.media[draggable]{cursor:grab}.media.dragging{opacity:.35;cursor:grabbing}.media.add{border:1.5px dashed var(--line2);flex-direction:column;gap:3px;font-size:11px;cursor:pointer}
+.note{background:var(--coral-bg);border:1px solid #ffd9cf;border-radius:8px;padding:10px 12px;font-size:12.5px;color:#a3462c;margin-bottom:12px}
+.note.ok{background:var(--green-bg);border-color:#bfe6d7;color:#186b50}
+.note.warn{background:var(--amber-bg);border-color:#f0dcb4;color:#8a5a11}
+.muted{color:var(--ink2);font-size:12.5px}
+.linkrow{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--bg);border-radius:8px;margin-bottom:6px;font-size:13px}
+.dash{border:1.5px dashed var(--line2);background:transparent;color:var(--ink2);cursor:pointer}
+.crumb{font-size:12.5px;color:var(--ink2);margin-bottom:2px;cursor:pointer}.crumb:hover{color:var(--coral)}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px}
+.stat .n{font-size:22px;font-weight:600}.stat .l{font-size:12px;color:var(--ink2)}
+.grouphd{font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;margin:0 0 9px}
+.scorerow{display:flex;align-items:center;gap:13px;padding:6px 0}
+.scorelab{width:180px;flex-shrink:0;font-size:13.5px}
+.scoreval{width:56px;flex-shrink:0;text-align:right;font-size:12.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.scorerow input[type=range]{flex:1;width:auto;padding:0;border:none;background:transparent;-webkit-appearance:none;height:20px;cursor:pointer}
+.scorerow input[type=range]:focus{box-shadow:none}
+.scorerow input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:99px;background:var(--line)}
+.scorerow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--coral);margin-top:-5.5px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.scorerow input[type=range]::-moz-range-track{height:5px;border-radius:99px;background:var(--line)}
+.scorerow input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--coral);border:2px solid #fff}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:6px 11px;font-size:12.5px;margin:0 6px 6px 0}
+.chip i{font-size:13px;color:var(--ink3);cursor:pointer}
+.tagchip{cursor:pointer;user-select:none}.tagchip.on{background:var(--coral-bg);border-color:#ffc9b3;color:var(--coral);font-weight:600}.dashchip{border:1.5px dashed var(--line2);background:transparent;color:var(--ink2);cursor:pointer}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 14px;font-size:13.5px;cursor:pointer;color:var(--ink2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--coral);border-bottom-color:var(--coral);font-weight:600}
+.tab.addv{color:var(--ink3)}
+.drop{border:1.5px dashed var(--line2);border-radius:var(--r);padding:30px;text-align:center;color:var(--ink2);background:var(--panel);cursor:pointer}
+.drop.over{border-color:var(--coral);background:var(--coral-bg)}
+.login{max-width:360px;margin:12vh auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#2c2823;color:#fff;padding:11px 18px;border-radius:99px;font-size:13px;z-index:999;opacity:0;transition:opacity .2s}
+.toast.on{opacity:1}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line2);border-top-color:var(--coral);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:900px){.side{width:62px;padding:14px 8px}.brand span,.nav span,.navsec,.who{display:none}
+ .brand{justify-content:center}.nav{justify-content:center}.main{padding:16px}.scorelab{width:120px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+var SUPA_URL="https://cytenejpdqdxwzkuljjl.supabase.co";
+var SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dGVuZWpwZHFkeHd6a3VsampsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3MDAyMzQsImV4cCI6MjA5OTI3NjIzNH0.6aNwoqmJJScsex-q6YW7TGbqh2-jeCQFt8pX59qIKR4";
+</script>
+<script>
+/* ================= state ================= */
+var TK=null, ME=null, IS_ADMIN=false;
+var DATA={cats:[],browse:[],attrs:[],products:[],retailers:[]};
+var state={gcat:'',view:'products',q:'',cat:'',pid:null,variant:null,attrCat:null,busy:false};
+var $=function(s){return document.querySelector(s);};
+var APP=$('#app');
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function toast(m,bad){var t=$('#toast');t.textContent=m;t.style.background=bad?'#c0392b':'#2c2823';
+  t.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('on');},2600);}
+
+/* ================= supabase ================= */
+function hdr(extra){
+  var h={"apikey":SUPA_KEY,"Authorization":"Bearer "+(TK||SUPA_KEY),"Content-Type":"application/json"};
+  if(extra) for(var k in extra) h[k]=extra[k];
+  return h;
+}
+function api(path,method,body,extra){
+  return fetch(SUPA_URL+"/rest/v1"+path,{method:method||'GET',headers:hdr(extra),
+    body:body?JSON.stringify(body):undefined}).then(function(r){
+    if(!r.ok) return r.text().then(function(t){throw new Error(t||r.status);});
+    if(r.status===204) return null;
+    return r.text().then(function(t){return t?JSON.parse(t):null;});
+  });
+}
+function upsert(table,rows,onConflict){
+  var p="/"+table+(onConflict?"?on_conflict="+onConflict:"");
+  return api(p,'POST',rows,{"Prefer":"resolution=merge-duplicates,return=representation"});
+}
+function del(table,filter){ return api("/"+table+"?"+filter,'DELETE',null,{"Prefer":"return=minimal"}); }
+
+/* ================= auth ================= */
+function saveTok(j){
+  TK=j.access_token; ME=j.user||null;
+  try{localStorage.setItem('wendy_admin_tok',JSON.stringify({t:TK,u:ME,exp:Date.now()+3500e3}));}catch(e){}
+}
+function loadTok(){
+  try{var s=JSON.parse(localStorage.getItem('wendy_admin_tok')||'null');
+    if(s&&s.exp>Date.now()){TK=s.t;ME=s.u;return true;}}catch(e){}
+  return false;
+}
+function logout(){TK=null;ME=null;IS_ADMIN=false;
+  try{localStorage.removeItem('wendy_admin_tok');}catch(e){}
+  renderLogin();}
+
+function loginGoogle(){
+  var back=location.origin+location.pathname;
+  location.href=SUPA_URL+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(back);
+}
+function grabHashToken(){
+  if(!location.hash||location.hash.indexOf("access_token=")<0) return false;
+  var q={};location.hash.slice(1).split("&").forEach(function(kv){
+    var p=kv.split("=");q[decodeURIComponent(p[0])]=decodeURIComponent(p[1]||"");});
+  if(!q.access_token) return false;
+  saveTok({access_token:q.access_token,refresh_token:q.refresh_token,
+           expires_in:parseInt(q.expires_in||"3600",10)});
+  try{history.replaceState(null,"",location.pathname);}catch(e){location.hash="";}
+  return true;
+}
+function login(email,pass,btn){
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Signing in';
+  fetch(SUPA_URL+"/auth/v1/token?grant_type=password",{method:'POST',
+    headers:{"apikey":SUPA_KEY,"Content-Type":"application/json"},
+    body:JSON.stringify({email:email,password:pass})})
+   .then(function(r){return r.json();})
+   .then(function(j){
+     if(!j.access_token){throw new Error(j.error_description||j.msg||'Wrong email or password');}
+     saveTok(j); return checkAdmin();
+   })
+   .then(function(ok){
+     if(!ok){logout();throw new Error('That account is not an admin.');}
+     boot();
+   })
+   .catch(function(e){
+     btn.disabled=false;btn.textContent='Sign in';
+     var el=$('#loginerr'); if(el){el.textContent=e.message;el.style.display='block';}
+   });
+}
+function checkAdmin(){
+  return api("/admins?select=user_id&limit=1").then(function(rows){
+    IS_ADMIN=Array.isArray(rows)&&rows.length>0; return IS_ADMIN;
+  }).catch(function(){return false;});
+}
+
+/* ================= storage ================= */
+function uploadMedia(productId,file){
+  var isVid=/^video\//.test(file.type);
+  var ext=(file.name.split('.').pop()||'bin').toLowerCase();
+  var path=productId+"/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"."+ext;
+  return fetch(SUPA_URL+"/storage/v1/object/product-media/"+encodeURI(path),{
+      method:'POST',
+      headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+TK,"Content-Type":file.type||'application/octet-stream',"x-upsert":"true"},
+      body:file})
+    .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(t);}); return r.json(); })
+    .then(function(){
+      var existing=(MEDIA[productId]||[]).length;
+      return upsert('product_images',[{product_id:productId,storage_path:path,
+        media_type:isVid?'video':'image',sort_order:existing,is_hero:existing===0}],'id');
+    });
+}
+function mediaUrl(p){ return SUPA_URL+"/storage/v1/object/public/product-media/"+encodeURI(p); }
+function deleteMedia(row){
+  return fetch(SUPA_URL+"/storage/v1/object/product-media/"+encodeURI(row.storage_path),
+      {method:'DELETE',headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+TK}})
+    .catch(function(){})
+    .then(function(){ return del('product_images','id=eq.'+row.id); });
+}
+
+/* ================= load ================= */
+var MEDIA={};      // product_id -> [rows]
+var COMPAT=[];     // compatibility rows
+var OFFERS={};     // product_id -> [rows]
+
+function boot(){
+  grabHashToken();
+  APP.innerHTML='<div style="padding:60px;text-align:center;color:#9a9085"><span class="spin"></span> Loading catalogue…</div>';
+  Promise.all([
+    api("/categories?select=*&order=sort_order").catch(function(){return [];}),
+    api("/browse_categories?select=*&order=sort_order").catch(function(){return [];}),
+    api("/attribute_defs?select=*&order=sort_order").catch(function(){return [];}),
+    api("/products?select=*&order=sort_order").catch(function(){return [];}),
+    api("/retailers?select=*").catch(function(){return [];}),
+    api("/product_images?select=*&order=sort_order").catch(function(){return [];}),
+    api("/compatibility?select=*").catch(function(){return [];}),
+    api("/offers?select=*").catch(function(){return [];}),
+    api("/tags?select=*&order=sort_order").catch(function(){return [];}),
+    api("/timeline_phases?select=*&order=sort_order").catch(function(){return [];}),
+    api("/guidance_notes?select=*&order=weight.desc").catch(function(){return [];})
+  ]).then(function(r){
+    DATA.cats=r[0]||[]; DATA.browse=r[1]||[]; DATA.attrs=r[2]||[];
+    DATA.products=r[3]||[]; DATA.retailers=r[4]||[];
+    MEDIA={}; (r[5]||[]).forEach(function(m){(MEDIA[m.product_id]=MEDIA[m.product_id]||[]).push(m);});
+    COMPAT=r[6]||[];
+    DATA.tags=r[8]||[]; DATA.phases=r[9]||[]; DATA.guidance=r[10]||[];
+    OFFERS={}; (r[7]||[]).forEach(function(o){(OFFERS[o.product_id]=OFFERS[o.product_id]||[]).push(o);});
+    if(!state.attrCat) state.attrCat=(DATA.cats[0]||{}).slug||null;
+    renderApp();
+  }).catch(function(e){
+    APP.innerHTML='<div style="padding:60px;text-align:center"><p>Could not load the catalogue.</p>'+
+     '<p class="muted">'+esc(e.message)+'</p>'+
+     '<p class="muted">Have you run <b>catalogue-schema.sql</b> in Supabase yet?</p>'+
+     '<button onclick="logout()">Sign out</button></div>';
+  });
+}
+
+/* ================= helpers ================= */
+function catName(s){for(var i=0;i<DATA.cats.length;i++)if(DATA.cats[i].slug===s)return DATA.cats[i].name;return s||'—';}
+function catPath(s){var c=null;for(var i=0;i<DATA.cats.length;i++)if(DATA.cats[i].slug===s)c=DATA.cats[i];
+  if(!c)return s||'—';return c.parent_slug?catName(c.parent_slug)+' › '+c.name:c.name;}
+function bases(){return DATA.products.filter(function(p){return !p.base_product_id;});}
+function variantsOf(id){return DATA.products.filter(function(p){return p.base_product_id===id;});}
+function family(id){var b=byId(id);if(!b)return [];var v=variantsOf(id);return v.length?v:[b];}
+function byId(id){for(var i=0;i<DATA.products.length;i++)if(DATA.products[i].id===id)return DATA.products[i];return null;}
+function attrsFor(cat){return DATA.attrs.filter(function(a){return a.category_slug===cat;})
+  .sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});}
+function arr(v){ if(Array.isArray(v))return v; if(!v)return []; try{return JSON.parse(v);}catch(e){return [];} }
+function verdictPill(v){var m={RENT:'p-rent',BUY:'p-buy',SKIP:'p-skip'};v=(v||'').toUpperCase();
+  if(!m[v])return '<span class="pill p-skip">—</span>';
+  return '<span class="pill '+m[v]+'">'+v.charAt(0)+v.slice(1).toLowerCase()+'</span>';}
+</script>
+<script>
+/* ================= login ================= */
+function renderLogin(){
+  APP.innerHTML='<div class="login">'+
+   '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'+WICON(34)+
+   '<div><b style="font-size:17px">Wendy admin</b><div class="muted">Catalogue management</div></div></div>'+
+   '<button id="lg" style="width:100%;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:12px">'+'<svg width="17" height="17" viewBox="0 0 48 48"><path fill="#4285F4" d="M45 24c0-1.6-.1-2.7-.4-3.9H24v7.1h12c-.2 1.9-1.5 4.7-4.4 6.6l6.7 5.2C42.2 35.3 45 30.1 45 24z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.3c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.700L4.4 33c3.6 7.1 11 13 19.6 13z"/><path fill="#FBBC05" d="M11.5 27.9c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l-7.1-5.5C2.9 16.5 2 20.1 2 23.5s.9 7 2.4 9.9l7.1-5.5z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.9 4.4 14l7.1 5.5C13.3 13.3 18.2 9.5 24 9.5z"/></svg>'+'Continue with Google</button>'+'<div style="display:flex;align-items:center;gap:10px;margin:0 0 12px"><div style="flex:1;height:1px;background:var(--line)"></div><span class="muted" style="font-size:11.5px">or use a password</span><div style="flex:1;height:1px;background:var(--line)"></div></div>'+
+    '<div style="margin-bottom:10px"><label>Email</label><input id="le" type="email" autocomplete="username"></div>'+
+   '<div style="margin-bottom:14px"><label>Password</label><input id="lp" type="password" autocomplete="current-password"></div>'+
+   '<div id="loginerr" class="note" style="display:none"></div>'+
+   '<button class="pri" id="lb" style="width:100%">Sign in</button></div>';
+  var go=function(){login($('#le').value.trim(),$('#lp').value,$('#lb'));};
+  $('#lb').onclick=go; var gb=$('#lg'); if(gb) gb.onclick=loginGoogle;
+  $('#lp').onkeydown=function(e){if(e.key==='Enter')go();};
+  $('#le').focus();
+}
+function WICON(w){return '<svg viewBox="0 0 100 100" width="'+w+'"><circle cx="50" cy="50" r="50" fill="#ffd98a"/>'+
+ '<path d="M47 30 C42 25,38 26,40 30 C38 34,42 35,47 30 Z" fill="#c75d76"/><path d="M53 30 C58 25,62 26,60 30 C62 34,58 35,53 30 Z" fill="#c75d76"/>'+
+ '<circle cx="50" cy="30" r="2.4" fill="#a84860"/><circle cx="50" cy="56" r="27" fill="#ff7a5c"/>'+
+ '<circle cx="33.7" cy="64.4" r="4.4" fill="#ff9e86"/><circle cx="66.3" cy="64.4" r="4.4" fill="#ff9e86"/>'+
+ '<circle cx="40" cy="54" r="8" fill="#fff" fill-opacity="0.16" stroke="#3a2418" stroke-width="2.4"/>'+
+ '<circle cx="60" cy="54" r="8" fill="#fff" fill-opacity="0.16" stroke="#3a2418" stroke-width="2.4"/>'+
+ '<path d="M48 53 q2 -1.5 4 0" stroke="#3a2418" stroke-width="2" fill="none"/>'+
+ '<path d="M32 52.6 l-3.8 -1.4 M68 52.6 l3.8 -1.4" stroke="#3a2418" stroke-width="2.4" stroke-linecap="round" fill="none"/>'+
+ '<circle cx="40" cy="55" r="2.4" fill="#3a2418"/><circle cx="60" cy="55" r="2.4" fill="#3a2418"/>'+
+ '<path d="M42 65 q8 7 16 0" stroke="#3a2418" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>';}
+
+/* ================= chrome ================= */
+var NAVS=[['products','box','Products'],['categories','folder','Categories'],
+ ['attributes','adjustments','Attributes'],['guidance','book','Guidance'],
+ ['retailers','building-store','Retailers'],
+ ['import','upload','Bulk import']];
+function renderApp(){
+  /* open-access banner */
+  APP.innerHTML='<div class="wrap"><div class="side">'+
+   '<div class="brand">'+WICON(30)+'<div><b>Wendy</b><span>Catalogue admin</span></div></div>'+
+   '<div class="navsec">Catalogue</div>'+
+   NAVS.map(function(n){return '<div class="nav'+(state.view===n[0]||(n[0]==='products'&&state.view==='editor')?' on':'')+
+     '" onclick="go(\''+n[0]+'\')"><i class="ti ti-'+n[1]+'"></i><span>'+n[2]+'</span></div>';}).join('')+
+   '<div class="who">'+esc((ME&&ME.email)||'')+'<br><span style="cursor:pointer;text-decoration:underline" onclick="logout()">Sign out</span></div>'+
+   '</div><div class="main" id="main"></div></div>';
+  paint();
+}
+function go(v,pid){state.view=v;if(pid!==undefined){state.pid=pid;state.variant=null;}renderApp();}
+function paint(){
+  var V={products:vProducts,editor:vEditor,categories:vCategories,attributes:vAttributes,
+         guidance:vGuidance,retailers:vRetailers,import:vImport};
+  $('#main').innerHTML=(V[state.view]||vProducts)();
+  if(state.view==='editor') wireEditor();
+  if(state.view==='import') wireImport();
+  window.scrollTo(0,0);
+}
+function refresh(){paint();}
+
+
+/* ================= guidance ================= */
+var TYPE_LABEL={pattern:'Pattern',local_knowledge:'Local knowledge',rule_of_thumb:'Rule of thumb',
+  common_mistake:'Common mistake',journey:'Typical journey',seasonal:'Seasonal',safety:'Safety'};
+function guidanceScopeLabel(g){
+  if(g.scope==='global') return 'Everywhere';
+  if(g.scope==='category') return catPath(g.category_slug);
+  var p=byId(g.product_id); return p?((p.brand||'')+' '+(p.name||'')):(g.product_id||'—');
+}
+function vGuidance(){
+  var notes=(DATA.guidance||[]).slice();
+  if(state.gcat==='global') notes=notes.filter(function(g){return g.scope==='global';});
+  else if(state.gcat) notes=notes.filter(function(g){return g.category_slug===state.gcat;});
+  var opts='<option value="">All scopes</option><option value="global"'+(state.gcat==='global'?' selected':'')+'>Everywhere</option>'+
+    (DATA.cats||[]).map(function(c){return '<option value="'+esc(c.slug)+'"'+(state.gcat===c.slug?' selected':'')+'>'+(c.parent_slug?'— ':'')+esc(c.name)+'</option>';}).join('');
+  return head('Guidance','What Wendy knows beyond the products themselves — patterns, local knowledge, rules of thumb and common mistakes.')+
+    '<div class="note"><i class="ti ti-bulb"></i> Write these as plain prose, the way you would explain it to a friend. Wendy reads them as context when she advises, so a well-written paragraph is worth more than bullet points.</div>'+
+    '<div class="row" style="margin-bottom:12px">'+
+      '<select onchange="state.gcat=this.value;paint()" style="max-width:240px">'+opts+'</select>'+
+      '<span class="muted">'+notes.length+' note'+(notes.length===1?'':'s')+'</span>'+
+      '<div style="flex:1"></div><button class="pri" onclick="newNote()">New note</button></div>'+
+    (notes.length? notes.map(guidanceCard).join('') :
+      '<div class="card"><p class="muted" style="margin:0">No guidance yet for this scope.</p></div>');
+}
+function guidanceCard(g){
+  var wk=(g.phase_start_week!=null||g.phase_end_week!=null)
+    ? 'weeks '+(g.phase_start_week==null?'any':g.phase_start_week)+' to '+(g.phase_end_week==null?'any':g.phase_end_week) : '';
+  return '<div class="card" id="g_'+g.id+'">'+
+    '<div class="row" style="justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
+      '<div style="flex:1;min-width:0">'+
+        '<input id="gt_'+g.id+'" value="'+esc(g.title)+'" style="font-weight:600;border-color:transparent;padding-left:0;font-size:15px">'+
+        '<div class="row" style="gap:6px;margin-top:4px">'+
+          '<span class="pill p-tag">'+esc(TYPE_LABEL[g.note_type]||g.note_type)+'</span>'+
+          '<span class="pill p-tag">'+esc(guidanceScopeLabel(g))+'</span>'+
+          (wk?'<span class="pill p-tag">'+esc(wk)+'</span>':'')+
+          '<span class="pill '+(g.weight>=4?'p-live':'p-draft')+'">weight '+g.weight+'</span>'+
+          (g.active?'':'<span class="pill p-skip">off</span>')+
+        '</div></div>'+
+      '<div class="row"><button onclick="saveNote(\''+g.id+'\')">Save</button>'+
+      '<button class="dgr" onclick="deleteNote(\''+g.id+'\')"><i class="ti ti-trash"></i></button></div>'+
+    '</div>'+
+    '<textarea id="gb_'+g.id+'" style="min-height:112px">'+esc(g.body)+'</textarea>'+
+    '<div class="grid g4" style="margin-top:11px">'+
+      '<div><label>Type</label><select id="gy_'+g.id+'">'+
+        Object.keys(TYPE_LABEL).map(function(k){return '<option value="'+k+'"'+(g.note_type===k?' selected':'')+'>'+esc(TYPE_LABEL[k])+'</option>';}).join('')+
+      '</select></div>'+
+      '<div><label>Applies to</label><select id="gs_'+g.id+'">'+
+        '<option value="global"'+(g.scope==='global'?' selected':'')+'>Everywhere</option>'+
+        (DATA.cats||[]).map(function(c){return '<option value="cat:'+esc(c.slug)+'"'+((g.scope==='category'&&g.category_slug===c.slug)?' selected':'')+'>'+(c.parent_slug?'— ':'')+esc(c.name)+'</option>';}).join('')+
+      '</select></div>'+
+      '<div><label>From week</label><input id="gw1_'+g.id+'" value="'+(g.phase_start_week==null?'':g.phase_start_week)+'"></div>'+
+      '<div><label>To week</label><input id="gw2_'+g.id+'" value="'+(g.phase_end_week==null?'':g.phase_end_week)+'"></div>'+
+    '</div>'+
+    '<div class="grid g2" style="margin-top:11px">'+
+      '<div><label>How strongly Wendy leans on it</label><select id="gwt_'+g.id+'">'+
+        [1,2,3,4,5].map(function(n){return '<option'+(g.weight===n?' selected':'')+'>'+n+'</option>';}).join('')+
+      '</select></div>'+
+      '<div><label>Status</label><select id="ga_'+g.id+'">'+
+        '<option'+(g.active?' selected':'')+'>Live</option><option'+(g.active?'':' selected')+'>Off</option></select></div>'+
+    '</div>'+
+    tagPicker('gtags_'+g.id,'Only when these apply',g.applies_when,null,'leave empty to always apply')+
+    '</div>';
+}
+function newNote(){
+  var row={scope:(state.gcat&&state.gcat!=='global')?'category':'global',
+    category_slug:(state.gcat&&state.gcat!=='global')?state.gcat:null,
+    title:'New note', body:'', note_type:'pattern', weight:3, active:true};
+  upsert('guidance_notes',[row]).then(function(){ toast('Note added'); return reload(); })
+    .catch(function(){ toast('Could not add the note'); });
+}
+function saveNote(id){
+  var g=(DATA.guidance||[]).filter(function(x){return String(x.id)===String(id);})[0]; if(!g)return;
+  var sc=val('gs_'+id)||'global';
+  var row={id:g.id, title:val('gt_'+id)||'Untitled', body:val('gb_'+id)||'',
+    note_type:val('gy_'+id)||'pattern',
+    scope: sc==='global'?'global':'category',
+    category_slug: sc==='global'?null:sc.replace(/^cat:/,''),
+    phase_start_week:num('gw1_'+id), phase_end_week:num('gw2_'+id),
+    weight:parseInt(val('gwt_'+id)||'3',10),
+    active:(val('ga_'+id)==='Live'),
+    applies_when:tagsOf('gtags_'+id)};
+  upsert('guidance_notes',[row],'id').then(function(){ toast('Saved'); return reload(); })
+    .catch(function(){ toast('Could not save'); });
+}
+function deleteNote(id){
+  if(!confirm('Delete this note?')) return;
+  del('guidance_notes','id=eq.'+encodeURIComponent(id)).then(function(){ toast('Deleted'); return reload(); })
+    .catch(function(){ toast('Could not delete'); });
+}
+function reload(){
+  return api("/guidance_notes?select=*&order=weight.desc").then(function(r){DATA.guidance=r||[];paint();});
+}
+
+/* ================= products ================= */
+function vProducts(){
+  var q=state.q.toLowerCase();
+  var list=bases().filter(function(p){
+    var vs=family(p.id);
+    var hay=(p.brand+' '+p.name+' '+vs.map(function(v){return v.configuration_name||'';}).join(' ')).toLowerCase();
+    var okq=!q||hay.indexOf(q)>=0;
+    var okc=!state.cat||vs.some(function(v){return v.category_slug===state.cat||String(v.category_slug||'').indexOf(state.cat+':')===0;});
+    return okq&&okc;});
+  var opts='<option value="">All categories</option>'+DATA.cats.map(function(c){
+    return '<option value="'+esc(c.slug)+'"'+(state.cat===c.slug?' selected':'')+'>'+(c.parent_slug?'— ':'')+esc(c.name)+'</option>';}).join('');
+  var live=DATA.products.filter(function(p){return p.active;}).length;
+  var nomedia=bases().filter(function(p){return !(MEDIA[p.id]||[]).length;}).length;
+  if(!DATA.products.length){
+    return head('Products','Nothing in the catalogue yet.')+
+     '<div class="card" style="text-align:center;padding:40px">'+
+     '<p style="font-size:15px">Your catalogue is empty.</p>'+
+     '<p class="muted">Import your spreadsheet to get started, or add a product by hand.</p>'+
+     '<div class="row" style="justify-content:center;margin-top:14px">'+
+     '<button class="pri" onclick="go(\'import\')"><i class="ti ti-upload"></i> Import a spreadsheet</button>'+
+     '<button onclick="newProduct()">Add one by hand</button></div></div>';
+  }
+  return head('Products',DATA.products.length+' rows · '+bases().length+' base products · '+live+' live',
+     '<button onclick="go(\'import\')"><i class="ti ti-upload"></i> Import</button>'+
+     '<button class="pri" onclick="newProduct()">New product</button>')+
+   '<div class="grid g4" style="margin-bottom:14px">'+
+   stat(bases().length,'Base products')+stat(DATA.products.length-bases().length,'Variants')+
+   stat(live,'Live in app')+stat(nomedia,'Missing media')+'</div>'+
+   '<div class="card"><div class="row" style="margin-bottom:12px">'+
+   '<input placeholder="Search brand or model" value="'+esc(state.q)+'" oninput="state.q=this.value;refresh()" style="max-width:250px">'+
+   '<select onchange="state.cat=this.value;refresh()" style="max-width:210px">'+opts+'</select>'+
+   '<span class="muted">'+list.length+' shown</span></div>'+
+   '<table><thead><tr><th></th><th>Product</th><th>Category</th><th>Variants</th><th>Verdict</th><th>Rent</th><th>Buy</th><th>Wendy-ready</th><th>Status</th></tr></thead><tbody>'+
+   (list.length?list.map(function(p){
+     var vs=family(p.id), m=(MEDIA[p.id]||[])[0];
+     return '<tr class="click" onclick="go(\'editor\',\''+esc(p.id)+'\')">'+
+      '<td><div class="thumb">'+(m?'<img src="'+mediaUrl(m.storage_path)+'" alt="">':'<i class="ti ti-photo-off"></i>')+'</div></td>'+
+      '<td><b>'+esc(p.brand||'')+' '+esc(p.name||'')+'</b><div class="muted">'+esc(p.id)+'</div></td>'+
+      '<td>'+esc(catPath(p.category_slug))+'</td>'+
+      '<td>'+(vs.length>1?'<span class="pill p-tag">'+vs.length+'</span> '+esc(vs.map(function(v){return v.configuration_name||'';}).filter(Boolean).join(', ')):'<span class="muted">—</span>')+'</td>'+
+      '<td>'+verdictPill(p.verdict)+'</td>'+
+      '<td>'+(p.rent_gbp_mo?'£'+p.rent_gbp_mo+'/mo':'—')+'</td><td>'+(p.buy_gbp?'£'+p.buy_gbp:'—')+'</td>'+'<td>'+(function(){var r=readiness(p);return '<span class="pill '+(r.score===r.total?'p-live':(r.score>=6?'p-draft':'p-skip'))+'" title="'+esc(r.missing.join(', '))+'">'+r.score+'/'+r.total+'</span>';})()+'</td>'+
+      
+      '<td><span class="pill '+(p.active?'p-live':'p-draft')+'">'+(p.active?'Live':'Draft')+'</span></td></tr>';
+    }).join('')
+    :'<tr><td colspan="8" style="text-align:center;padding:26px" class="muted">Nothing matches those filters.</td></tr>')+
+   '</tbody></table></div>';
+}
+function head(t,s,actions){return '<div class="head"><div><h1>'+esc(t)+'</h1><p class="sub">'+esc(s)+'</p></div>'+
+  (actions?'<div class="row">'+actions+'</div>':'')+'</div>';}
+function stat(n,l){return '<div class="stat"><div class="n">'+n+'</div><div class="l">'+esc(l)+'</div></div>';}
+
+function newProduct(){
+  var id=prompt('Product ID (lowercase, no spaces) — e.g. bb-push-fox5');
+  if(!id)return;
+  id=id.trim().toLowerCase().replace(/[^a-z0-9_\-:]/g,'-');
+  if(byId(id)){toast('That ID already exists',true);return;}
+  var row={id:id,name:'New product',brand:'',active:false,
+    category_slug:(DATA.cats[0]||{}).slug||null,verdict:'RENT',sort_order:DATA.products.length};
+  upsert('products',[row],'id').then(function(){DATA.products.push(row);go('editor',id);toast('Product created');})
+   .catch(function(e){toast(e.message,true);});
+}
+</script>
+<script>
+/* ================= editor ================= */
+function curProduct(){
+  var base=byId(state.pid); if(!base)return null;
+  var vs=variantsOf(base.id);
+  if(!vs.length) return base;
+  if(state.variant){var v=byId(state.variant); if(v)return v;}
+  return vs[0];
+}
+function readiness(p){
+  var need=[
+    ['description', !!(p.description&&p.description.length>40), 'Description'],
+    ['best_for_explanation', !!p.best_for_explanation, 'Best-for explanation'],
+    ['tradeoffs', taglist(p.tradeoffs).length>0, 'Trade-offs'],
+    ['suggest_when', taglist(p.suggest_when).length>0, 'Suggest-when tags'],
+    ['avoid_when', taglist(p.avoid_when).length>0, 'Avoid-when tags'],
+    ['timeline', p.timeline_start_week!=null&&p.timeline_end_week!=null, 'Timeline weeks'],
+    ['rent_value_score', p.rent_value_score!=null, 'Rent value score'],
+    ['rent_vs_buy_explanation', !!p.rent_vs_buy_explanation, 'Rent vs buy explanation'],
+    ['price', (p.rent_gbp_mo!=null||p.buy_gbp!=null), 'A price'],
+    ['media', (MEDIA[p.id]||[]).length>0, 'At least one photo']
+  ];
+  var missing=need.filter(function(n){return !n[1];}).map(function(n){return n[2];});
+  return {score:need.length-missing.length, total:need.length, missing:missing};
+}
+function readinessCard(p){
+  var r=readiness(p), pct=Math.round(r.score/r.total*100);
+  var tone = pct===100?'ok' : pct>=60?'warn':'note';
+  return '<div class="card"><h3><i class="ti ti-brain"></i> Ready for Wendy to recommend '+
+    '<span class="pill '+(pct===100?'p-live':'p-draft')+'">'+r.score+' of '+r.total+'</span></h3>'+
+    '<div class="bar" style="margin-bottom:10px"><i style="width:'+pct+'%"></i></div>'+
+    (r.missing.length
+      ? '<div class="note '+tone+'"><b>Wendy still needs:</b> '+r.missing.map(esc).join(' · ')+
+        '<div style="margin-top:5px">Without these she can describe the product but cannot judge whether it suits a particular family.</div></div>'
+      : '<div class="note ok"><i class="ti ti-check"></i> Everything Wendy needs is filled in.</div>')+
+    '</div>';
+}
+function vEditor(){
+  var base=byId(state.pid); if(!base) return vProducts();
+  var vs=variantsOf(base.id);
+  var p=curProduct();
+  var tabs='';
+  if(vs.length){
+    tabs='<div class="tabs">'+vs.map(function(v){
+      return '<div class="tab'+(v.id===p.id?' on':'')+'" onclick="state.variant=\''+esc(v.id)+'\';refresh()">'+
+       esc(v.configuration_name||v.name)+'</div>';}).join('')+
+      '<div class="tab addv" onclick="addVariant()"><i class="ti ti-plus"></i> Add configuration</div></div>';
+  }else{
+    tabs='<div class="tabs"><div class="tab on">Single product</div>'+
+      '<div class="tab addv" onclick="addVariant()"><i class="ti ti-plus"></i> Add configuration</div></div>';
+  }
+  return readinessCard(p)+'<div class="head"><div><div class="crumb" onclick="go(\'products\')">‹ Products</div>'+
+   '<h1>'+esc(base.brand||'')+' '+esc(base.name||'')+'</h1>'+
+   '<p class="sub">'+esc(catPath(p.category_slug))+(vs.length?' · '+vs.length+' configurations':'')+'</p></div>'+
+   '<div class="row"><span class="pill '+(p.active?'p-live':'p-draft')+'">'+(p.active?'Live':'Draft')+'</span>'+
+   '<button class="danger" onclick="deleteProduct(\''+esc(p.id)+'\')">Delete</button>'+
+   '<button id="fillbtn" onclick="fillWithClaude()"><i class="ti ti-wand"></i> Fill with Claude</button>'+
+   '<button class="pri" id="savebtn" onclick="saveProduct()">Save</button></div></div>'+
+   tabs+
+   '<div class="note"><i class="ti ti-info-circle"></i> Shared fields (brand, description, photos) live on the base product. '+
+   'Dimensions, best-for and suitability are per configuration.</div>'+
+   mediaCard(base.id)+
+   basicsCard(base,p,vs.length>0)+
+   pricingCard(p)+
+   contentCard(p)+
+   attrCard(p)+
+   compatCard(p)+
+   offersCard(p);
+}
+
+/* ---------- media ---------- */
+function mediaCard(pid){
+  var rows=(MEDIA[pid]||[]).slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+  return '<div class="card"><h3><i class="ti ti-photo"></i> Photos and video '+
+   '<span class="muted" style="font-weight:400">— shared across configurations</span></h3>'+
+   '<div class="row" id="mediarow">'+
+   rows.map(function(m){
+     var inner=m.media_type==='video'
+       ? '<video src="'+mediaUrl(m.storage_path)+'" muted playsinline></video>'
+       : '<img src="'+mediaUrl(m.storage_path)+'" alt="">';
+     return '<div class="media'+(m.is_hero?' hero':'')+'" draggable="true" data-mid="'+m.id+'">'+inner+
+      (m.is_hero?'<span class="tag">Hero</span>':'<div class="sethero" title="Make hero" onclick="setHero(\''+m.id+'\',\''+esc(pid)+'\')"><i class="ti ti-star"></i></div>')+
+      '<div class="del" title="Remove" onclick="rmMedia(\''+m.id+'\',\''+esc(pid)+'\')"><i class="ti ti-x"></i></div>'+
+      (m.media_type==='video'?'<span class="tag" style="left:auto;right:4px;background:#2c2823">video</span>':'')+
+      '</div>';}).join('')+
+   '<div class="media add" onclick="document.getElementById(\'mfile\').click()"><i class="ti ti-plus"></i>Add</div>'+
+   '</div>'+
+   '<input type="file" id="mfile" multiple accept="image/*,video/mp4,video/webm" style="display:none">'+
+   '<div id="mprog" class="muted" style="margin-top:9px"></div>'+
+   '<p class="muted" style="margin:8px 0 0">JPG, PNG, WebP or MP4. Up to 50MB each. The starred item is the hero shown in the app.</p></div>';
+}
+function wireDrag(pid){
+  var row=document.getElementById('mediarow'); if(!row) return;
+  var dragged=null;
+  [].forEach.call(row.querySelectorAll('.media[data-mid]'),function(el){
+    el.addEventListener('dragstart',function(e){dragged=el;el.classList.add('dragging');
+      try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','');}catch(_e){}});
+    el.addEventListener('dragend',function(){el.classList.remove('dragging');dragged=null;saveOrder(pid);});
+    el.addEventListener('dragover',function(e){e.preventDefault();
+      if(!dragged||dragged===el)return;
+      var r=el.getBoundingClientRect();
+      var before=(e.clientX-r.left)<r.width/2;
+      row.insertBefore(dragged, before?el:el.nextSibling);});
+  });
+}
+function saveOrder(pid){
+  var row=document.getElementById('mediarow'); if(!row) return;
+  var ids=[].map.call(row.querySelectorAll('.media[data-mid]'),function(el){return el.getAttribute('data-mid');});
+  var list=MEDIA[pid]||[];
+  var jobs=ids.map(function(id,i){
+    var m=null; for(var j=0;j<list.length;j++) if(String(list[j].id)===String(id)) m=list[j];
+    if(!m||m.sort_order===i) return null;
+    m.sort_order=i;
+    return upsert('product_images',[{id:m.id,product_id:pid,storage_path:m.storage_path,
+      media_type:m.media_type,is_hero:m.is_hero,sort_order:i}],'id');
+  }).filter(Boolean);
+  if(jobs.length) Promise.all(jobs).then(function(){toast('Order saved');}).catch(function(){toast('Could not save order');});
+}
+function wireEditor(){
+  try{wireDrag(curProduct().id);}catch(_e){}
+  var f=document.getElementById('mfile');
+  if(f) f.onchange=function(){ doUpload(this.files); this.value=''; };
+}
+function doUpload(files){
+  if(!files||!files.length)return;
+  var pid=state.pid, list=[].slice.call(files), done=0;
+  var prog=document.getElementById('mprog');
+  function step(){
+    if(!list.length){ reloadMedia(pid).then(function(){ if(prog)prog.textContent=''; toast(done+' file'+(done===1?'':'s')+' uploaded'); }); return; }
+    var f=list.shift();
+    if(f.size>50*1024*1024){ toast(f.name+' is over 50MB',true); return step(); }
+    if(prog) prog.innerHTML='<span class="spin"></span> Uploading '+esc(f.name)+' ('+(done+1)+' of '+(done+1+list.length)+')…';
+    uploadMedia(pid,f).then(function(){done++;step();})
+      .catch(function(e){toast('Upload failed: '+e.message,true);step();});
+  }
+  step();
+}
+function reloadMedia(pid){
+  return api("/product_images?select=*&product_id=eq."+encodeURIComponent(pid)+"&order=sort_order")
+    .then(function(rows){ MEDIA[pid]=rows||[]; refresh(); });
+}
+function rmMedia(id,pid){
+  var row=(MEDIA[pid]||[]).filter(function(m){return String(m.id)===String(id);})[0];
+  if(!row)return;
+  if(!confirm('Remove this file? This cannot be undone.'))return;
+  deleteMedia(row).then(function(){return reloadMedia(pid);}).then(function(){toast('Removed');})
+   .catch(function(e){toast(e.message,true);});
+}
+function setHero(id,pid){
+  var rows=MEDIA[pid]||[];
+  Promise.all(rows.map(function(m){
+    return upsert('product_images',[{id:m.id,product_id:pid,storage_path:m.storage_path,
+      media_type:m.media_type,sort_order:m.sort_order,is_hero:String(m.id)===String(id)}],'id');
+  })).then(function(){return reloadMedia(pid);}).then(function(){toast('Hero updated');})
+    .catch(function(e){toast(e.message,true);});
+}
+
+/* ---------- cards ---------- */
+function taglist(v){ if(!v) return []; if(Array.isArray(v)) return v; try{var p=JSON.parse(v);return Array.isArray(p)?p:[];}catch(e){return String(v).split(/[,\n]+/).map(function(x){return x.trim();}).filter(Boolean);} }
+function tagPicker(id,label,vals,type,hint){
+  var chosen=taglist(vals);
+  var vocab=(DATA.tags||[]).filter(function(t){return !type||t.tag_type===type;}).map(function(t){return t.tag_value;});
+  vocab=vocab.concat(chosen.filter(function(c){return vocab.indexOf(c)<0;}));
+  return '<div style="margin-bottom:12px"><label>'+esc(label)+(hint?' <span class="muted">'+esc(hint)+'</span>':'')+'</label>'+
+    '<div id="tp_'+id+'" data-tags=\''+esc(JSON.stringify(chosen))+'\'>'+
+    vocab.map(function(t){var on=chosen.indexOf(t)>=0;
+      return '<span class="chip tagchip'+(on?' on':'')+'" data-t="'+esc(t)+'" onclick="toggleTag(\''+id+'\',this)">'+esc(t)+'</span>';}).join('')+
+    '</div></div>';
+}
+function toggleTag(id,el){
+  var box=document.getElementById('tp_'+id);
+  var cur=[];try{cur=JSON.parse(box.getAttribute('data-tags')||'[]');}catch(e){}
+  var t=el.getAttribute('data-t'); var i=cur.indexOf(t);
+  if(i>=0){cur.splice(i,1);el.classList.remove('on');} else {cur.push(t);el.classList.add('on');}
+  box.setAttribute('data-tags',JSON.stringify(cur));
+}
+function tagsOf(id){var b=document.getElementById('tp_'+id);if(!b)return [];try{return JSON.parse(b.getAttribute('data-tags')||'[]');}catch(e){return [];}}
+function bulletBox(id,label,vals,hint){
+  var arr=taglist(vals);
+  return '<div style="margin-bottom:12px"><label>'+esc(label)+(hint?' <span class="muted">'+esc(hint)+'</span>':'')+'</label>'+
+    '<textarea id="f_'+id+'" style="min-height:74px" placeholder="One per line">'+esc(arr.join('\n'))+'</textarea></div>';
+}
+function linesOf(id){var v=val(id);if(!v)return [];return v.split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);}
+function ynSel(id,label,v){return sel(id,label,(v===true?'Yes':v===false?'No':''),['','Yes','No']);}
+function ynOf(id){var v=val(id);return v==='Yes'?true:v==='No'?false:null;}
+function fld(id,label,val,hint){return '<div><label>'+esc(label)+(hint?' <span class="muted">'+esc(hint)+'</span>':'')+
+  '</label><input id="f_'+id+'" value="'+esc(val==null?'':val)+'"></div>';}
+function sel(id,label,val,opts){return '<div><label>'+esc(label)+'</label><select id="f_'+id+'">'+
+  opts.map(function(o){return '<option'+(String(val)===String(o)?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>';}
+
+function basicsCard(base,p,hasVariants){
+  var catOpts=DATA.cats.map(function(c){return '<option value="'+esc(c.slug)+'"'+(p.category_slug===c.slug?' selected':'')+'>'+esc(catPath(c.slug))+'</option>';}).join('');
+  var brOpts='<option value="">—</option>'+DATA.browse.map(function(b){return '<option value="'+esc(b.slug)+'"'+(p.browse_category===b.slug?' selected':'')+'>'+esc(b.name)+'</option>';}).join('');
+  return '<div class="card"><h3><i class="ti ti-file-description"></i> Basics</h3>'+
+   '<div class="grid g2">'+
+   fld('brand','Brand',base.brand)+
+   fld('name','Product name',base.name)+
+   (hasVariants?fld('configuration_name','Configuration',p.configuration_name,'— this tab'):'')+
+   '<div><label>Kit list category</label><select id="f_category_slug">'+catOpts+'</select></div>'+
+   '<div><label>Browse category <span class="muted">— how parents search</span></label><select id="f_browse_category">'+brOpts+'</select></div>'+
+   fld('product_type','Product type',p.product_type,'e.g. Pushchair')+
+   sel('active','Status',p.active?'Live':'Draft',['Live','Draft'])+
+   '</div>'+
+   '<div class="grid g3" style="margin-top:11px">'+
+   fld('age_min_months','Suitable from (months)',p.age_min_months)+
+   fld('age_max_months','to (months)',p.age_max_months)+
+   '</div>'+
+   '<div style="margin-top:11px"><label>Short summary <span class="muted">— one line under the name</span></label>'+
+   '<input id="f_summary" value="'+esc(p.summary||'')+'"></div>'+
+   '<div style="margin-top:11px"><label>Description <span class="muted">— the full paragraph, also what Wendy reads</span></label>'+
+   '<textarea id="f_description" style="min-height:96px">'+esc(p.description||'')+'</textarea></div>'+
+   '<div style="margin-top:11px"><label>Internal notes <span class="muted">— never shown to users</span></label>'+
+   '<textarea id="f_notes_internal">'+esc(p.notes_internal||'')+'</textarea></div></div>';
+}
+
+function pricingCard(p){
+  return '<div class="card"><h3><i class="ti ti-currency-pound"></i> Pricing</h3>'+
+   '<p class="muted" style="margin:0 0 11px">Wendy\u2019s rent/buy/skip verdict is worked out live from each family\u2019s '+
+   'answers, so it isn\u2019t stored here \u2014 this card is just the raw prices she reasons from.</p>'+
+   '<div class="grid g4">'+
+   fld('rent_gbp_mo','Rent £/month',p.rent_gbp_mo)+
+   fld('buy_gbp','Buy £',p.buy_gbp)+
+   fld('rrp_gbp','RRP £',p.rrp_gbp)+
+   '</div>'+
+   '<div style="margin-top:14px"><div class="grouphd">How long people keep it</div><div class="grid g4">'+
+   fld('keep_months_min','Typically from',p.keep_months_min)+
+   fld('keep_months_max','to (months)',p.keep_months_max)+
+   fld('keep_months_avg','Average shown',p.keep_months_avg)+
+   fld('crossover_months','Renting beats buying to',p.crossover_months)+
+   '</div></div>'+
+   '<div style="margin-top:14px"><div class="grouphd">Resale value — drives the rent vs buy answer</div><div class="grid g3">'+
+   fld('resale_pct_12m','Worth after 12 months (%)',p.resale_pct_12m)+
+   fld('resale_pct_24m','after 24 months (%)',p.resale_pct_24m)+
+   '</div>'+rentBuyPreview(p)+'</div>'+
+   '<div style="margin-top:14px"><div class="grouphd">Ratings</div><div class="grid g3">'+
+   fld('rating','Star rating',p.rating)+
+   fld('review_count','Reviews',p.review_count)+
+   sel('review_source','Source',p.review_source||'Retailer average',['Retailer average','Trustpilot','Which?','Entered manually'])+
+   '</div></div></div>';
+}
+function rentBuyPreview(p){
+  var buy=+p.buy_gbp||0, rent=+p.rent_gbp_mo||0, mo=+p.keep_months_avg||+p.keep_months_min||0, r24=+p.resale_pct_24m||0;
+  if(!buy||!rent||!mo) return '<p class="muted" style="margin:9px 0 0">Fill in buy price, rent and months to see the comparison Wendy will show.</p>';
+  var resale=Math.round(buy*(r24/100));
+  var trueCost=buy-resale, rentCost=Math.round(rent*mo);
+  var win=trueCost<rentCost?'Buying':'Renting', diff=Math.abs(trueCost-rentCost);
+  return '<div class="note ok" style="margin:11px 0 0"><b>Over '+mo+' months:</b> '+
+   'buy £'+buy+', sell for ~£'+resale+' → true cost <b>£'+trueCost+'</b>. Rent: <b>£'+rentCost+'</b>. '+
+   win+' wins by £'+diff+'.</div>';
+}
+
+function listBox(id,title,hint,items,tone){
+  return '<div><div class="grouphd">'+esc(title)+(hint?' <span class="muted" style="font-weight:400">'+esc(hint)+'</span>':'')+'</div>'+
+   '<div id="list_'+id+'">'+items.map(function(t,i){
+     return '<div class="linkrow"><i class="ti ti-'+(tone==='bad'?'minus':'check')+'" style="color:'+(tone==='bad'?'var(--ink3)':'var(--green)')+'"></i>'+
+      '<span style="flex:1">'+esc(t)+'</span><i class="ti ti-x" style="color:var(--ink3);cursor:pointer" onclick="rmItem(\''+id+'\','+i+')"></i></div>';}).join('')+'</div>'+
+   '<div class="linkrow dash" onclick="addItem(\''+id+'\')"><i class="ti ti-plus"></i>Add</div></div>';
+}
+var LISTS={};
+function addItem(k){var v=prompt('Add to '+k.replace(/_/g,' '));if(!v)return;LISTS[k]=(LISTS[k]||[]).concat([v.trim()]);refresh();}
+function rmItem(k,i){LISTS[k]=(LISTS[k]||[]).filter(function(_,j){return j!==i;});refresh();}
+
+function contentCard(p){
+  ['highlights','best_for','not_ideal_for','pros','cons','accessories_included'].forEach(function(k){
+    if(LISTS[k]===undefined) LISTS[k]=arr(p[k]);
+  });
+  return '<div class="card"><h3><i class="ti ti-sparkles"></i> Key highlights <span class="muted" style="font-weight:400">— short chips on the product page</span></h3>'+
+   '<div>'+(LISTS.highlights||[]).map(function(t,i){return '<span class="chip">'+esc(t)+' <i class="ti ti-x" onclick="rmItem(\'highlights\','+i+')"></i></span>';}).join('')+
+   '<span class="chip dashchip" onclick="addItem(\'highlights\')"><i class="ti ti-plus"></i> Add</span></div></div>'+
+
+   '<div class="card"><h3><i class="ti ti-users"></i> Best for / not ideal for <span class="muted" style="font-weight:400">— who it suits</span></h3>'+
+   '<div class="grid g2">'+listBox('best_for','Best for','',LISTS.best_for||[],'good')+
+   listBox('not_ideal_for','Not ideal for','',LISTS.not_ideal_for||[],'bad')+'</div></div>'+
+
+   '<div class="card"><h3><i class="ti ti-scale"></i> Pros and cons <span class="muted" style="font-weight:400">— the product itself</span></h3>'+
+   '<div class="grid g2">'+listBox('pros','Pros','',LISTS.pros||[],'good')+
+   listBox('cons','Cons','',LISTS.cons||[],'bad')+'</div></div>'+
+
+   '<div class="card"><h3><i class="ti ti-package"></i> What\u2019s included</h3>'+
+   listBox('accessories_included','Included in the box','',LISTS.accessories_included||[],'good')+'</div>';
+}
+
+function attrCard(p){
+  var list=attrsFor(p.category_slug);
+  if(!list.length) return '<div class="card"><h3><i class="ti ti-adjustments"></i> Attributes</h3>'+
+    '<p class="muted">No fields defined for '+esc(catPath(p.category_slug))+' yet. '+
+    '<b style="color:var(--coral);cursor:pointer" onclick="go(\'attributes\')">Set them up</b>.</p></div>';
+  var spec=p.spec||{}; if(typeof spec==='string'){try{spec=JSON.parse(spec);}catch(e){spec={};}}
+  var groups=[]; list.forEach(function(a){var g=a.group_label||'Details';if(groups.indexOf(g)<0)groups.push(g);});
+  return '<div class="card"><h3><i class="ti ti-adjustments"></i> '+esc(catName(p.category_slug))+' details '+
+   '<span class="pill p-tag" style="font-weight:600">from your field setup</span></h3>'+
+   groups.map(function(g){
+     var items=list.filter(function(a){return (a.group_label||'Details')===g;});
+     var isScore=items.every(function(a){return a.input_type==='score';});
+     return '<div style="margin-bottom:16px"><div class="grouphd">'+esc(g)+
+       (isScore?' <span class="muted" style="font-weight:400">— shown as a bar out of 10</span>':'')+'</div>'+
+       (isScore?items.map(function(a){return attrInput(a,spec[a.key]);}).join('')
+              :'<div class="grid g3">'+items.map(function(a){return attrInput(a,spec[a.key]);}).join('')+'</div>')+'</div>';
+   }).join('')+'</div>';
+}
+function attrInput(a,val){
+  var id='a_'+a.key;
+  if(a.input_type==='score'){
+    var v=(val==null||val==='')?5:val;
+    return '<div class="scorerow"><div class="scorelab">'+esc(a.label)+'</div>'+
+      '<input type="range" id="'+id+'" min="0" max="'+(a.score_max||10)+'" value="'+esc(v)+'" '+
+      'oninput="this.nextElementSibling.textContent=this.value+\' / '+(a.score_max||10)+'\'">'+
+      '<div class="scoreval">'+esc(v)+' / '+(a.score_max||10)+'</div></div>';
+  }
+  var lab='<label>'+esc(a.label)+(a.unit?' ('+esc(a.unit)+')':'')+
+    (a.filterable?' <span class="pill p-tag" style="font-size:10px;padding:1px 6px">filter</span>':'')+'</label>';
+  if(a.input_type==='boolean')
+    return '<div>'+lab+'<select id="'+id+'"><option value="">—</option><option'+(val===true||val==='Yes'?' selected':'')+'>Yes</option><option'+(val===false||val==='No'?' selected':'')+'>No</option></select></div>';
+  if(a.input_type==='select'){
+    var opts=arr(a.options);
+    return '<div>'+lab+'<select id="'+id+'"><option value="">—</option>'+
+      opts.map(function(o){return '<option'+(String(val)===String(o)?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>';
+  }
+  return '<div>'+lab+'<input id="'+id+'" value="'+esc(val==null?'':val)+'"></div>';
+}
+
+function compatCard(p){
+  var mine=COMPAT.filter(function(c){return c.from_product===p.id||c.to_product===p.id;});
+  var KIND={fits:'direct fit',needs_adapter:'needs adapter',requires:'requires',pairs_with:'pairs with',replaces:'replaces'};
+  return '<div class="card"><h3><i class="ti ti-timeline-event"></i> When in the journey <span class="muted" style="font-weight:400">— drives Wendy\'s timing and upgrade advice</span></h3>'+
+   '<div class="note"><i class="ti ti-info-circle"></i> Weeks are counted from the birth, so pregnancy is negative. A carrycot might run 0–24, its seat unit 24–104.</div>'+
+   '<div class="grid g4">'+
+     fld('timeline_start_week','From week',p.timeline_start_week)+
+     fld('timeline_end_week','To week',p.timeline_end_week)+
+     sel('timeline_role','How Wendy treats it',p.timeline_role||'',['','primary','optional'])+
+     fld('default_rental_weeks','Default rental (weeks)',p.default_rental_weeks)+
+   '</div>'+
+   '<div class="grid g2" style="margin-top:11px">'+
+     fld('upgrade_after_weeks','Upgrade after (weeks)',p.upgrade_after_weeks,'when they move on')+
+     fld('next_product_ids','Moves on to',taglist(p.next_product_ids).join(', '),'product ids, comma separated')+
+   '</div>'+
+   '<div style="margin-top:11px"><label>Why this stage <span class="muted">— Wendy explains the timing in these words</span></label>'+
+   '<textarea id="f_timeline_explanation">'+esc(p.timeline_explanation||'')+'</textarea></div></div>'+
+
+   '<div class="card"><h3><i class="ti ti-scale-outline"></i> Rent or buy</h3>'+
+   '<div class="grid g4">'+
+     sel('rent_value_score','Rent value score',p.rent_value_score||'',['','1','2','3','4','5'])+
+     fld('typical_use_weeks','Typical use (weeks)',p.typical_use_weeks)+
+     fld('avg_rental_months','Average rental (months)',p.avg_rental_months)+
+     fld('avg_total_rental_gbp','Average total rental £',p.avg_total_rental_gbp)+
+   '</div>'+
+   '<div class="muted" style="margin-top:7px">1 = better to buy · 3 = balanced · 5 = renting clearly wins</div>'+
+   '<div class="grid g2" style="margin-top:11px">'+
+     fld('resale_pct_12m','Resale after 12 months (%)',p.resale_pct_12m,'what it is still worth')+
+     fld('resale_pct_24m','Resale after 24 months (%)',p.resale_pct_24m)+
+   '</div>'+
+   '<div style="margin-top:11px"><label>Rent vs buy, in words</label>'+
+   '<textarea id="f_rent_vs_buy_explanation">'+esc(p.rent_vs_buy_explanation||'')+'</textarea></div></div>'+
+
+   '<div class="card"><h3><i class="ti ti-user-search"></i> Who it is for <span class="muted" style="font-weight:400">— this is how Wendy matches products to families</span></h3>'+
+   '<div class="note"><i class="ti ti-bulb"></i> Tags are matched against a family\'s onboarding answers. <b>Suggest when</b> pulls a product forward; <b>avoid when</b> rules it out; <b>required</b> must all be true.</div>'+
+   tagPicker('suggest_when','Suggest when',p.suggest_when,'SUGGEST_WHEN','any of these apply')+
+   tagPicker('avoid_when','Avoid when',p.avoid_when,'AVOID_WHEN','rules it out')+
+   tagPicker('required_conditions','Required conditions',p.required_conditions,'CONDITION','all must be true')+
+   tagPicker('stage_tags','Stage',p.stage_tags,'STAGE','which part of the journey')+
+   '<div style="margin-top:4px"><label>Best for, in words</label>'+
+   '<textarea id="f_best_for_explanation">'+esc(p.best_for_explanation||'')+'</textarea></div>'+
+   bulletBox('tradeoffs','Trade-offs and limits',p.tradeoffs,'the honest downsides — one per line')+
+   '</div>'+
+
+   '<div class="card"><h3><i class="ti ti-ruler-measure"></i> Size, terrain and practicality</h3>'+
+   '<div class="grid g2">'+
+     fld('dimensions_open','Unfolded (cm)',p.dimensions_open,'W x L x H')+
+     fld('dimensions_folded','Folded (cm)',p.dimensions_folded,'W x L x H')+
+   '</div>'+
+   '<div class="grid g4" style="margin-top:11px">'+
+     fld('spec_weight_kg','Weight (kg)',p.spec_weight_kg)+
+     fld('max_child_kg','Max child (kg)',p.max_child_kg)+
+     sel('car_boot_fit','Car boot fit',p.car_boot_fit||'',['','SMALL','MEDIUM','LARGE'])+
+     sel('terrain','Terrain',p.terrain||'',['','SMOOTH','ALL','ROUGH','SPORT'])+
+   '</div>'+
+   '<div class="grid g4" style="margin-top:11px">'+
+     fld('basket_size','Basket size',p.basket_size)+
+     ynSel('newborn_ready','Newborn ready',p.newborn_ready)+
+     ynSel('lie_flat','Lies flat',p.lie_flat)+
+     ynSel('sleep_safe_cert','Sleep-safe certified',p.sleep_safe_cert)+
+   '</div>'+
+   '<div class="grid g4" style="margin-top:11px">'+
+     ynSel('compact_fold','Compact fold',p.compact_fold)+
+     ynSel('travel_friendly','Travel friendly',p.travel_friendly)+
+     ynSel('stairs_friendly','Stairs friendly',p.stairs_friendly)+
+     ynSel('transport_friendly','Public transport',p.transport_friendly)+
+   '</div></div>'+
+
+   '<div class="card"><h3><i class="ti ti-link"></i> Compatible with</h3>'+
+   (mine.length?mine.map(function(c){
+     var other=byId(c.from_product===p.id?c.to_product:c.from_product);
+     return '<div class="linkrow"><i class="ti ti-check" style="color:var(--green)"></i>'+
+      '<b style="flex:1">'+esc(other?(other.brand+' '+other.name):(c.to_product))+'</b>'+
+      '<span class="pill p-tag">'+esc(KIND[c.kind]||c.kind)+'</span>'+
+      (c.via_product?'<span class="muted">via '+esc((byId(c.via_product)||{}).name||c.via_product)+'</span>':'')+
+      '<span class="pill '+(c.verified?'p-live':'p-draft')+'">'+(c.verified?'verified':'unverified')+'</span>'+
+      '<i class="ti ti-x" style="color:var(--ink3);cursor:pointer" onclick="rmCompat(\''+c.id+'\')"></i></div>';}).join('')
+    :'<p class="muted">No links yet.</p>')+
+   '<div class="linkrow dash" onclick="addCompat(\''+esc(p.id)+'\')"><i class="ti ti-plus"></i>Link another product</div>'+
+   '<p class="muted" style="margin:9px 0 0">Unverified links show a caution in the app rather than a firm yes.</p></div>';
+}
+function addCompat(from){
+  var names=DATA.products.filter(function(x){return x.id!==from;})
+    .map(function(x,i){return i+': '+x.brand+' '+x.name+(x.configuration_name?' ('+x.configuration_name+')':'');});
+  var pick=prompt('Which product does it fit?\n\n'+names.join('\n'));
+  if(pick===null)return;
+  var idx=parseInt(pick,10);
+  var others=DATA.products.filter(function(x){return x.id!==from;});
+  if(isNaN(idx)||!others[idx]){toast('Enter the number next to a product',true);return;}
+  var kind=prompt('Relationship: fits, needs_adapter, requires, pairs_with','fits')||'fits';
+  upsert('compatibility',[{from_product:from,to_product:others[idx].id,kind:kind.trim(),verified:false}],'from_product,to_product,kind')
+   .then(function(){return api("/compatibility?select=*");})
+   .then(function(rows){COMPAT=rows||[];refresh();toast('Link added');})
+   .catch(function(e){toast(e.message,true);});
+}
+function rmCompat(id){
+  if(!confirm('Remove this compatibility link?'))return;
+  del('compatibility','id=eq.'+id).then(function(){return api("/compatibility?select=*");})
+   .then(function(rows){COMPAT=rows||[];refresh();toast('Removed');}).catch(function(e){toast(e.message,true);});
+}
+
+function offersCard(p){
+  var mine=OFFERS[p.id]||[];
+  return '<div class="card"><h3><i class="ti ti-building-store"></i> Where to get it</h3>'+
+   '<table><thead><tr><th>Retailer</th><th>Price</th><th>Stock</th><th>Delivery</th><th>Link</th><th></th></tr></thead><tbody>'+
+   (mine.length?mine.map(function(o){
+     var r=DATA.retailers.filter(function(x){return x.id===o.retailer_id;})[0];
+     return '<tr><td>'+esc(r?r.name:o.retailer_id)+'</td>'+
+      '<td><b>'+(o.price_gbp?'£'+o.price_gbp:'—')+'</b>'+(o.was_price_gbp&&o.was_price_gbp>o.price_gbp?' <span class="muted">was £'+o.was_price_gbp+'</span>':'')+'</td>'+
+      '<td><span class="pill '+(o.in_stock?'p-live':'p-draft')+'">'+(o.in_stock?'In stock':'Out')+'</span></td>'+
+      '<td class="muted">'+(o.delivery_free?'Free':(o.delivery_note||'—'))+(o.delivery_days_min?' · '+o.delivery_days_min+'–'+(o.delivery_days_max||o.delivery_days_min)+' days':'')+'</td>'+
+      '<td class="muted" style="max-width:170px;overflow:hidden;text-overflow:ellipsis">'+esc(o.url||'')+'</td>'+
+      '<td><i class="ti ti-x" style="color:var(--ink3);cursor:pointer" onclick="rmOffer(\''+o.id+'\',\''+esc(p.id)+'\')"></i></td></tr>';}).join('')
+    :'<tr><td colspan="6" class="muted" style="text-align:center;padding:18px">No retailer links yet.</td></tr>')+
+   '</tbody></table>'+
+   '<div class="linkrow dash" style="margin-top:9px" onclick="addOffer(\''+esc(p.id)+'\')"><i class="ti ti-plus"></i>Add a retailer link</div></div>';
+}
+function addOffer(pid){
+  if(!DATA.retailers.length){toast('Add a retailer first',true);go('retailers');return;}
+  var names=DATA.retailers.map(function(r,i){return i+': '+r.name;});
+  var pick=prompt('Which retailer?\n\n'+names.join('\n'));
+  if(pick===null)return;
+  var r=DATA.retailers[parseInt(pick,10)];
+  if(!r){toast('Enter the number next to a retailer',true);return;}
+  var url=prompt('Product URL at '+r.name);if(!url)return;
+  var price=prompt('Price £ (leave blank if unknown)');
+  upsert('offers',[{product_id:pid,retailer_id:r.id,url:url.trim(),
+    price_gbp:price?parseFloat(price):null,in_stock:true}],'product_id,retailer_id')
+   .then(function(){return api("/offers?select=*&product_id=eq."+encodeURIComponent(pid));})
+   .then(function(rows){OFFERS[pid]=rows||[];refresh();toast('Retailer added');})
+   .catch(function(e){toast(e.message,true);});
+}
+function rmOffer(id,pid){
+  if(!confirm('Remove this retailer link?'))return;
+  del('offers','id=eq.'+id).then(function(){return api("/offers?select=*&product_id=eq."+encodeURIComponent(pid));})
+   .then(function(rows){OFFERS[pid]=rows||[];refresh();toast('Removed');}).catch(function(e){toast(e.message,true);});
+}
+
+/* ---------- save ---------- */
+function val(id){var e=document.getElementById(id);return e?e.value:undefined;}
+function num(id){var v=val(id);if(v===undefined||v===''||v===null)return null;var n=parseFloat(v);return isNaN(n)?null:n;}
+function addVariant(){
+  var base=byId(state.pid); if(!base)return;
+  var nm=prompt('Configuration name — e.g. Duo, Twin, Standard');
+  if(!nm)return;
+  var vs=variantsOf(base.id);
+  var rows=[];
+  if(!vs.length){
+    // convert the existing base into its first configuration
+    rows.push({id:base.id+'::'+slugify(base.configuration_name||'standard'),base_product_id:base.id,
+      configuration_name:base.configuration_name||'Standard',brand:base.brand,name:base.name,
+      category_slug:base.category_slug,browse_category:base.browse_category,verdict:base.verdict,
+      rent_gbp_mo:base.rent_gbp_mo,buy_gbp:base.buy_gbp,active:base.active,spec:base.spec||{}});
+  }
+  rows.push({id:base.id+'::'+slugify(nm),base_product_id:base.id,configuration_name:nm.trim(),
+    brand:base.brand,name:base.name,category_slug:base.category_slug,
+    browse_category:base.browse_category,verdict:base.verdict,active:false,spec:{}});
+  upsert('products',rows,'id').then(function(){return api("/products?select=*&order=sort_order");})
+   .then(function(all){DATA.products=all||[];state.variant=rows[rows.length-1].id;LISTS={};refresh();toast('Configuration added');})
+   .catch(function(e){toast(e.message,true);});
+}
+function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'v';}
+
+/* ================= fill with claude ================= */
+// Scoped deliberately narrow: only the functional/factual sections of the
+// page — never Wendy's rent/buy/skip verdict, which is worked out live from
+// each family's own answers and was never a per-product field to begin with.
+var CLAUDE_BASE_FIELDS = ['description'];              // shared on the base product
+var CLAUDE_CONFIG_FIELDS = ['product_type','age_min_months','age_max_months',
+  'dimensions_open','dimensions_folded'];
+var CLAUDE_LISTS_FIELDS = ['highlights'];               // chip list — "key highlights"
+var CLAUDE_TAG_FIELDS = ['suggest_when','avoid_when','required_conditions','stage_tags']; // "who it's for"
+var CLAUDE_WHOFOR_TEXT_FIELDS = ['best_for_explanation']; // also part of "who it's for"
+var CLAUDE_ARRAY_FIELDS = CLAUDE_LISTS_FIELDS.concat(CLAUDE_TAG_FIELDS);
+
+function isEmpty(v){
+  if(v==null) return true;
+  if(Array.isArray(v)) return v.length===0;
+  if(typeof v==='string') return v.trim()==='';
+  return false;
+}
+
+function fillWithClaude(){
+  var base=byId(state.pid), p=curProduct(); if(!p) return;
+  var btn=document.getElementById('fillbtn');
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spin"></span> Asking Claude'; }
+
+  // only ask for fields that are currently empty — never overwrite what's already there
+  var missingBase = CLAUDE_BASE_FIELDS.filter(function(k){ return isEmpty(base[k]); });
+  var missingConfig = CLAUDE_CONFIG_FIELDS.filter(function(k){ return isEmpty(p[k]); });
+  var missingLists = CLAUDE_LISTS_FIELDS.filter(function(k){
+    var v = LISTS[k]!==undefined ? LISTS[k] : arr(p[k]); return isEmpty(v);
+  });
+  var missingTags = CLAUDE_TAG_FIELDS.filter(function(k){ return isEmpty(taglist(p[k])); });
+  var missingWhoFor = CLAUDE_WHOFOR_TEXT_FIELDS.filter(function(k){ return isEmpty(p[k]); });
+  var missing = missingBase.concat(missingConfig, missingLists, missingTags, missingWhoFor);
+
+  var attrList = attrsFor(p.category_slug||base.category_slug).filter(function(a){
+    var spec=p.spec||{}; if(typeof spec==='string'){try{spec=JSON.parse(spec);}catch(e){spec={};}}
+    return isEmpty(spec[a.key]);
+  });
+
+  if(!missing.length && !attrList.length){
+    toast('Everything in scope for Claude is already filled in');
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-wand"></i> Fill with Claude'; }
+    return;
+  }
+
+  var product = {
+    brand: base.brand, name: base.name, configuration_name: p.configuration_name||null,
+    category: catPath(p.category_slug||base.category_slug),
+    // known facts already on the product, for context and consistency
+    description: base.description,
+    product_type: p.product_type, age_min_months: p.age_min_months, age_max_months: p.age_max_months,
+    dimensions_open: p.dimensions_open, dimensions_folded: p.dimensions_folded,
+    spec_weight_kg: p.spec_weight_kg, max_child_kg: p.max_child_kg,
+    terrain: p.terrain, car_boot_fit: p.car_boot_fit, basket_size: p.basket_size,
+    newborn_ready: p.newborn_ready, lie_flat: p.lie_flat, sleep_safe_cert: p.sleep_safe_cert,
+    timeline_start_week: p.timeline_start_week, timeline_end_week: p.timeline_end_week,
+    timeline_role: p.timeline_role, timeline_explanation: p.timeline_explanation,
+    rent_gbp_mo: p.rent_gbp_mo, buy_gbp: p.buy_gbp, rent_value_score: p.rent_value_score,
+    rent_vs_buy_explanation: p.rent_vs_buy_explanation,
+    highlights: taglist(p.highlights), tradeoffs: taglist(p.tradeoffs),
+    suggest_when: taglist(p.suggest_when), avoid_when: taglist(p.avoid_when),
+    required_conditions: taglist(p.required_conditions), stage_tags: taglist(p.stage_tags),
+    best_for_explanation: p.best_for_explanation
+  };
+
+  fetch('/.netlify/functions/fill-with-claude',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({
+      product: product,
+      category: catPath(p.category_slug||base.category_slug),
+      attributeFields: attrList.map(function(a){return {key:a.key,label:a.label,input_type:a.input_type,
+        options:a.options,score_max:a.score_max};}),
+      fieldsToFill: missing.concat(attrList.map(function(a){return 'spec.'+a.key;}))
+    })
+  }).then(function(r){
+    return r.text().then(function(t){
+      var j; try{ j=JSON.parse(t); }catch(e){ j=null; }
+      if(!r.ok){ throw new Error((j&&(j.error||j.detail))||('HTTP '+r.status+': '+t.slice(0,200))); }
+      if(!j){ throw new Error('Non-JSON response: '+t.slice(0,200)); }
+      return j;
+    });
+  }).then(function(res){
+    if(res.error){ toast('Claude could not fill this in: '+res.error, true); return; }
+    applyClaudeFill(res.filled||{}, attrList);
+  }).catch(function(e){
+    toast('Fill with Claude failed: '+(e&&e.message?e.message:e), true);
+  }).finally(function(){
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-wand"></i> Fill with Claude'; }
+  });
+}
+
+function applyClaudeFill(filled, attrList){
+  var base=byId(state.pid), p=curProduct(); if(!p) return;
+  var basePatch={}, configPatch={}, filledCount=0;
+
+  CLAUDE_BASE_FIELDS.forEach(function(k){
+    if(!(k in filled) || !isEmpty(base[k])) return;
+    var v=filled[k]; if(v==null || typeof v!=='string' || !v.trim()) return;
+    basePatch[k]=v; filledCount++;
+  });
+
+  CLAUDE_CONFIG_FIELDS.concat(CLAUDE_WHOFOR_TEXT_FIELDS).forEach(function(k){
+    if(!(k in filled) || !isEmpty(p[k])) return;
+    var v=filled[k]; if(v==null) return;
+    configPatch[k]=v; filledCount++;
+  });
+
+  CLAUDE_LISTS_FIELDS.forEach(function(k){
+    if(!(k in filled)) return;
+    var cur = LISTS[k]!==undefined ? LISTS[k] : arr(p[k]);
+    if(!isEmpty(cur)) return;
+    var v=filled[k]; if(!Array.isArray(v)) return;
+    LISTS[k]=v; filledCount++;
+  });
+
+  CLAUDE_TAG_FIELDS.forEach(function(k){
+    if(!(k in filled) || !isEmpty(taglist(p[k]))) return;
+    var v=filled[k]; if(!Array.isArray(v)) return;
+    configPatch[k]=v; filledCount++;
+  });
+
+  if(attrList && attrList.length){
+    var spec=p.spec||{}; if(typeof spec==='string'){try{spec=JSON.parse(spec);}catch(e){spec={};}}
+    var specFill = filled.spec || {};
+    attrList.forEach(function(a){
+      var v = specFill[a.key];
+      if(v==null || !isEmpty(spec[a.key])) return;
+      spec[a.key]=v; filledCount++;
+    });
+    configPatch.spec=spec;
+  }
+
+  Object.assign(base, basePatch);
+  Object.assign(p, configPatch);
+  refresh();
+  toast(filledCount ? 'Filled '+filledCount+' field'+(filledCount===1?'':'s')+' — check them over, then Save'
+                     : 'Claude did not have enough to go on for these fields');
+}
+
+
+function saveProduct(){
+  var base=byId(state.pid), p=curProduct(); if(!p)return;
+  var btn=document.getElementById('savebtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving';
+
+  var spec={}; attrsFor(val('f_category_slug')||p.category_slug).forEach(function(a){
+    var v=val('a_'+a.key);
+    if(v===undefined||v==='')return;
+    if(a.input_type==='score'||a.input_type==='number'){var n=parseFloat(v);if(!isNaN(n))spec[a.key]=n;}
+    else if(a.input_type==='boolean') spec[a.key]=(v==='Yes');
+    else spec[a.key]=v;
+  });
+
+  var row={id:p.id,
+    timeline_start_week:num('f_timeline_start_week'), timeline_end_week:num('f_timeline_end_week'),
+    timeline_role:(val('f_timeline_role')||null), timeline_explanation:val('f_timeline_explanation')||null,
+    default_rental_weeks:num('f_default_rental_weeks'), upgrade_after_weeks:num('f_upgrade_after_weeks'),
+    next_product_ids:(val('f_next_product_ids')||'').split(',').map(function(x){return x.trim();}).filter(Boolean),
+    rent_value_score:num('f_rent_value_score'), typical_use_weeks:num('f_typical_use_weeks'),
+    avg_rental_months:num('f_avg_rental_months'), avg_total_rental_gbp:num('f_avg_total_rental_gbp'),
+    resale_pct_12m:num('f_resale_pct_12m'), resale_pct_24m:num('f_resale_pct_24m'),
+    rent_vs_buy_explanation:val('f_rent_vs_buy_explanation')||null,
+    best_for_explanation:val('f_best_for_explanation')||null,
+    tradeoffs:linesOf('f_tradeoffs'),
+    suggest_when:tagsOf('suggest_when'), avoid_when:tagsOf('avoid_when'),
+    required_conditions:tagsOf('required_conditions'), stage_tags:tagsOf('stage_tags'),
+    dimensions_open:val('f_dimensions_open')||null, dimensions_folded:val('f_dimensions_folded')||null,
+    spec_weight_kg:num('f_spec_weight_kg'), max_child_kg:num('f_max_child_kg'),
+    basket_size:val('f_basket_size')||null, terrain:val('f_terrain')||null, car_boot_fit:val('f_car_boot_fit')||null,
+    newborn_ready:ynOf('f_newborn_ready'), lie_flat:ynOf('f_lie_flat'), sleep_safe_cert:ynOf('f_sleep_safe_cert'),
+    compact_fold:ynOf('f_compact_fold'), travel_friendly:ynOf('f_travel_friendly'),
+    stairs_friendly:ynOf('f_stairs_friendly'), transport_friendly:ynOf('f_transport_friendly'),
+    brand:val('f_brand'), name:val('f_name'),
+    category_slug:val('f_category_slug')||null,
+    browse_category:val('f_browse_category')||null,
+    product_type:val('f_product_type')||null,
+    active:(val('f_active')==='Live'),
+    age_min_months:num('f_age_min_months'), age_max_months:num('f_age_max_months'),
+    summary:val('f_summary')||null, description:val('f_description')||null,
+    notes_internal:val('f_notes_internal')||null,
+    rent_gbp_mo:num('f_rent_gbp_mo'), buy_gbp:num('f_buy_gbp'), rrp_gbp:num('f_rrp_gbp'),
+    keep_months_min:num('f_keep_months_min'), keep_months_max:num('f_keep_months_max'),
+    keep_months_avg:num('f_keep_months_avg'), crossover_months:num('f_crossover_months'),
+    resale_pct_12m:num('f_resale_pct_12m'), resale_pct_24m:num('f_resale_pct_24m'),
+    rating:num('f_rating'), review_count:num('f_review_count'), review_source:val('f_review_source')||null,
+    highlights:LISTS.highlights||[], best_for:LISTS.best_for||[], not_ideal_for:LISTS.not_ideal_for||[],
+    pros:LISTS.pros||[], cons:LISTS.cons||[], accessories_included:LISTS.accessories_included||[],
+    spec:spec};
+  if(p.base_product_id){ row.base_product_id=p.base_product_id;
+    row.configuration_name=val('f_configuration_name')||p.configuration_name; }
+
+  upsert('products',[row],'id')
+   .then(function(){
+     // brand/name/description are shared — push to base and siblings
+     if(p.base_product_id){
+       var sibs=[{id:p.base_product_id,brand:row.brand,name:row.name,description:row.description}];
+       variantsOf(p.base_product_id).forEach(function(v){
+         if(v.id!==p.id) sibs.push({id:v.id,brand:row.brand,name:row.name,description:row.description});});
+       return upsert('products',sibs,'id');
+     }
+   })
+   .then(function(){ return api("/products?select=*&order=sort_order"); })
+   .then(function(all){
+     DATA.products=all||[]; LISTS={};
+     btn.disabled=false;btn.textContent='Save';
+     refresh(); toast('Saved');
+   })
+   .catch(function(e){ btn.disabled=false;btn.textContent='Save'; toast('Save failed: '+e.message,true); });
+}
+function deleteProduct(id){
+  var p=byId(id); if(!p)return;
+  if(!confirm('Delete "'+(p.brand||'')+' '+(p.name||'')+(p.configuration_name?' ('+p.configuration_name+')':'')+'"? This also removes its media and links. This cannot be undone.'))return;
+  del('products','id=eq.'+encodeURIComponent(id))
+   .then(function(){return api("/products?select=*&order=sort_order");})
+   .then(function(all){DATA.products=all||[];LISTS={};state.variant=null;
+     if(!byId(state.pid)){go('products');}else{refresh();} toast('Deleted');})
+   .catch(function(e){toast(e.message,true);});
+}
+</script>
+<script>
+/* ================= categories ================= */
+function vCategories(){
+  return head('Categories','Click a category to see its products. Sub-categories map to kit list slots.',
+    '<button class="pri" onclick="newCat()">New category</button>')+
+   '<div class="card"><table><thead><tr><th>Name</th><th>Slug</th><th>Products</th><th>Fields</th><th></th></tr></thead><tbody>'+
+   (DATA.cats.length?DATA.cats.map(function(c){
+     var n=DATA.products.filter(function(p){return p.category_slug===c.slug;}).length;
+     var na=attrsFor(c.slug).length;
+     return '<tr class="click" onclick="state.cat=\''+esc(c.slug)+'\';go(\'products\')">'+
+      '<td>'+(c.parent_slug?'<span class="muted">— </span>':'<b>')+esc(c.name)+(c.parent_slug?'':'</b>')+'</td>'+
+      '<td class="muted">'+esc(c.slug)+'</td><td>'+n+'</td>'+
+      '<td>'+(na?na+' fields':'<span class="muted">none</span>')+'</td>'+
+      '<td style="text-align:right"><i class="ti ti-chevron-right" style="color:var(--ink3)"></i></td></tr>';}).join('')
+    :'<tr><td colspan="5" class="muted" style="text-align:center;padding:24px">No categories yet.</td></tr>')+
+   '</tbody></table></div>'+
+   '<div class="card"><h3><i class="ti ti-search"></i> Browse categories <span class="muted" style="font-weight:400">— how parents search, e.g. "travel pushchairs"</span></h3>'+
+   '<table><thead><tr><th>Name</th><th>Slug</th><th>Sits under</th><th>Products</th></tr></thead><tbody>'+
+   (DATA.browse.length?DATA.browse.map(function(b){
+     var n=DATA.products.filter(function(p){return p.browse_category===b.slug;}).length;
+     return '<tr><td><b>'+esc(b.name)+'</b></td><td class="muted">'+esc(b.slug)+'</td>'+
+      '<td>'+esc(catName(b.category_slug))+'</td><td>'+n+'</td></tr>';}).join('')
+    :'<tr><td colspan="4" class="muted" style="text-align:center;padding:18px">None yet.</td></tr>')+
+   '</tbody></table></div>';
+}
+function newCat(){
+  var name=prompt('Category name');if(!name)return;
+  var slug=prompt('Slug (lowercase, no spaces)',slugify(name));if(!slug)return;
+  var parent=prompt('Sits under which slug? Leave blank for a top-level category','');
+  upsert('categories',[{slug:slug.trim(),name:name.trim(),parent_slug:parent?parent.trim():null,
+    sort_order:DATA.cats.length}],'slug')
+   .then(function(){return api("/categories?select=*&order=sort_order");})
+   .then(function(rows){DATA.cats=rows||[];refresh();toast('Category added');})
+   .catch(function(e){toast(e.message,true);});
+}
+
+/* ================= attributes ================= */
+function vAttributes(){
+  var cats=DATA.cats.length?DATA.cats:[];
+  if(!state.attrCat&&cats.length) state.attrCat=cats[0].slug;
+  var list=attrsFor(state.attrCat);
+  var opts=cats.map(function(c){return '<option value="'+esc(c.slug)+'"'+(state.attrCat===c.slug?' selected':'')+'>'+esc(catPath(c.slug))+'</option>';}).join('');
+  var TYPES={text:'Text',number:'Number',boolean:'Yes / No',select:'Pick one',multiselect:'Pick several',range:'Range',score:'Score out of 10'};
+  return head('Attributes','Define the fields each category collects. This drives the product form and the app\u2019s search filters.',
+    '<button class="pri" onclick="newAttr()">Add field</button>')+
+   '<div class="note"><i class="ti ti-bulb"></i> This is what means you never need a developer to add a new spec. '+
+   'Tick <b>filter</b> and it appears in the app\u2019s search filters too.</div>'+
+   '<div class="card"><div class="row" style="margin-bottom:12px"><label style="margin:0">Category</label>'+
+   '<select onchange="state.attrCat=this.value;refresh()" style="max-width:260px">'+opts+'</select></div>'+
+   '<table><thead><tr><th>Label</th><th>Key</th><th>Type</th><th>Group</th><th>Options</th><th>Filter</th><th>On card</th><th></th></tr></thead><tbody>'+
+   (list.length?list.map(function(a){
+     return '<tr><td><b>'+esc(a.label)+'</b></td><td class="muted">'+esc(a.key)+'</td>'+
+      '<td>'+esc(TYPES[a.input_type]||a.input_type)+(a.unit?' <span class="muted">('+esc(a.unit)+')</span>':'')+'</td>'+
+      '<td class="muted">'+esc(a.group_label||'Details')+'</td>'+
+      '<td class="muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis">'+esc(arr(a.options).join(', ')||'—')+'</td>'+
+      '<td onclick="toggleAttr(\''+a.id+'\',\'filterable\','+(!a.filterable)+')" style="cursor:pointer">'+(a.filterable?'<i class="ti ti-check" style="color:var(--green)"></i>':'<span class="muted">—</span>')+'</td>'+
+      '<td onclick="toggleAttr(\''+a.id+'\',\'show_on_card\','+(!a.show_on_card)+')" style="cursor:pointer">'+(a.show_on_card?'<i class="ti ti-check" style="color:var(--green)"></i>':'<span class="muted">—</span>')+'</td>'+
+      '<td><i class="ti ti-x" style="color:var(--ink3);cursor:pointer" onclick="rmAttr(\''+a.id+'\')"></i></td></tr>';}).join('')
+    :'<tr><td colspan="8" class="muted" style="text-align:center;padding:24px">No fields for this category yet.</td></tr>')+
+   '</tbody></table></div>';
+}
+function newAttr(){
+  if(!state.attrCat){toast('Create a category first',true);return;}
+  var label=prompt('Field label — e.g. Folded width');if(!label)return;
+  var key=prompt('Key (lowercase, no spaces)',slugify(label).replace(/-/g,'_'));if(!key)return;
+  var type=prompt('Type: text, number, boolean, select, score','number');if(!type)return;
+  var unit=prompt('Unit (cm, kg, months) — blank if none','')||null;
+  var group=prompt('Group heading on the form','Details')||'Details';
+  var options=[];
+  if(type.trim()==='select'){var o=prompt('Options, comma separated');options=o?o.split(',').map(function(s){return s.trim();}):[];}
+  upsert('attribute_defs',[{category_slug:state.attrCat,key:key.trim(),label:label.trim(),
+    input_type:type.trim(),unit:unit,options:options,group_label:group,
+    score_max:type.trim()==='score'?10:null,sort_order:attrsFor(state.attrCat).length+1}],'category_slug,key')
+   .then(function(){return api("/attribute_defs?select=*&order=sort_order");})
+   .then(function(rows){DATA.attrs=rows||[];refresh();toast('Field added');})
+   .catch(function(e){toast(e.message,true);});
+}
+function toggleAttr(id,field,v){
+  var a=DATA.attrs.filter(function(x){return String(x.id)===String(id);})[0];if(!a)return;
+  var row={id:a.id,category_slug:a.category_slug,key:a.key,label:a.label,input_type:a.input_type};
+  row[field]=v;
+  upsert('attribute_defs',[row],'id').then(function(){a[field]=v;refresh();})
+   .catch(function(e){toast(e.message,true);});
+}
+function rmAttr(id){
+  if(!confirm('Delete this field? Values already saved on products are kept but stop showing.'))return;
+  del('attribute_defs','id=eq.'+id).then(function(){return api("/attribute_defs?select=*&order=sort_order");})
+   .then(function(rows){DATA.attrs=rows||[];refresh();toast('Field deleted');}).catch(function(e){toast(e.message,true);});
+}
+
+/* ================= retailers ================= */
+function vRetailers(){
+  return head('Retailers','Affiliate partners and the rental store.',
+    '<button class="pri" onclick="newRetailer()">Add retailer</button>')+
+   '<div class="card"><table><thead><tr><th>Retailer</th><th>Network</th><th>Products linked</th><th>Status</th><th></th></tr></thead><tbody>'+
+   (DATA.retailers.length?DATA.retailers.map(function(r){
+     var n=0;for(var k in OFFERS)n+=OFFERS[k].filter(function(o){return o.retailer_id===r.id;}).length;
+     return '<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.affiliate_network||'—')+'</td><td>'+n+'</td>'+
+      '<td><span class="pill '+(r.active?'p-live':'p-draft')+'">'+(r.active?'Active':'Off')+'</span></td>'+
+      '<td><i class="ti ti-x" style="color:var(--ink3);cursor:pointer" onclick="rmRetailer(\''+esc(r.id)+'\')"></i></td></tr>';}).join('')
+    :'<tr><td colspan="5" class="muted" style="text-align:center;padding:24px">No retailers yet.</td></tr>')+
+   '</tbody></table></div>';
+}
+function newRetailer(){
+  var name=prompt('Retailer name — e.g. John Lewis');if(!name)return;
+  var id=prompt('Short id',slugify(name));if(!id)return;
+  var net=prompt('Affiliate network (Awin, Amazon Associates, Direct)','')||null;
+  upsert('retailers',[{id:id.trim(),name:name.trim(),affiliate_network:net,active:true}],'id')
+   .then(function(){return api("/retailers?select=*");})
+   .then(function(rows){DATA.retailers=rows||[];refresh();toast('Retailer added');})
+   .catch(function(e){toast(e.message,true);});
+}
+function rmRetailer(id){
+  if(!confirm('Remove this retailer and all its product links?'))return;
+  del('retailers','id=eq.'+encodeURIComponent(id)).then(function(){return api("/retailers?select=*");})
+   .then(function(rows){DATA.retailers=rows||[];refresh();toast('Removed');}).catch(function(e){toast(e.message,true);});
+}
+
+/* ================= CSV import ================= */
+var PARSED=null;
+function vImport(){
+  return head('Bulk import','Add or update many products from a spreadsheet.')+
+   '<div class="card"><h3><i class="ti ti-download"></i> 1. Get the template</h3>'+
+   '<p class="muted" style="margin-top:0">The template matches your Bugaboo catalogue columns, so you can paste straight in.</p>'+
+   '<button onclick="downloadTemplate()"><i class="ti ti-download"></i> Download CSV template</button></div>'+
+   '<div class="card"><h3><i class="ti ti-upload"></i> 2. Upload your file</h3>'+
+   '<div class="drop" id="drop"><i class="ti ti-file-spreadsheet" style="font-size:30px"></i>'+
+   '<div style="margin-top:8px">Drop a CSV here, or <b style="color:var(--coral)">browse</b></div></div>'+
+   '<input type="file" id="csvfile" accept=".csv,text/csv" style="display:none"></div>'+
+   (PARSED?importPreview():'');
+}
+var COLS=['variant_id','base_product_id','base_product_name','configuration_name','top_level_category',
+ 'product_type','brand','category (shopping lens)','description_long (AI-readable)','key_highlights','best_for',
+ 'age_range_months','max_child_weight_kg','room_sharing_suitable (yes/no)','mattress_included (yes/no)',
+ 'requires_subscription (yes/no)','parent_facing (yes/no/partial)','car_seat_compatible (yes/no/unknown)',
+ 'ease_of_fold (1-5)','compactness (1-5)','dimensions_folded_cm','product_weight_kg','accessories_included',
+ 'accessories_compatible','baboodle_available (yes/no)','baboodle_price_monthly_from_gbp','baboodle_url',
+ 'retail_price_typical_gbp','natural_baby_shower_url','notes_internal'];
+function downloadTemplate(){
+  var csv=COLS.map(function(c){return '"'+c.replace(/"/g,'""')+'"';}).join(',')+'\n';
+  var b=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='wendy-catalogue-template.csv';a.click();
+}
+function wireImport(){
+  var d=document.getElementById('drop'), f=document.getElementById('csvfile');
+  if(!d)return;
+  d.onclick=function(){f.click();};
+  f.onchange=function(){if(this.files[0])readCSV(this.files[0]);this.value='';};
+  d.ondragover=function(e){e.preventDefault();d.classList.add('over');};
+  d.ondragleave=function(){d.classList.remove('over');};
+  d.ondrop=function(e){e.preventDefault();d.classList.remove('over');
+    if(e.dataTransfer.files[0])readCSV(e.dataTransfer.files[0]);};
+}
+function parseCSV(t){
+  var rows=[],row=[],cur='',q=false;
+  t=t.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(var i=0;i<t.length;i++){
+    var c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){row.push(cur);cur='';}
+    else if(c==='\n'){row.push(cur);cur='';rows.push(row);row=[];}
+    else cur+=c;
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(function(r){return r.some(function(c){return String(c).trim()!=='';});});
+}
+function readCSV(file){
+  var fr=new FileReader();
+  fr.onload=function(){
+    var rows=parseCSV(fr.result);
+    if(rows.length<2){toast('That file looks empty',true);return;}
+    var hdr=rows[0].map(function(h){return String(h).trim();});
+    var out=[];
+    for(var i=1;i<rows.length;i++){
+      var o={};hdr.forEach(function(h,j){o[h]=(rows[i][j]||'').trim();});
+      if(String(o['variant_id']||'').indexOf('INSTRUCTIONS')===0) continue;
+      if(!o['variant_id']&&!o['base_product_name']) continue;
+      out.push(o);
+    }
+    PARSED=out.map(mapRow);
+    refresh();
+  };
+  fr.readAsText(file);
+}
+function norm(s){return String(s||'').toLowerCase()
+  .replace(/[\u2010-\u2015\u2212]/g,'-').replace(/[\u00a0\s]+/g,' ').trim();}
+function yn(v){v=String(v||'').toLowerCase();return v==='yes'?true:(v==='no'?false:null);}
+function splitList(v){return String(v||'').split(/[;,]/).map(function(s){return s.trim();}).filter(Boolean);}
+function mapRow(o){
+  var id=o['variant_id']||slugify(o['base_product_name']+'-'+(o['configuration_name']||''));
+  var baseId=o['base_product_id']||null;
+  var isVariant=baseId&&baseId!==id;
+  var dims=String(o['dimensions_folded_cm']||'').split(/[x×]/).map(function(s){return parseFloat(s);});
+  var age=String(o['age_range_months']||'').split(/[–\-]/).map(function(s){return parseInt(s,10);});
+  var spec={};
+  if(!isNaN(dims[0]))spec.fold_l=dims[0];
+  if(!isNaN(dims[1]))spec.fold_w=dims[1];
+  if(!isNaN(dims[2]))spec.fold_h=dims[2];
+  if(o['product_weight_kg'])spec.weight=parseFloat(o['product_weight_kg']);
+  if(o['max_child_weight_kg'])spec.max_child_kg=parseFloat(o['max_child_weight_kg']);
+  if(o['parent_facing (yes/no/partial)'])spec.parent_facing=({yes:'Yes',partial:'Partial',no:'No'})[String(o['parent_facing (yes/no/partial)']).toLowerCase()]||null;
+  if(o['car_seat_compatible (yes/no/unknown)'])spec.car_seat_compat=({yes:'Yes',no:'No',unknown:'Unknown'})[String(o['car_seat_compatible (yes/no/unknown)']).toLowerCase()]||'Unknown';
+  if(o['ease_of_fold (1-5)'])spec.ease_of_fold=Math.round(parseFloat(o['ease_of_fold (1-5)'])*2);
+  if(o['compactness (1-5)'])spec.compactness=Math.round(parseFloat(o['compactness (1-5)'])*2);
+  if(o['room_sharing_suitable (yes/no)'])spec.room_sharing=yn(o['room_sharing_suitable (yes/no)']);
+  if(o['mattress_included (yes/no)'])spec.mattress_included=yn(o['mattress_included (yes/no)']);
+  var catSlug=null;
+  var tl=norm(o['top_level_category']);
+  DATA.cats.forEach(function(c){ if(!catSlug&&(c.slug===tl||tl.indexOf(c.slug)>=0||norm(c.name)===tl)) catSlug=c.slug; });
+  if(!catSlug&&/pram|push/.test(tl)) catSlug='prams';
+  var brSlug=null, bl=norm(o['category (shopping lens)']);
+  DATA.browse.forEach(function(b){ if(!brSlug&&norm(b.name)===bl) brSlug=b.slug; });
+  return {
+    _existing:!!byId(id),
+    row:{id:id, base_product_id:isVariant?baseId:null,
+      configuration_name:o['configuration_name']||null,
+      brand:o['brand']||null, name:o['base_product_name']||null,
+      category_slug:catSlug, browse_category:brSlug,
+      product_type:o['product_type']||null,
+      description:o['description_long (AI-readable)']||null,
+      highlights:splitList(o['key_highlights']),
+      best_for:splitList(o['best_for']),
+      accessories_included:splitList(o['accessories_included']),
+      age_min_months:isNaN(age[0])?null:age[0], age_max_months:isNaN(age[1])?null:age[1],
+      requires_subscription:yn(o['requires_subscription (yes/no)'])||false,
+      rent_gbp_mo:parseFloat(o['baboodle_price_monthly_from_gbp'])||null,
+      buy_gbp:parseFloat(o['retail_price_typical_gbp'])||null,
+      notes_internal:o['notes_internal']||null,
+      verdict:'RENT', active:false, spec:spec},
+    _baboodle:yn(o['baboodle_available (yes/no)']),
+    _burl:o['baboodle_url']||'', _nbsurl:o['natural_baby_shower_url']||'',
+    _compat:splitList(o['accessories_compatible'])
+  };
+}
+function importPreview(){
+  var create=PARSED.filter(function(r){return !r._existing;}).length;
+  var update=PARSED.length-create;
+  var baseNeeded={};
+  PARSED.forEach(function(r){if(r.row.base_product_id&&!byId(r.row.base_product_id))baseNeeded[r.row.base_product_id]=1;});
+  var nb=Object.keys(baseNeeded).length;
+  return '<div class="card"><h3><i class="ti ti-eye-check"></i> 3. Review before it goes live</h3>'+
+   '<div class="note warn"><i class="ti ti-alert-triangle"></i> Nothing is saved until you press import. '+
+   'Products come in as <b>drafts</b> so you can check them before they show in the app.</div>'+
+   (nb?'<p class="muted">'+nb+' base product'+(nb===1?'':'s')+' will be created to hold the configurations.</p>':'')+
+   '<table><thead><tr><th>Product</th><th>Configuration</th><th>Category</th><th>Fields read</th><th>Status</th></tr></thead><tbody>'+
+   PARSED.map(function(r){
+     var n=Object.keys(r.row).filter(function(k){var v=r.row[k];return v!==null&&v!==''&&!(Array.isArray(v)&&!v.length);}).length;
+     return '<tr><td><b>'+esc(r.row.name||r.row.id)+'</b><div class="muted">'+esc(r.row.id)+'</div></td>'+
+      '<td>'+esc(r.row.configuration_name||'—')+'</td>'+
+      '<td>'+esc(r.row.category_slug?catPath(r.row.category_slug):'<span class="muted">unmatched</span>')+'</td>'+
+      '<td>'+n+'</td>'+
+      '<td><span class="pill '+(r._existing?'p-tag':'p-live')+'">'+(r._existing?'Update':'Create')+'</span></td></tr>';}).join('')+
+   '</tbody></table>'+
+   '<div class="row" style="margin-top:13px"><button class="pri" id="impbtn" onclick="runImport()">Import '+PARSED.length+' row'+(PARSED.length===1?'':'s')+'</button>'+
+   '<button onclick="PARSED=null;refresh()">Cancel</button>'+
+   '<span class="muted">'+create+' new · '+update+' updated</span></div></div>';
+}
+function runImport(){
+  var btn=document.getElementById('impbtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Importing';
+  var basesNeeded={};
+  PARSED.forEach(function(r){
+    var b=r.row.base_product_id;
+    if(b&&!byId(b)&&!basesNeeded[b]) basesNeeded[b]={id:b,brand:r.row.brand,name:r.row.name,
+      category_slug:r.row.category_slug,browse_category:r.row.browse_category,
+      description:r.row.description,verdict:'RENT',active:false};
+  });
+  var baseRows=Object.keys(basesNeeded).map(function(k){return basesNeeded[k];});
+  var p=baseRows.length?upsert('products',baseRows,'id'):Promise.resolve();
+  p.then(function(){ return upsert('products',PARSED.map(function(r){return r.row;}),'id'); })
+   .then(function(){
+     var bab=DATA.retailers.filter(function(r){return /baboodle/i.test(r.name);})[0];
+     if(!bab) return upsert('retailers',[{id:'baboodle',name:'Baboodle',affiliate_network:'Direct',active:true}],'id')
+       .then(function(){return {id:'baboodle'};});
+     return bab;
+   })
+   .then(function(bab){
+     var offers=PARSED.filter(function(r){return r._baboodle&&r._burl;}).map(function(r){
+       return {product_id:r.row.id,retailer_id:bab.id||'baboodle',url:r._burl,
+         price_gbp:r.row.rent_gbp_mo,in_stock:true};});
+     if(offers.length) return upsert('offers',offers,'product_id,retailer_id');
+   })
+   .then(function(){ PARSED=null; return boot(); })
+   .then(function(){ toast('Import complete — products are drafts until you publish them'); })
+   .catch(function(e){ btn.disabled=false;btn.textContent='Retry import'; toast('Import failed: '+e.message,true); });
+}
+
+/* ================= start ================= */
+/* Login is switched off while the catalogue is being built.
+   Anyone with this URL can edit. See catalogue-open-access.sql
+   to lock it back down before launch. */
+loadTok();          /* use a session if one happens to exist */
+boot();
+</script>
+</body>
+</html>
