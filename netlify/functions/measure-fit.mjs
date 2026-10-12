@@ -45,18 +45,21 @@ function rateLimited(ip) {
 }
 
 function promptFor(mode) {
-  const common =
-    "A sheet of A4 paper (21.0 cm × 29.7 cm) is in the photo as a size reference. " +
-    "Use it to work out the scale, correcting for perspective as best you can. ";
+  const scale =
+    "A sheet of A4 paper (21.0 cm wide × 29.7 cm tall, or rotated) is in the photo as the size reference. " +
+    "Work out the scale carefully: measure the sheet's width and height in pixels, check both against 21.0 and 29.7 cm, " +
+    "and correct for perspective. Things further from the camera or higher/lower than the sheet look smaller or larger, " +
+    "so estimate the scale at the height and depth where you are measuring, not just where the sheet is. " +
+    "If the sheet is a long way from where you are measuring, or at an angle, lower your confidence and say so. ";
   const format =
-    'Reply with only JSON: {"reference_found": true or false, "width_cm": number or null, ' +
+    'Reply with only JSON, no other text: {"reference_found": true or false, "width_cm": number or null, ' +
     '"height_cm": number or null, "depth_cm": number or null, "confidence": "high" | "medium" | "low", ' +
     '"note": "one short, friendly sentence for the parent"}. If you cannot see the A4 sheet or the ' +
-    "opening, set reference_found to false, the numbers to null, and say what to retake in note.";
+    "opening clearly, set reference_found to false, the numbers to null, and say what to retake in note.";
   if (mode === "boot") {
     return (
       "This photo shows the open boot of a car, where a parent wants to fit a folded double pram. " +
-      common +
+      scale +
       "Estimate in centimetres: the boot opening width at its narrowest point (width_cm), the opening " +
       "height from the boot lip to the top of the opening or parcel shelf (height_cm), and the floor " +
       "depth from the boot lip to the back of the rear seats (depth_cm). " +
@@ -65,10 +68,12 @@ function promptFor(mode) {
   }
   return (
     "This photo shows a doorway that a parent wants to push a double pram through. " +
-    common +
-    "Estimate the clear opening width in centimetres: the narrowest horizontal gap a pram must pass " +
-    "through, between the door frame (or the open door and the frame) at roughly 40–90 cm above the " +
-    "floor. Set depth_cm to null. " +
+    scale +
+    "Measure the doorway frame itself: the clear width between the inside edges of the two vertical sides of the frame " +
+    "(jamb to jamb), at roughly 40–90 cm above the floor. Ignore the door leaf and assume the door can be opened fully, " +
+    "even if it is partly closed in the photo. Do not measure the gap between the frame and a partly open door. " +
+    "Most UK internal doorways are 69–80 cm wide and front doors 76–90 cm, so double-check your scale if your answer " +
+    "falls well outside 55–110 cm. Set depth_cm to null. " +
     format
   );
 }
@@ -131,7 +136,7 @@ export default async (req, context) => {
         },
         body: JSON.stringify({
           model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5",
-          max_tokens: 3000, // room for brief thinking plus the JSON answer
+          max_tokens: 6000, // room for thinking plus the JSON answer
           ...extra,
           messages: [
             {
@@ -145,8 +150,8 @@ export default async (req, context) => {
         }),
       });
 
-    // Keep thinking short (low effort). If the model doesn't accept that setting, retry without it.
-    let res = await callClaude({ output_config: { effort: "low" } });
+    // Moderate thinking (medium effort) for accuracy. If the model doesn't accept that setting, retry without it.
+    let res = await callClaude({ output_config: { effort: "medium" } });
     if (res.status === 400) {
       console.error("Low-effort request refused, retrying with defaults:", (await res.text()).slice(0, 300));
       res = await callClaude({});
