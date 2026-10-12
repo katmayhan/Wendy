@@ -121,27 +121,36 @@ export default async (req, context) => {
   if (!apiKey) return json({ code: "config", error: "Missing ANTHROPIC_API_KEY" }, 500, headers);
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5",
-        max_tokens: 400,
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "image", source: { type: "base64", media_type: "image/jpeg", data: image } },
-              { type: "text", text: promptFor(mode) },
-            ],
-          },
-        ],
-      }),
-    });
+    const callClaude = (extra) =>
+      fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5",
+          max_tokens: 3000, // room for brief thinking plus the JSON answer
+          ...extra,
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "image", source: { type: "base64", media_type: "image/jpeg", data: image } },
+                { type: "text", text: promptFor(mode) },
+              ],
+            },
+          ],
+        }),
+      });
+
+    // Keep thinking short (low effort). If the model doesn't accept that setting, retry without it.
+    let res = await callClaude({ output_config: { effort: "low" } });
+    if (res.status === 400) {
+      console.error("Low-effort request refused, retrying with defaults:", (await res.text()).slice(0, 300));
+      res = await callClaude({});
+    }
 
     if (!res.ok) {
       const detail = await res.text();
