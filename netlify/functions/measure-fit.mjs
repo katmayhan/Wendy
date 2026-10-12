@@ -74,6 +74,7 @@ function promptFor(mode) {
 }
 
 function extractJson(text) {
+  text = String(text || "").trim();
   try {
     return JSON.parse(text);
   } catch {}
@@ -144,19 +145,28 @@ export default async (req, context) => {
 
     if (!res.ok) {
       const detail = await res.text();
-      console.error("Anthropic error", res.status, detail.slice(0, 500));
+      console.error("Anthropic error", res.status, detail.slice(0, 800));
       return json({ code: "upstream", error: "Measuring failed" }, 502, headers);
     }
 
     const data = await res.json();
     const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n");
+    console.log("measure-fit", mode, "stop:", data.stop_reason, "reply:", text.slice(0, 600));
     const result = extractJson(text);
-    if (!result) return json({ code: "parse", error: "Could not read a measurement" }, 502, headers);
+    if (!result) {
+      console.error("measure-fit could not parse reply");
+      return json({ code: "parse", error: "Could not read a measurement", reply: text.slice(0, 300) }, 502, headers);
+    }
 
-    const n = (v) => (typeof v === "number" && isFinite(v) && v > 0 && v < 400 ? Math.round(v * 2) / 2 : null);
+    const n = (v) => {
+      const x = typeof v === "number" ? v : parseFloat(String(v ?? "").replace(",", "."));
+      return isFinite(x) && x > 0 && x < 400 ? Math.round(x * 2) / 2 : null;
+    };
+    const found = result.reference_found === true || String(result.reference_found).toLowerCase() === "true";
+    console.log("measure-fit result", JSON.stringify(result).slice(0, 300));
     return json(
       {
-        reference_found: !!result.reference_found,
+        reference_found: found,
         width_cm: n(result.width_cm),
         height_cm: n(result.height_cm),
         depth_cm: mode === "boot" ? n(result.depth_cm) : null,
@@ -167,7 +177,7 @@ export default async (req, context) => {
       headers,
     );
   } catch (err) {
-    console.error(err);
+    console.error("measure-fit exception", err && (err.stack || err.message || err));
     return json({ code: "upstream", error: "Measuring failed" }, 502, headers);
   }
 };
