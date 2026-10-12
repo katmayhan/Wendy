@@ -274,7 +274,13 @@ export default async (req, context) => {
     let width = num(r.width_cm), height = num(r.height_cm), depth = num(r.depth_cm);
     let confidence = ["high", "medium", "low"].includes(r.confidence) ? r.confidence : "low";
 
+    let corners = null;
     if (mode === "door") {
+      const F = r.frame;
+      if (F && [F.tl, F.tr, F.bl, F.br].every(pt) && imgW && imgH) {
+        const n = (p) => [Math.min(1, Math.max(0, p[0] / imgW)), Math.min(1, Math.max(0, p[1] / imgH))];
+        corners = { tl: n(F.tl), tr: n(F.tr), bl: n(F.bl), br: n(F.br) };
+      }
       const m = measureDoor(r, imgW, imgH);
       console.log("measure-fit door", JSON.stringify({ computed: m && +m.raw.toFixed(1), snapped: m && m.snapped, heightClass: r.height_class, modelEstimate: width }));
       if (m) {
@@ -295,15 +301,19 @@ export default async (req, context) => {
       if (!m) confidence = "low";
     }
 
+    const extra = mode === "door" ? { corners, height_class: r.height_class === "tall" ? "tall" : "standard" } : {};
     if (!width) {
-      return json({ reference_found: false, width_cm: null, height_cm: null, depth_cm: null, confidence: "low", note: cleanNote(r.note) || "We couldn't measure that photo. Try again from straight in front." }, 200, headers);
+      return json({ reference_found: false, width_cm: null, height_cm: null, depth_cm: null, confidence: "low", note: cleanNote(r.note) || "We couldn't measure that photo. Try again from straight in front.", ...extra }, 200, headers);
     }
     console.log("measure-fit final", JSON.stringify({ width: half(width), height: half(height), depth: half(depth), confidence }));
-    return json({ reference_found: true, width_cm: half(width), height_cm: half(height), depth_cm: half(depth), confidence, note: cleanNote(r.note) }, 200, headers);
+    return json({ reference_found: true, width_cm: half(width), height_cm: half(height), depth_cm: half(depth), confidence, note: cleanNote(r.note), ...extra }, 200, headers);
   } catch (err) {
     console.error("measure-fit exception", err && (err.stack || err.message || err));
     return json({ code: "upstream", error: "Measuring failed" }, 502, headers);
   }
 };
+
+export const config = { path: "/api/measure-fit" };
+
 
 export const config = { path: "/api/measure-fit" };
