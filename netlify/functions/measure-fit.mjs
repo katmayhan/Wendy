@@ -54,7 +54,7 @@ function promptFor(mode) {
   const format =
     'Reply with only JSON, no other text: {"reference_found": true or false, "width_cm": number or null, ' +
     '"height_cm": number or null, "depth_cm": number or null, "confidence": "high" | "medium" | "low", ' +
-    '"note": "one short, friendly sentence for the parent"}. If you cannot see the A4 sheet or the ' +
+    '"note": "one short, friendly sentence for the parent", "measured": "a few words on exactly which two edges you measured between"}. If you cannot see the A4 sheet or the ' +
     "opening clearly, set reference_found to false, the numbers to null, and say what to retake in note.";
   if (mode === "boot") {
     return (
@@ -69,9 +69,13 @@ function promptFor(mode) {
   return (
     "This photo shows a doorway that a parent wants to push a double pram through. " +
     scale +
-    "Measure the doorway frame itself: the clear width between the inside edges of the two vertical sides of the frame " +
-    "(jamb to jamb), at roughly 40–90 cm above the floor. Ignore the door leaf and assume the door can be opened fully, " +
-    "even if it is partly closed in the photo. Do not measure the gap between the frame and a partly open door. " +
+    "Your job is to measure the DOOR FRAME OPENING, which is the empty space a pram would pass through. " +
+    "Do NOT measure the door itself (the panel that swings open and shut). Ignore the door completely, " +
+    "whether it is open, ajar or closed in the photo. " +
+    "Step 1: find the two vertical sides of the door frame (the jambs, the wooden or painted uprights the door is hung in). " +
+    "Step 2: measure horizontally between the INSIDE edges of those two uprights, roughly 40–90 cm above the floor. " +
+    "If the door is closed, still measure jamb to jamb across it, not the edges of the door panel. " +
+    "Do not include the decorative trim (architrave) on the wall around the frame. " +
     "Most UK internal doorways are 69–80 cm wide and front doors 76–90 cm, so double-check your scale if your answer " +
     "falls well outside 55–110 cm. Set depth_cm to null. " +
     format
@@ -177,7 +181,7 @@ export default async (req, context) => {
       return isFinite(x) && x > 0 && x < 400 ? Math.round(x * 2) / 2 : null;
     };
     const found = result.reference_found === true || String(result.reference_found).toLowerCase() === "true";
-    console.log("measure-fit result", JSON.stringify(result).slice(0, 300));
+    console.log("measure-fit result", JSON.stringify(result).slice(0, 500));
     return json(
       {
         reference_found: found,
