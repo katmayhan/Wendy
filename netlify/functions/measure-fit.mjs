@@ -49,7 +49,7 @@ function promptFor(mode, w, h) {
   const format =
     'Reply with only JSON, no other text: {"reference_found": true or false, "width_cm": number or null, ' +
     '"height_cm": number or null, "depth_cm": number or null, "confidence": "high" | "medium" | "low", ' +
-    '"note": "one short, friendly sentence for the parent"}. If you cannot see the A4 sheet or the ' +
+    '"note": "one short, friendly sentence for the parent that does not include any measurements or numbers"}. If you cannot see the A4 sheet or the ' +
     "opening clearly, set reference_found to false, the numbers to null, and say what to retake in note.";
   if (mode === "boot") {
     return (
@@ -76,7 +76,7 @@ function promptFor(mode, w, h) {
     '"paper": {"tl": [x,y], "tr": [x,y], "br": [x,y], "bl": [x,y]}, ' +
     '"left": [[x,y],[x,y]], "right": [[x,y],[x,y]], ' +
     '"width_cm": number, "confidence": "high" | "medium" | "low", ' +
-    '"note": "one short, friendly sentence for the parent", "measured": "a few words on which edges you located"}. ' +
+    '"note": "one short, friendly sentence for the parent that does not include any measurements or numbers", "measured": "a few words on which edges you located"}. ' +
     "If you cannot see the A4 sheet or both sides of the frame, set reference_found to false and say what to retake in note."
   );
 }
@@ -245,7 +245,16 @@ export default async (req, context) => {
     if (mode === "door" && found) {
       const computed = frameWidthFromPoints(result);
       console.log("measure-fit door computed_cm:", computed && computed.toFixed(1), "model_estimate_cm:", result.width_cm);
-      if (computed && computed > 40 && computed < 150) result.width_cm = computed;
+      const est = typeof result.width_cm === "number" ? result.width_cm : parseFloat(result.width_cm);
+      if (computed && computed > 40 && computed < 150) {
+        if (isFinite(est) && est > 40 && est < 150 && Math.abs(computed - est) > 6) {
+          result.width_cm = (computed + est) / 2; // the two methods disagree: split the difference
+          result.confidence = "low";
+        } else {
+          result.width_cm = computed;
+        }
+      }
+      console.log("measure-fit door final_cm:", Number(result.width_cm).toFixed(1));
     }
     console.log("measure-fit result", JSON.stringify(result).slice(0, 500));
     return json(
@@ -255,7 +264,7 @@ export default async (req, context) => {
         height_cm: n(result.height_cm),
         depth_cm: mode === "boot" ? n(result.depth_cm) : null,
         confidence: ["high", "medium", "low"].includes(result.confidence) ? result.confidence : "low",
-        note: typeof result.note === "string" ? result.note.slice(0, 200) : "",
+        note: typeof result.note === "string" ? result.note.replace(/\s*(about|around|roughly|approximately)?\s*~?\d+(\.\d+)?\s*(cm|centimetres|centimeters)\b/gi, "").slice(0, 200) : "",
       },
       200,
       headers,
