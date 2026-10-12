@@ -44,22 +44,18 @@ function rateLimited(ip) {
   return list.length > RATE_LIMIT;
 }
 
-function promptFor(mode) {
-  const scale =
-    "A sheet of A4 paper (21.0 cm wide × 29.7 cm tall, or rotated) is in the photo as the size reference. " +
-    "Work out the scale carefully: measure the sheet's width and height in pixels, check both against 21.0 and 29.7 cm, " +
-    "and correct for perspective. Things further from the camera or higher/lower than the sheet look smaller or larger, " +
-    "so estimate the scale at the height and depth where you are measuring, not just where the sheet is. " +
-    "If the sheet is a long way from where you are measuring, or at an angle, lower your confidence and say so. ";
+function promptFor(mode, w, h) {
+  const size = w && h ? `The image is ${w} × ${h} pixels (x to the right, y downwards, origin top-left). ` : "";
   const format =
     'Reply with only JSON, no other text: {"reference_found": true or false, "width_cm": number or null, ' +
     '"height_cm": number or null, "depth_cm": number or null, "confidence": "high" | "medium" | "low", ' +
-    '"note": "one short, friendly sentence for the parent", "measured": "a few words on exactly which two edges you measured between"}. If you cannot see the A4 sheet or the ' +
+    '"note": "one short, friendly sentence for the parent"}. If you cannot see the A4 sheet or the ' +
     "opening clearly, set reference_found to false, the numbers to null, and say what to retake in note.";
   if (mode === "boot") {
     return (
       "This photo shows the open boot of a car, where a parent wants to fit a folded double pram. " +
-      scale +
+      "A sheet of A4 paper (21.0 × 29.7 cm) is in the photo as the size reference. Work out the scale carefully, " +
+      "checking both sides of the sheet and correcting for perspective. " +
       "Estimate in centimetres: the boot opening width at its narrowest point (width_cm), the opening " +
       "height from the boot lip to the top of the opening or parcel shelf (height_cm), and the floor " +
       "depth from the boot lip to the back of the rear seats (depth_cm). " +
@@ -67,19 +63,82 @@ function promptFor(mode) {
     );
   }
   return (
-    "This photo shows a doorway that a parent wants to push a double pram through. " +
-    scale +
-    "Your job is to measure the DOOR FRAME OPENING, which is the empty space a pram would pass through. " +
-    "Do NOT measure the door itself (the panel that swings open and shut). Ignore the door completely, " +
-    "whether it is open, ajar or closed in the photo. " +
-    "Step 1: find the two vertical sides of the door frame (the jambs, the wooden or painted uprights the door is hung in). " +
-    "Step 2: measure horizontally between the INSIDE edges of those two uprights, roughly 40–90 cm above the floor. " +
-    "If the door is closed, still measure jamb to jamb across it, not the edges of the door panel. " +
-    "Do not include the decorative trim (architrave) on the wall around the frame. " +
-    "Most UK internal doorways are 69–80 cm wide and front doors 76–90 cm, so double-check your scale if your answer " +
-    "falls well outside 55–110 cm. Set depth_cm to null. " +
-    format
+    "This photo shows a doorway that a parent wants to push a double pram through. A sheet of A4 paper " +
+    "(21.0 × 29.7 cm) is taped flat to the door frame or the wall beside it. " + size +
+    "Your job is to LOCATE points precisely in pixel coordinates; the measuring maths is done afterwards. " +
+    "Do NOT locate the door itself (the panel that swings). Ignore the door, whether open, ajar or closed. " +
+    "Locate: (1) the four corners of the A4 sheet exactly as they appear in the image; " +
+    "(2) the INSIDE edge of the LEFT upright of the door frame (the jamb the door hangs in, not the decorative trim on the wall), " +
+    "at two heights about 50 cm and 90 cm above the floor; " +
+    "(3) the INSIDE edge of the RIGHT upright of the door frame at the same two heights. " +
+    "Also give your own direct estimate of the clear frame width in cm (jamb to jamb). " +
+    'Reply with only JSON, no other text: {"reference_found": true or false, ' +
+    '"paper": {"tl": [x,y], "tr": [x,y], "br": [x,y], "bl": [x,y]}, ' +
+    '"left": [[x,y],[x,y]], "right": [[x,y],[x,y]], ' +
+    '"width_cm": number, "confidence": "high" | "medium" | "low", ' +
+    '"note": "one short, friendly sentence for the parent", "measured": "a few words on which edges you located"}. ' +
+    "If you cannot see the A4 sheet or both sides of the frame, set reference_found to false and say what to retake in note."
   );
+}
+
+// ---- Perspective correction: map image pixels onto the plane of the A4 sheet (in cm) ----
+function solve(A, b) {
+  const n = b.length;
+  for (let c = 0; c < n; c++) {
+    let p = c;
+    for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    [A[c], A[p]] = [A[p], A[c]];
+    [b[c], b[p]] = [b[p], b[c]];
+    if (Math.abs(A[c][c]) < 1e-12) return null;
+    for (let r = c + 1; r < n; r++) {
+      const f = A[r][c] / A[c][c];
+      for (let k = c; k < n; k++) A[r][k] -= f * A[c][k];
+      b[r] -= f * b[c];
+    }
+  }
+  const x = new Array(n).fill(0);
+  for (let r = n - 1; r >= 0; r--) {
+    let s = b[r];
+    for (let k = r + 1; k < n; k++) s -= A[r][k] * x[k];
+    x[r] = s / A[r][r];
+  }
+  return x;
+}
+function homography(src, dst) {
+  const A = [], b = [];
+  for (let i = 0; i < 4; i++) {
+    const [x, y] = src[i], [u, v] = dst[i];
+    A.push([x, y, 1, 0, 0, 0, -x * u, -y * u]); b.push(u);
+    A.push([0, 0, 0, x, y, 1, -x * v, -y * v]); b.push(v);
+  }
+  const h = solve(A, b);
+  return h ? [...h, 1] : null;
+}
+function apply(H, [x, y]) {
+  const d = H[6] * x + H[7] * y + 1;
+  return [(H[0] * x + H[1] * y + H[2]) / d, (H[3] * x + H[4] * y + H[5]) / d];
+}
+const pt = (p) => Array.isArray(p) && p.length === 2 && p.every((v) => typeof v === "number" && isFinite(v));
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+function frameWidthFromPoints(r) {
+  const P = r && r.paper;
+  if (!P || ![P.tl, P.tr, P.br, P.bl].every(pt)) return null;
+  if (!Array.isArray(r.left) || !Array.isArray(r.right) || r.left.length < 1 || r.right.length < 1) return null;
+  if (![...r.left, ...r.right].every(pt)) return null;
+  // Landscape or portrait sheet? Compare edge lengths in the image.
+  const topLen = (dist(P.tl, P.tr) + dist(P.bl, P.br)) / 2;
+  const sideLen = (dist(P.tl, P.bl) + dist(P.tr, P.br)) / 2;
+  const [W, Hh] = topLen >= sideLen ? [29.7, 21.0] : [21.0, 29.7];
+  const H = homography([P.tl, P.tr, P.br, P.bl], [[0, 0], [W, 0], [W, Hh], [0, Hh]]);
+  if (!H) return null;
+  const n = Math.min(r.left.length, r.right.length);
+  const widths = [];
+  for (let i = 0; i < n; i++) {
+    const L = apply(H, r.left[i]), R = apply(H, r.right[i]);
+    widths.push(Math.abs(R[0] - L[0]));
+  }
+  const avg = widths.reduce((a, c) => a + c, 0) / widths.length;
+  return isFinite(avg) ? avg : null;
 }
 
 function extractJson(text) {
@@ -122,6 +181,8 @@ export default async (req, context) => {
   }
 
   const mode = body.mode === "boot" ? "boot" : "door";
+  const imgW = Number(body.w) > 0 ? Math.round(Number(body.w)) : 0;
+  const imgH = Number(body.h) > 0 ? Math.round(Number(body.h)) : 0;
   const image = typeof body.image === "string" ? body.image.replace(/^data:image\/\w+;base64,/, "") : "";
   if (!image) return json({ code: "bad_image", error: "No image" }, 400, headers);
   if (image.length > MAX_IMAGE_CHARS) return json({ code: "too_large", error: "Image too large" }, 413, headers);
@@ -147,7 +208,7 @@ export default async (req, context) => {
               role: "user",
               content: [
                 { type: "image", source: { type: "base64", media_type: "image/jpeg", data: image } },
-                { type: "text", text: promptFor(mode) },
+                { type: "text", text: promptFor(mode, imgW, imgH) },
               ],
             },
           ],
@@ -181,6 +242,11 @@ export default async (req, context) => {
       return isFinite(x) && x > 0 && x < 400 ? Math.round(x * 2) / 2 : null;
     };
     const found = result.reference_found === true || String(result.reference_found).toLowerCase() === "true";
+    if (mode === "door" && found) {
+      const computed = frameWidthFromPoints(result);
+      console.log("measure-fit door computed_cm:", computed && computed.toFixed(1), "model_estimate_cm:", result.width_cm);
+      if (computed && computed > 40 && computed < 150) result.width_cm = computed;
+    }
     console.log("measure-fit result", JSON.stringify(result).slice(0, 500));
     return json(
       {
