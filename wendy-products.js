@@ -67,13 +67,27 @@
       '<div class="pinfo"><div><div class="pname">' + e(m.name) + '</div>' + (m.spec ? '<div class="pspec">' + e(m.spec) + '</div>' : '') + '</div><div>' + badge(m.v) + '</div></div>' +
       '<div class="pctrl"><div class="eyebtn2" title="View pram">' + TPL.EYE + '</div></div></div></div>';
   }
-  function buildCategory(models) {
+  function buildCategory() {
     var h = ORIG_CATEGORY;
     var a = h.indexOf("<!-- your top pick -->"), nav = h.indexOf("<!-- bottom nav -->");
     if (a < 0 || nav < 0) return h;
     var b = h.lastIndexOf("</div>", nav);
-    var list = '<div style="display:flex;align-items:center;margin-bottom:12px"><div class="sec" style="flex:1">All prams</div></div>' + models.map(card).join("\n");
-    return h.slice(0, a) + list + "\n    " + h.slice(b);
+    h = h.slice(0, a) + '<div id="dyn"></div>\n    ' + h.slice(b);
+    /* only show the full page when the pick is one of the live products */
+    h = h.replace('if(d.state["prams"])renderFull()', 'if(d.state["prams"]&&window.dynHas(d.state["prams"]))renderFull()');
+    var js = '(function(){var ST={},SV=[];function cat(){try{return (parent.CATALOG.prams||{}).items||[]}catch(e){return []}}' +
+      'function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}' +
+      'window.dynHas=function(k){return cat().some(function(x){return x.key===k})};' +
+      'function thumb(x){return x.img?\'<img referrerpolicy="no-referrer" src="\'+esc(x.img)+\'" alt="">\':\'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;color:#c2a78f;font:700 16px Fredoka,sans-serif">\'+esc((x.name||"?").charAt(0))+\'</div>\'}' +
+      'function card(x,feat){var rent=x.v==="RENT";var pr=x.price?\'<div class="pprice">\'+(rent?\'<div class="pfrom">from</div>\':"")+\'<div><span class="pamt" style="font-size:15px">\'+esc(rent?x.price.replace("/mo",""):x.price)+\'</span>\'+(rent?\'<span class="pmo">/mo</span>\':"")+\'</div></div>\':"";' +
+      'var badge=rent?\'<span class="badge" style="background:#e3f6ef;color:#1f9d72">RENT</span>\':\'<span class="badge" style="background:#ffe9e2;color:#ff5a3c">BUY</span>\';' +
+      'return \'<div class="pcard\'+(feat?" feat":"")+\'" data-goto="\'+esc(x.key)+\'" style="cursor:pointer"><div class="prow"><div class="pleft"><div class="pthumb">\'+thumb(x)+\'</div>\'+pr+\'</div><div class="pinfo"><div><div class="pname">\'+esc(x.name)+\'</div>\'+(x.spec?\'<div class="pspec">\'+esc(x.spec)+\'</div>\':"")+\'</div><div>\'+badge+\'</div></div></div>\'+(feat&&x.line?\'<div style="border-top:1px solid #f0e4d6;margin-top:12px;padding-top:12px;font:700 12px/1.45 Nunito;color:#6b5947">\'+esc(x.line)+\'</div>\':"")+\'</div>\'}' +
+      'function draw(){var el=document.getElementById("dyn");if(!el)return;var its=cat(),top=null,i;for(i=0;i<its.length;i++)if(its[i].key===ST.prams)top=its[i];if(!top){el.innerHTML="";return}' +
+      'var sw=\'<div class="swapbtn" data-nogo onclick="openSwap()" title="Change top pick"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff6242" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l-3 3l3 3"/><path d="M4 7h11a4 4 0 0 1 4 4"/><path d="M17 20l3 -3l-3 -3"/><path d="M20 17h-11a4 4 0 0 1 -4 -4"/></svg></div>\';' +
+      'var out=\'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><div class="sec" style="flex:1">Top pick</div>\'+sw+\'</div>\'+card(top,true);' +
+      'var sh=its.filter(function(x){return SV.indexOf(x.key)>=0&&x.key!==top.key});if(sh.length){out+=\'<div style="display:flex;align-items:center;margin:20px 0 12px"><div class="sec" style="flex:1">Shortlist</div></div>\'+sh.map(function(x){return card(x)}).join("")}el.innerHTML=out}' +
+      'window.addEventListener("message",function(e){var d=e.data||{};if(d.saved)SV=d.saved;if(d.state){ST=d.state}draw()});setTimeout(draw,0);})();';
+    return h.replace("</body>", "<scr" + "ipt>" + js + "</scr" + "ipt></body>");
   }
 
   /* ---------- the product page ---------- */
@@ -174,7 +188,7 @@
   function apply(rows) {
     var models = rows.map(function (r) { return model(r, rows); });
     models.forEach(function (m) { screens[m.key] = buildProduct(m); });
-    var items = models.map(function (m) { return { key: m.key, name: m.name, spec: m.spec, v: m.v, price: m.price }; });
+    var items = models.map(function (m) { return { key: m.key, name: m.name, spec: m.spec, v: m.v, price: m.price, img: m.img, line: has(m.r.verdict_line) ? m.r.verdict_line : "" }; });
     CATALOG.prams = { label: "pram", def: items[0].key, items: items };
     /* any other list that still holds an older copy of a published pram: swap it for the live one */
     Object.keys(CATALOG).forEach(function (k) {
@@ -184,6 +198,7 @@
         return it;
       });
     });
+    screens.category = buildCategory();
     try { if (typeof sendState === "function") sendState(); } catch (x) {}
   }
 
