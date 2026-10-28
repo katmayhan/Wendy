@@ -198,6 +198,15 @@
         return it;
       });
     });
+    /* Kit list: look up a pick's name and price from the live products too */
+    if (typeof screens.kitlist === "string") {
+      var KA = "var key=PICKS[m.slot],meta=key?PRODMETA[key]:null;";
+      if (screens.kitlist.indexOf(KA) >= 0) {
+        screens.kitlist = screens.kitlist.replace(KA, function () {
+          return "var key=PICKS[m.slot],meta=key?(PRODMETA[key]||(function(){var c=parent.CATALOG||{},ks=Object.keys(c);for(var i=0;i<ks.length;i++){var it=(c[ks[i]].items||[]).filter(function(x){return x.key===key})[0];if(it)return it;}return null;})()):null;";
+        });
+      }
+    }
     screens.category = buildCategory();
     try { if (typeof sendState === "function") sendState(); } catch (x) {}
   }
