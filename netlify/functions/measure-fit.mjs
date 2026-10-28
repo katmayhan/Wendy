@@ -314,6 +314,3 @@ export default async (req, context) => {
 };
 
 export const config = { path: "/api/measure-fit" };
-
-
-export const config = { path: "/api/measure-fit" };
